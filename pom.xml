@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+ Copyright 2003 - 2012 The eFaps Team
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Author:          The eFaps Team
+ Revision:        $Rev: 7516 $
+ Last Changed:    $Date: 2012-05-11 14:26:25 -0500 (Fri, 11 May 2012) $
+ Last Changed By: $Author: jan@moxter.net $
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ************************************************************************
+    * Module Definition
+    ************************************************************************* -->
+    <parent>
+        <groupId>org.efaps</groupId>
+        <artifactId>efaps-parent</artifactId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+
+    <packaging>jar</packaging>
+    <groupId>org.efaps.apps</groupId>
+    <artifactId>pos</artifactId>
+    <name>eFaps ERP Pos-Connection App</name>
+    <description>
+    </description>
+
+    <url>http://www.efaps.org</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0 License</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>tim.moxter</id>
+            <name>Tim Moxter</name>
+            <email>tim.moxter(ad)efaps.org</email>
+            <url>www.efaps.org</url>
+            <organization>moxter.net Ltd. &amp; Co.KG</organization>
+            <organizationUrl>http://www.moxter.net/de/</organizationUrl>
+            <timezone>+1</timezone>
+            <properties />
+        </developer>
+        <developer>
+            <id>jan.moxter</id>
+            <name>Jan Moxter</name>
+            <email>jan.moxter(ad)efaps.org</email>
+            <url>www.efaps.org</url>
+            <organization>moxter.net S.A.C, Peru</organization>
+            <organizationUrl>http://www.moxter.net/pe/</organizationUrl>
+            <timezone>-5</timezone>
+            <properties />
+        </developer>
+    </developers>
+    <inceptionYear>2003</inceptionYear>
+    <organization>
+        <name>The eFaps Team</name>
+        <url>http://www.efaps.org</url>
+    </organization>
+
+    <!-- Environment Settings -->
+    <issueManagement>
+        <system>eFaps Issues on Google Code</system>
+        <url>http://issues.efaps.org</url>
+    </issueManagement>
+
+    <!-- SubVersion Repository -->
+    <scm>
+        <connection>scm:svn:http://efaps.googlecode.com/svn/eFaps-WebApp-Install</connection>
+        <developerConnection>scm:svn:https://efaps.googlecode.com/svn/eFaps-WebApp-Install</developerConnection>
+        <url>http://efaps.googlecode.com/svn/eFaps-WebApp-Install</url>
+    </scm>
+
+    <!-- Distribution Repository -->
+    <distributionManagement>
+        <site>
+            <id>efaps</id>
+            <name>Maven eFaps Plug-In Site</name>
+            <url>svn:https://eFaps.googlecode.com/svn/site/eFaps-WebApp-Install</url>
+        </site>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <!-- ************************************************************************
+  * Project itself
+  ************************************************************************* -->
+    <build>
+        <plugins>
+            <!--
+                eFaps plugin
+            -->
+            <plugin>
+                <groupId>org.efaps</groupId>
+                <artifactId>efaps-maven-plugin</artifactId>
+                <version>${maven.efaps.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-ciclass</goal>
+                            <goal>generate-installation</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <userName>Administrator</userName>
+                    <passWord>Administrator</passWord>
+                    <!-- used from the generateUUID goal -->
+                    <count>${count}</count>
+                    <ciName>Pos</ciName>
+                </configuration>
+                <dependencies>
+                    <!-- Connection Pooling -->
+                    <dependency>
+                        <groupId>commons-dbcp</groupId>
+                        <artifactId>commons-dbcp</artifactId>
+                        <version>${commons.dbcp.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- ************************************************************************
+    * Dependencies
+    ************************************************************************* -->
+    <dependencies>
+        <!-- eFaps ERP Human Resource Module -->
+        <dependency>
+            <groupId>org.efaps.apps</groupId>
+            <artifactId>sales</artifactId>
+            <version>${efaps.app.dependencies}</version>
+        </dependency>
+    </dependencies>
+</project>
