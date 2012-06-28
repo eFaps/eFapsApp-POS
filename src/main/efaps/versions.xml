@@ -60,6 +60,18 @@
     <version number="1" reloadCache="false" login="true" compile="true">
         <description>Install POS Connection App.</description>
         <script type="groovy">
+            import org.efaps.admin.runlevel.RunLevel;
+            import org.efaps.db.Context;
+            import org.efaps.esjp.admin.ui.UIUpdate;
+            import org.efaps.importer.DataImport;
+
+            import java.net.URL
+            import java.io.File;
+
+            UIUpdate update = new UIUpdate();
+             <!-- connect the POS_MyDesk Menu to the main menu from efaps -->
+            update.add2Menu("73aa0da8-fb47-4136-b19c-5c5c8dd5309e", "87001cc3-c45c-44de-b8f1-776df507f268", 1);
+
 
         </script>
     </version>

@@ -69,5 +69,29 @@
             <sqltable>POS_CategorySQLTable</sqltable>
             <sqlcolumn>UUID</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>Creator</name>
+            <type>CreatorLink</type>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>CREATOR</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Created</name>
+            <type>Created</type>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>CREATED</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Modifier</name>
+            <type>ModifierLink</type>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>MODIFIER</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Modified</name>
+            <type>Modified</type>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>MODIFIED</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>
