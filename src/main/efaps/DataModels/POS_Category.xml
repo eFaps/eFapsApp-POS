@@ -93,5 +93,6 @@
             <sqltable>POS_CategorySQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
+        <trigger program="org.efaps.esjp.pos.Category" name="POS_Category.INSERT_POST" method="insertTrigger" event="INSERT_POST"/>
     </definition>
 </datamodel-type>

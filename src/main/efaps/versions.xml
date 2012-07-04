@@ -56,6 +56,11 @@
             <artifactId>sales</artifactId>
             <version>2.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency order="6">
+            <groupId>org.efaps.apps</groupId>
+            <artifactId>jms</artifactId>
+            <version>2.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <version number="1" reloadCache="false" login="true" compile="true">
         <description>Install POS Connection App.</description>
