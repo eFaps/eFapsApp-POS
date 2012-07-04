@@ -138,7 +138,7 @@
                     <passWord>Administrator</passWord>
                     <!-- used from the generateUUID goal -->
                     <count>${count}</count>
-                    <ciName>Pos</ciName>
+                    <ciName>POS</ciName>
                 </configuration>
                 <dependencies>
                     <!-- Connection Pooling -->
@@ -156,10 +156,14 @@
     * Dependencies
     ************************************************************************* -->
     <dependencies>
-        <!-- eFaps ERP Human Resource Module -->
         <dependency>
             <groupId>org.efaps.apps</groupId>
             <artifactId>sales</artifactId>
+            <version>${efaps.app.dependencies}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.efaps.apps</groupId>
+            <artifactId>jms</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
     </dependencies>
