@@ -31,7 +31,6 @@
         <!-- fields -->
         <field name="type">
             <property name="Attribute">Type</property>
-            <property name="HRef">MenuTree</property>
             <property name="Label">POS_SubscriptionAbstract/Type.Label</property>
         </field>
         <field name="name">
