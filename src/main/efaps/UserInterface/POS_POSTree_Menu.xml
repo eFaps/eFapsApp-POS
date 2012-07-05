@@ -21,16 +21,16 @@
 
 --><ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
 
-    <uuid>73aa0da8-fb47-4136-b19c-5c5c8dd5309e</uuid>
+    <uuid>ec3a4d79-cdb1-4c67-a7b8-8b40577274b4</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
+
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MyDesk</name>
+        <name>POS_POSTree_Menu</name>
+        <!-- childs -->
         <childs>
-            <child>POS_CategoryMyDesk</child>
-            <child>POS_SubscriptionMyDesk</child>
-            <child>POS_POSMyDesk</child>
+            <child>POS_POSTree_Menu_Action</child>
         </childs>
     </definition>
 </ui-menu>
