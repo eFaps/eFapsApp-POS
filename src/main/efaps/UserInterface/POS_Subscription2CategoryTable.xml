@@ -21,37 +21,27 @@
 
 --><ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
 
-    <uuid>b944e6ab-08d6-4e41-8ebb-592c50ff545e</uuid>
+    <uuid>a631be97-4e34-4b55-a2c9-00930accb0a2</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
 
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_CategoryTable</name>
+        <name>POS_Subscription2CategoryTable</name>
         <!-- fields -->
+        <field name="type">
+            <property name="Attribute">Type</property>
+            <property name="Label">POS_Category2SubscriptionAbstract/Type.Label</property>
+        </field>
         <field name="name">
-            <property name="Attribute">Name</property>
+            <property name="Select">linkto[FromLink].attribute[Name]</property>
+            <property name="SelectAlternateOID">linkto[FromLink].oid</property>
             <property name="HRef">MenuTree</property>
             <property name="Label">POS_Category/Name.Label</property>
-            <property name="ModeSearch">READONLY</property>
         </field>
         <field name="description">
-            <property name="Attribute">Description</property>
+            <property name="Select">linkto[FromLink].attribute[Description]</property>
             <property name="Label">POS_Category/Description.Label</property>
-            <property name="ModeSearch">READONLY</property>
-        </field>
-         <field name="parentLink">
-            <property name="Select">linkto[ParentLink].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkto[ParentLink].oid</property>
-            <property name="HRef">MenuTree</property>
-            <property name="Label">POS_Category/ParentLink.Label</property>
-        </field>
-        <field name="buttonOpenInNewWindow">
-            <icon>eFapsActionNewWindow</icon>
-            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
-            <property name="Target">popup</property>
-            <property name="SortAble">false</property>
-            <property name="Width">15px</property>
         </field>
     </definition>
 </ui-table>
