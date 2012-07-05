@@ -35,7 +35,9 @@
         </target>
         <!-- type tree for -->
         <type>POS_SubscriptionAbstract</type>
-
+        <childs>
+            <child>POS_SubscriptionTree_POS</child>
+        </childs>
         <!-- properties -->
         <property name="Target">content</property>
         <property name="TargetMode">view</property>

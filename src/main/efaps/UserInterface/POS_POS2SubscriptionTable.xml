@@ -21,31 +21,27 @@
 
 --><ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
 
-    <uuid>5a558bde-d3fd-4e2f-9b18-c8ff9cdc6d0f</uuid>
+    <uuid>738bdbaf-442a-4960-94ba-d12190c260ed</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
 
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_POSTable</name>
+        <name>POS_POS2SubscriptionTable</name>
         <!-- fields -->
+        <field name="type">
+            <property name="Attribute">Type</property>
+            <property name="Label">POS_POS2SubscriptionAbstract/Type.Label</property>
+        </field>
         <field name="name">
-            <property name="Attribute">Name</property>
+            <property name="Select">linkto[ToLinkAbstract].attribute[Name]</property>
+            <property name="SelectAlternateOID">linkto[ToLinkAbstract].oid</property>
             <property name="HRef">MenuTree</property>
-            <property name="Label">POS_POS/Name.Label</property>
-            <property name="ModeSearch">READONLY</property>
+            <property name="Label">POS_SubscriptionAbstract/Name.Label</property>
         </field>
         <field name="description">
-            <property name="Attribute">Description</property>
-            <property name="Label">POS_POS/Description.Label</property>
-            <property name="ModeSearch">READONLY</property>
-        </field>
-        <field name="buttonOpenInNewWindow">
-            <icon>eFapsActionNewWindow</icon>
-            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
-            <property name="Target">popup</property>
-            <property name="SortAble">false</property>
-            <property name="Width">15px</property>
+            <property name="Select">linkto[ToLinkAbstract].attribute[Description]</property>
+            <property name="Label">POS_SubscriptionAbstract/Description.Label</property>
         </field>
     </definition>
 </ui-table>
