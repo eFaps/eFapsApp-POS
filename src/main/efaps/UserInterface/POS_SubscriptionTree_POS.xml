@@ -28,7 +28,7 @@
         <name>POS_SubscriptionTree_POS</name>
         <target>
             <menu>POS_SubscriptionTree_POS_Menu</menu>
-            <table>POS_POS2SubscriptionTable</table>
+            <table>POS_Subscription2POSTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
                 <property name="LinkFroms">ToLinkAbstract</property>
                 <property name="Types">POS_POS2SubscriptionAbstract</property>
