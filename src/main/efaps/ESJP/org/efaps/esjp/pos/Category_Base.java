@@ -21,7 +21,6 @@
 package org.efaps.esjp.pos;
 
 import java.io.StringWriter;
-import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -31,6 +30,7 @@ import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
@@ -63,24 +63,28 @@ public abstract class Category_Base
         print.execute();
         final String catOid = print.<String>getSelect(catOidSel);
         final Instance catInst = Instance.get(catOid);
-        enque4SendMsg(_parameter, catInst, CIPOS.MessageCategoryConnect.uuid);
+        enque4SendMsg(_parameter, catInst, CIPOS.MessageCategoryConnect);
         return ret;
     }
 
     protected void enque4SendMsg(final Parameter _parameter,
                                  final Instance _catInst,
-                                 final UUID _messageTypeUUID)
+                                 final CIType _messageType)
         throws EFapsException
     {
 
         final PrintQuery catPrint = new PrintQuery(_catInst);
+        final SelectBuilder sel = new SelectBuilder().linkto(CIPOS.Category.ParentLink).attribute(CIPOS.Category.UUID);
         catPrint.addAttribute(CIPOS.Category.UUID, CIPOS.Category.Name);
+        catPrint.addSelect(sel);
         catPrint.execute();
 
         final CategoryInfo cat = new CategoryInfo();
         cat.setName(catPrint.<String>getAttribute(CIPOS.Category.Name));
         cat.setUuid(catPrint.<String>getAttribute(CIPOS.Category.UUID));
-
+        if (catPrint.getSelect(sel) != null) {
+            cat.setParentUUID(catPrint.<String>getSelect(sel));
+        }
         try {
             final JAXBContext jc = JAXBContext.newInstance(CategoryInfo.class);
             final Marshaller marschaller = jc.createMarshaller();
@@ -88,7 +92,7 @@ public abstract class Category_Base
             marschaller.marshal(cat, writer);
 
             final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category2SubscriptionCategory);
-            queryBldr.addWhereAttrEqValue(CIPOS.Category2SubscriptionCategory.FromLink, _catInst.getId());
+            queryBldr.addWhereAttrEqValue(CIPOS.Category2SubscriptionCategory.FromLink, getParent(_catInst).getId());
             final MultiPrintQuery multi = queryBldr.getPrint();
             final SelectBuilder jmsOidSel = new SelectBuilder().linkto(CIPOS.Category2SubscriptionCategory.ToLink)
                             .linkto(CIPOS.SubscriptionCategory.JmsLink).oid();
@@ -98,7 +102,7 @@ public abstract class Category_Base
                 final String jmsOid = multi.<String>getSelect(jmsOidSel);
                 final Instance jmsInst = Instance.get(jmsOid);
                 if (jmsInst.isValid()) {
-                    final Insert insert = new Insert(_messageTypeUUID);
+                    final Insert insert = new Insert(_messageType);
                     insert.add(CIPOS.MessageAbstract.Content, writer.toString());
                     insert.add(CIPOS.MessageAbstract.JmsLink, jmsInst.getId());
                     insert.execute();
@@ -109,7 +113,23 @@ public abstract class Category_Base
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
 
+    public Instance getParent(final Instance _instance)
+        throws EFapsException
+    {
+        Instance ret = _instance;
+        final PrintQuery catPrint = new PrintQuery(_instance);
+        final SelectBuilder sel = new SelectBuilder().linkto(CIPOS.Category.ParentLink).oid();
+        catPrint.addSelect(sel);
+        catPrint.execute();
+        if (catPrint.getSelect(sel) != null) {
+            final Instance inst = Instance.get(catPrint.<String>getSelect(sel));
+            if (inst.isValid()) {
+                ret = getParent(inst);
+            }
+        }
+        return ret;
     }
 
     /**
@@ -120,7 +140,15 @@ public abstract class Category_Base
     public Return updateTrigger(final Parameter _parameter)
         throws EFapsException
     {
-        enque4SendMsg(_parameter, _parameter.getInstance(), CIPOS.MessageCategoryUpdate.uuid);
+        enque4SendMsg(_parameter, _parameter.getInstance(), CIPOS.MessageCategoryUpdate);
         return new Return();
     }
+
+    public Return insertTrigger(final Parameter _parameter)
+        throws EFapsException
+    {
+        enque4SendMsg(_parameter, _parameter.getInstance(), CIPOS.MessageCategoryInsert);
+        return new Return();
+    }
+
 }
