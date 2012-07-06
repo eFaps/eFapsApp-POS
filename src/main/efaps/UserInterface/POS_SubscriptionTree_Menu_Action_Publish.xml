@@ -19,13 +19,24 @@
  Last Changed:    $Date$
  Last Changed By: $Author$
 
---><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>e97dffde-d307-4dfe-98eb-9f0223ea7452</uuid>
+--><ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+
+    <uuid>2d208195-3883-4e37-9286-506c0dcb835a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
+
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MessageCategoryInsert</name>
-        <parent>POS_MessageAbstract</parent>
+        <name>POS_SubscriptionTree_Menu_Action_Publish</name>
+
+        <!-- target definitions -->
+        <target>
+            <execute program="org.efaps.esjp.pos.jms.Publisher" method="publish"/>
+        </target>
+
+        <!-- properties -->
+        <property name="Target">hidden</property>
+        <property name="NoUpdateAfterCOMMAND">true</property>
+        <property name="AskUser">true</property>
     </definition>
-</datamodel-type>
+</ui-command>

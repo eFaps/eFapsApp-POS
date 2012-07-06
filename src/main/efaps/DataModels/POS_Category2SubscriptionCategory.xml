@@ -34,5 +34,7 @@
             <sqltable>ERP_Object2ObjectAbstractSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
         </attribute>
+        <trigger program="org.efaps.esjp.pos.Category" name="POS_Category2SubscriptionCategory.INSERT_POST"
+            method="connectTrigger" event="INSERT_POST"/>
     </definition>
 </datamodel-type>
