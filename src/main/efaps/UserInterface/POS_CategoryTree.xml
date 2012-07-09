@@ -37,6 +37,7 @@
         <type>POS_Category</type>
         <childs>
             <child>POS_CategoryTree_Category</child>
+            <child>POS_CategoryTree_Product</child>
         </childs>
         <!-- properties -->
         <property name="Target">content</property>
