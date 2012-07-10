@@ -20,21 +20,12 @@
  Last Changed By: $Author$
 
 --><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>370448f7-6936-452f-85cb-3651ef5445e8</uuid>
+    <uuid>126b2598-06b1-4880-bef6-8579e03e9fdd</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2Product</name>
-        <parent>POS_Category2ProductAbstract</parent>
-        <attribute>
-            <name>ToLink</name>
-            <type>Link</type>
-            <typelink>Products_ProductAbstract</typelink>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>TOID</sqlcolumn>
-        </attribute>
-        <trigger program="org.efaps.esjp.pos.Cat2Product" name="POS_Category2Product.INSERT_POST" event="INSERT_POST" method="insertTrigger"/>
-        <trigger program="org.efaps.esjp.pos.Cat2Product" name="POS_Category2Product.UPDATE_POST" event="UPDATE_POST" method="updateTrigger"/>
+        <name>POS_MessageCategory2ProductInsert</name>
+        <parent>POS_MessageAbstract</parent>
     </definition>
 </datamodel-type>

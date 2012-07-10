@@ -50,11 +50,17 @@
             <groupId>org.efaps.apps</groupId>
             <artifactId>products</artifactId>
             <version>2.0.1-SNAPSHOT</version>
+            <profiles>
+                <profile name="POS"/>
+            </profiles>
         </dependency>
         <dependency order="5">
             <groupId>org.efaps.apps</groupId>
             <artifactId>sales</artifactId>
             <version>2.0.1-SNAPSHOT</version>
+            <profiles>
+                <profile name="POS"/>
+            </profiles>
         </dependency>
         <dependency order="6">
             <groupId>org.efaps.apps</groupId>
