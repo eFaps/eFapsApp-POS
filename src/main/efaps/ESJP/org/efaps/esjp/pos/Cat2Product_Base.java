@@ -78,8 +78,8 @@ public abstract class Cat2Product_Base
         product.setName(relPrint.<String>getSelect(prodSelName));
         product.setCategoryUUID(relPrint.<String>getSelect(selCatUUID));
         product.setDescription(relPrint.<String>getSelect(prodSelDesc));
-        product.setBarCode(relPrint.<String>getSelect(prodSelDesc));
-        product.setUuid(relPrint.<String>getSelect(prodSelDesc));
+        product.setBarCode(relPrint.<String>getSelect(prodSelBarcode));
+        product.setUuid(relPrint.<String>getSelect(prodSelUUID));
         product.setPriceSell(relPrint.<BigDecimal>getAttribute(CIPOS.Category2Product.NetPrice).doubleValue());
         // product.setPriceBuy(_priceBuy)
         // product.setTaxUUID(_taxUUID)

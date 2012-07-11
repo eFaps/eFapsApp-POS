@@ -33,9 +33,11 @@
             <property name="Attribute">Type</property>
             <property name="Label">POS_Category2ProductAbstract/Type.Label</property>
         </field>
-        <field name="">
+        <field name="netPrice">
             <property name="Attribute">NetPrice</property>
             <property name="Label">POS_Category2ProductAbstract/NetPrice.Label</property>
+            <property name="HRef">MenuTree</property>
+            <property name="Align">right</property>
         </field>
         <field name="name">
             <property name="Select">linkto[ToLinkAbstract].attribute[Name]</property>
