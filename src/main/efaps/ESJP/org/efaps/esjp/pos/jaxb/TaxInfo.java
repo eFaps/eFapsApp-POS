@@ -24,11 +24,9 @@ package org.efaps.esjp.pos.jaxb;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -40,20 +38,23 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id$
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlRootElement(name = "pos4a_CategoryInfo")
-@XmlType(name = "pos4a.CategoryInfo")
-@EFapsUUID("e7e9f5e6-cf90-4680-babf-c50a9ba49419")
+@XmlRootElement(name = "pos4a_TaxInfo")
+@XmlType(name = "pos4a.TaxInfo")
+@EFapsUUID("7f6ec6cf-c2a4-42a0-bcf6-db895cd5cd6d")
 @EFapsRevision("$Rev$")
-public class CategoryInfo
+public class TaxInfo
 {
+    /**
+     * The UUID of this Tax.
+     */
     @XmlAttribute(name = "id")
     private String uuid;
 
+    /**
+     * The name of this Tax.
+     */
     @XmlAttribute(name = "name")
     private String name;
-
-    @XmlElement(name="parentId")
-    private String parentUUID;
 
     /**
      * Getter method for the instance variable {@link #uuid}.
@@ -85,41 +86,13 @@ public class CategoryInfo
         return this.name;
     }
 
-
     /**
      * Setter method for instance variable {@link #name}.
      *
      * @param _name value for instance variable {@link #name}
      */
-
     public void setName(final String _name)
     {
         this.name = _name;
-    }
-
-    /**
-     * Getter method for the instance variable {@link #parentUUID}.
-     *
-     * @return value of instance variable {@link #parentUUID}
-     */
-    public String getParentUUID()
-    {
-        return this.parentUUID;
-    }
-
-    /**
-     * Setter method for instance variable {@link #parentUUID}.
-     *
-     * @param _parentUUID value for instance variable {@link #parentUUID}
-     */
-    public void setParentUUID(final String _parentUUID)
-    {
-        this.parentUUID = _parentUUID;
-    }
-
-    @Override
-    public String toString()
-    {
-        return new ToStringBuilder(this).append("uuid", this.uuid).append("name", this.name).toString();
     }
 }
