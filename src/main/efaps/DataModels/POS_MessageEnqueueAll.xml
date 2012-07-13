@@ -19,20 +19,13 @@
  Last Changed:    $Date$
  Last Changed By: $Author$
 
---><ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-
-    <uuid>48e5afad-b312-41fa-b800-d848772e4627</uuid>
+--><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>f5045602-6c2a-41d3-a4eb-3ae1886ca72c</uuid>
     <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
-
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_SubscriptionTree_Menu_Action</name>
-        <!-- childs -->
-        <childs>
-            <child>POS_SubscriptionTree_Menu_Action_Edit</child>
-            <child>POS_SubscriptionTree_Menu_Action_EnqueueAll</child>
-            <child>POS_SubscriptionTree_Menu_Action_Publish</child>
-        </childs>
+        <name>POS_MessageEnqueueAll</name>
+        <parent>POS_MessageAbstract</parent>
     </definition>
-</ui-menu>
+</datamodel-type>

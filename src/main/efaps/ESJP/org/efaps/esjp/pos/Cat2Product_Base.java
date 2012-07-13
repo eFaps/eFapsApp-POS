@@ -41,7 +41,11 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.pos.jaxb.ProductInfo;
+import org.efaps.esjp.sales.Tax;
+import org.efaps.esjp.sales.Tax_Base;
+import org.efaps.esjp.sales.Tax_Base.TaxRate;
 import org.efaps.util.EFapsException;
+import org.joda.time.LocalDate;
 
 /**
  * TODO comment!
@@ -69,9 +73,10 @@ public abstract class Cat2Product_Base
         final SelectBuilder prodSelDesc = new SelectBuilder(prodSel).attribute(CIProducts.ProductAbstract.Description);
         final SelectBuilder prodSelBarcode = new SelectBuilder(prodSel).attribute(CIProducts.ProductAbstract.Barcode);
         final SelectBuilder prodSelUUID = new SelectBuilder(prodSel).attribute(CIProducts.ProductAbstract.UUID);
+        final SelectBuilder prodSelTaxcat= new SelectBuilder(prodSel).attribute(CIProducts.ProductAbstract.TaxCategory);
 
         relPrint.addAttribute(CIPOS.Category2Product.NetPrice);
-        relPrint.addSelect(selCatUUID, selCatOID, prodSelName, prodSelDesc, prodSelBarcode, prodSelUUID);
+        relPrint.addSelect(selCatUUID, selCatOID, prodSelName, prodSelDesc, prodSelBarcode, prodSelUUID, prodSelTaxcat);
         relPrint.execute();
 
         final ProductInfo product = new ProductInfo();
@@ -81,8 +86,10 @@ public abstract class Cat2Product_Base
         product.setBarCode(relPrint.<String>getSelect(prodSelBarcode));
         product.setUuid(relPrint.<String>getSelect(prodSelUUID));
         product.setPriceSell(relPrint.<BigDecimal>getAttribute(CIPOS.Category2Product.NetPrice).doubleValue());
-        // product.setPriceBuy(_priceBuy)
-        // product.setTaxUUID(_taxUUID)
+
+        final Tax tax = Tax_Base.get(relPrint.<Long>getSelect(prodSelTaxcat));
+        final TaxRate rate = tax.getTaxRate(new LocalDate());
+        product.setTaxUUID(rate.getUuid());
 
         try {
             final JAXBContext jc = JAXBContext.newInstance(ProductInfo.class);

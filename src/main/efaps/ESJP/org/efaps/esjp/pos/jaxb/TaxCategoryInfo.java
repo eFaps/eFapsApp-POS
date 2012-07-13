@@ -20,12 +20,9 @@
 
 package org.efaps.esjp.pos.jaxb;
 
-import java.util.Date;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -57,23 +54,6 @@ public class TaxCategoryInfo
     @XmlAttribute(name = "name")
     private String name;
 
-    /**
-     * UUID of the related tax category.
-     */
-    @XmlElement(name = "taxcategoryid")
-    private String taxCategoryUUID;
-
-    /**
-     * The Tax is valid from.
-     */
-    @XmlElement(name = "validfrom")
-    private Date validFrom;
-
-    /**
-     * Rate.
-     */
-    @XmlElement(name = "rate")
-    private double rate;
 
     /**
      * Getter method for the instance variable {@link #uuid}.
@@ -83,75 +63,6 @@ public class TaxCategoryInfo
     public String getUuid()
     {
         return this.uuid;
-    }
-
-
-    /**
-     * Getter method for the instance variable {@link #taxCategoryUUID}.
-     *
-     * @return value of instance variable {@link #taxCategoryUUID}
-     */
-    public String getTaxCategoryUUID()
-    {
-        return this.taxCategoryUUID;
-    }
-
-
-    /**
-     * Setter method for instance variable {@link #taxCategoryUUID}.
-     *
-     * @param _taxCategoryUUID value for instance variable {@link #taxCategoryUUID}
-     */
-
-    public void setTaxCategoryUUID(final String _taxCategoryUUID)
-    {
-        this.taxCategoryUUID = _taxCategoryUUID;
-    }
-
-
-    /**
-     * Getter method for the instance variable {@link #validFrom}.
-     *
-     * @return value of instance variable {@link #validFrom}
-     */
-    public Date getValidFrom()
-    {
-        return this.validFrom;
-    }
-
-
-    /**
-     * Setter method for instance variable {@link #validFrom}.
-     *
-     * @param _validFrom value for instance variable {@link #validFrom}
-     */
-
-    public void setValidFrom(final Date _validFrom)
-    {
-        this.validFrom = _validFrom;
-    }
-
-
-    /**
-     * Getter method for the instance variable {@link #rate}.
-     *
-     * @return value of instance variable {@link #rate}
-     */
-    public double getRate()
-    {
-        return this.rate;
-    }
-
-
-    /**
-     * Setter method for instance variable {@link #rate}.
-     *
-     * @param _rate value for instance variable {@link #rate}
-     */
-
-    public void setRate(final double _rate)
-    {
-        this.rate = _rate;
     }
 
     /**
