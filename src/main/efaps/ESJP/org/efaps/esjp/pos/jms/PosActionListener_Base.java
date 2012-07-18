@@ -36,6 +36,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.jms.actions.IAction;
 import org.efaps.esjp.jms.msg.listener.AbstractSecuredListener;
 import org.efaps.esjp.jms.msg.listener.AbstractSecuredListener_Base;
+import org.efaps.esjp.pos.documents.PosReceipt;
+import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.util.EFapsException;
 
 /**
@@ -79,6 +81,8 @@ public abstract class PosActionListener_Base
             if (object instanceof IAction) {
                 final IAction action = (IAction) object;
                 object = action.execute();
+            }else if(object instanceof TicketInfo){
+            	new PosReceipt().createTicketInfo((TicketInfo) object);
             }
         } catch (final JMSException e) {
             // TODO Auto-generated catch block
