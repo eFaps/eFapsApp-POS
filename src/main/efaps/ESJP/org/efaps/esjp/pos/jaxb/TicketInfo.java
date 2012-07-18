@@ -69,7 +69,11 @@ public class TicketInfo
     @XmlAttribute(name = "activeCash")
     private String activeCash;
 
-    @XmlElementWrapper(name = "ticketLineInfos")
+    @XmlAttribute(name = "host")
+    private String host;
+
+
+	@XmlElementWrapper(name = "ticketLineInfos")
     @XmlElement(name = "ticketLineInfo")
     private List<TicketLineInfo> ticketLines;
 
@@ -195,6 +199,15 @@ public class TicketInfo
     {
         this.activeCash = _activeCash;
     }
+
+    public String getHost() {
+		return this.host;
+	}
+
+	public void setHost(String _host) {
+		this.host = _host;
+	}
+
 
     /**
      * Getter method for the instance variable {@link #ticketLines}.
