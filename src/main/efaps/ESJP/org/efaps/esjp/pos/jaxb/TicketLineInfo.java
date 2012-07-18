@@ -18,7 +18,6 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.pos.jaxb;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -28,7 +27,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-
 
 /**
  * TODO comment!
@@ -47,6 +45,16 @@ public class TicketLineInfo
 
     @XmlElement(name = "productid")
     private String productUUID;
+
+    private double price;
+
+    private String productName;
+
+    private TaxInfo Tax;
+
+    private double total;
+
+    private double quantity;
 
     /**
      * Getter method for the instance variable {@link #lineId}.
@@ -87,5 +95,55 @@ public class TicketLineInfo
     public void setProductUUID(final String _productUUID)
     {
         this.productUUID = _productUUID;
+    }
+
+    public double getPrice()
+    {
+        return price;
+    }
+
+    public void setPrice(double price)
+    {
+        this.price = price;
+    }
+
+    public String getProductName()
+    {
+        return productName;
+    }
+
+    public void setProductName(String productName)
+    {
+        this.productName = productName;
+    }
+
+    public TaxInfo getTax()
+    {
+        return Tax;
+    }
+
+    public void setTax(TaxInfo tax)
+    {
+        Tax = tax;
+    }
+
+    public double getTotal()
+    {
+        return total;
+    }
+
+    public void setTotal(double total)
+    {
+        this.total = total;
+    }
+
+    public double getQuantity()
+    {
+        return quantity;
+    }
+
+    public void setQuantity(double quantity)
+    {
+        this.quantity = quantity;
     }
 }

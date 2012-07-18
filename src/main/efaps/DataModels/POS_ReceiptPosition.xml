@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+ Copyright 2003 - 2009 The eFaps Team
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Author:          The eFaps Team
+ Revision:        $Rev: 5898 $
+ Last Changed:    $Date: 2010-12-01 12:03:15 -0500 (mié, 01 dic 2010) $
+ Last Changed By: $Author: jan@moxter.net $
+
+--><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+  <uuid>21ba5092-5235-48e8-bbc5-60e8907d1c39</uuid>
+  <file-application>eFapsApp-POS</file-application>
+  <file-revision>$Rev: 5898 $</file-revision>
+
+  <definition>
+    <version-expression>(version==latest)</version-expression>
+    <name>POS_ReceiptPosition</name>
+    <parent>Sales_PositionAbstract</parent>
+
+    <attribute>
+      <name>ReceiptLink</name>
+      <type>Link</type>
+      <typelink>POS_Receipt</typelink>
+      <sqltable>Sales_PositionAbstractSQLTable</sqltable>
+      <sqlcolumn>DOCID</sqlcolumn>
+    </attribute>
+
+  </definition>
+</datamodel-type>
