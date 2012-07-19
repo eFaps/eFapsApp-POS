@@ -3,6 +3,7 @@ package org.efaps.esjp.pos.documents;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Return;
@@ -28,7 +29,19 @@ public class PosReceipt_Base
     public Return createTicketInfo(final TicketInfo _ticket)
         throws EFapsException
     {
-        createTicket(_ticket);
+        final CreatedDoc doc = createTicket(_ticket);
+
+        // create classifications
+        final Classification classification1 = (Classification) CIPOS.ReceiptClass.getType();
+        final Insert relInsert1 = new Insert(classification1.getClassifyRelationType());
+        relInsert1.add(classification1.getRelLinkAttributeName(), doc.getInstance().getId());
+        relInsert1.add(classification1.getRelTypeAttributeName(), classification1.getId());
+        relInsert1.execute();
+
+        final Insert classInsert1 = new Insert(classification1);
+        classInsert1.add(classification1.getLinkAttributeName(), doc.getInstance().getId());
+        classInsert1.execute();
+
         return new Return();
     }
 
@@ -79,7 +92,7 @@ public class PosReceipt_Base
                 posIns.add(CIPOS.ReceiptPosition.PositionNumber, t.getLineId());
                 posIns.add(CIPOS.ReceiptPosition.Product, idProd);
                 posIns.add(CIPOS.ReceiptPosition.ProductDesc, t.getProductName());
-                posIns.add(CIPOS.ReceiptPosition.Quantity, 1);
+                posIns.add(CIPOS.ReceiptPosition.Quantity, t.getQuantity());
                 posIns.add(CIPOS.ReceiptPosition.UoM, Dimension.get(UUID.fromString("0aa00110-fdf1-4c85-ab72-22cb4e53422a")).getBaseUoM()
                                 .getId());
                 posIns.add(CIPOS.ReceiptPosition.Tax, 1);
@@ -98,5 +111,4 @@ public class PosReceipt_Base
             }
         }
     }
-
 }
