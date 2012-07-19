@@ -46,14 +46,19 @@ public class TicketLineInfo
     @XmlElement(name = "productid")
     private String productUUID;
 
+    @XmlElement(name = "price")
     private double price;
 
+    @XmlElement(name = "productName")
     private String productName;
 
+    @XmlElement(name = "tax")
     private TaxInfo Tax;
 
+    @XmlElement(name = "value")
     private double total;
 
+    @XmlElement(name = "quantity")
     private double quantity;
 
     /**
