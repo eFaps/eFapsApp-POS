@@ -40,6 +40,7 @@ public class PosReceipt_Base
 
         final Insert classInsert1 = new Insert(classification1);
         classInsert1.add(classification1.getLinkAttributeName(), doc.getInstance().getId());
+        classInsert1.add(CIPOS.ReceiptClass.UserName,_ticket.getUser().getName());
         classInsert1.execute();
 
         return new Return();
