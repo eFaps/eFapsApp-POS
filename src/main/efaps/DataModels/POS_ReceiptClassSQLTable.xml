@@ -36,6 +36,7 @@
             <table-name>T_POSRECEIPTCLASS</table-name>
             <!-- columns -->
             <column name="RECEIPTID" type="INTEGER" not-null="true" />
+            <column name="USERNAME"    type="STRING_SHORT"    length="255"/>
             <foreign name="T_RECEIPTCLASS_FK_RECEIPTID" key="RECEIPTID" reference="T_ERPDOC(ID)" />
         </database>
     </definition>
