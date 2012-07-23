@@ -54,6 +54,12 @@
             <sqltable>POS_ReceiptClassSQLTable</sqltable>
             <sqlcolumn>RECEIPTID</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>UserName</name>
+            <type>String</type>
+            <sqltable>POS_ReceiptClassSQLTable</sqltable>
+            <sqlcolumn>USERNAME</sqlcolumn>
+        </attribute>
         <classifies type="POS_Receipt" relType="POS_Receipt2Class"
                     relLinkAttribute="ReceiptLink" relTypeAttribute="ClassTypeId" multipleSelect="true"/>
     </definition>
