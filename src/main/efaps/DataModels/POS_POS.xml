@@ -80,5 +80,12 @@
             <sqltable>POS_POSSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>Account</name>
+            <type>Link</type>
+            <typelink>Sales_AccountAbstract</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>ACCOUNTID</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>
