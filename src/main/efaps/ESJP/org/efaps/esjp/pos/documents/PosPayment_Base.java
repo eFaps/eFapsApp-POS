@@ -103,12 +103,22 @@ public  abstract class PosPayment_Base
         throws EFapsException
     {
             final CreatedDoc docInst = new PosReceipt().createTicket(_ticket);
+            //final TicketInfo docInst = new TicketInfo();
 
-            final String dateStr = _ticket.getDate().toString();
+            /*QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Receipt);
+            queryBldr2.addWhereAttrEqValue(CIPOS.Receipt.Type, _ticket);
+            final MultiPrintQuery multi1 = queryBldr2.getPrint();
+            multi1.execute();
+            Long instPay=null;
+            while (multi1.next()) {
+                instPay = multi1.getCurrentInstance().getId();
+            }*/
+
+            //final String dateStr = _ticket.getDate().toString();
 
             final Insert insert = new Insert(CISales.Payment);
-            insert.add(CISales.Payment.Date, dateStr);
-            insert.add(CISales.Payment.CreateDocument, ((Long) docInst.getInstance().getId()));
+            insert.add(CISales.Payment.Date, _ticket.getDate());//dateStr);
+            insert.add(CISales.Payment.CreateDocument, docInst.getInstance().getId());//((Long) docInst.getInstance().getId()));
             insert.execute();
 
             final Instance paymentInst = insert.getInstance();
@@ -118,17 +128,27 @@ public  abstract class PosPayment_Base
             final MultiPrintQuery multi = queryBldr.getPrint();
             multi.addAttribute(CIPOS.POS.Account);
             multi.execute();
-            long idAccount = 0;
+            Long idAccount = null;
             while (multi.next()) {
-                idAccount = multi.getAttribute(CIPOS.POS.Account);
+                idAccount = multi.<Long>getAttribute(CIPOS.POS.Account);
+            }
+
+            final QueryBuilder queryBldr1 = new QueryBuilder(CISales.AbstractAttr);
+            queryBldr1.addWhereAttrEqValue(CISales.AbstractAttr.Value, _ticket.getM_paymentName());
+            final MultiPrintQuery multi1 = queryBldr.getPrint();
+            multi1.addAttribute(CISales.AbstractAttr.Type);
+            multi1.execute();
+            Long idPayType = null;
+            while (multi.next()) {
+                idPayType = multi1.<Long>getAttribute(CISales.AbstractAttr.Type);
             }
 
             for (final TicketLineInfo t : _ticket.getTicketLines()) {
                 final Insert transIns = new Insert(CISales.TransactionInbound);
                 transIns.add(CISales.TransactionInbound.Amount, t.getTotal());
                 transIns.add(CISales.TransactionInbound.CurrencyId, 1);
-                transIns.add(CISales.TransactionInbound.Payment, ((Long) paymentInst.getId()).toString());
-                transIns.add(CISales.TransactionInbound.PaymentType, _ticket.getM_paymentName());
+                transIns.add(CISales.TransactionInbound.Payment, paymentInst.getId());//((Long) paymentInst.getId()).toString());
+                transIns.add(CISales.TransactionInbound.PaymentType, idPayType);
                 transIns.add(CISales.TransactionInbound.Description, t.getProductName());
                 transIns.add(CISales.TransactionInbound.Date, _ticket.getDate());
                 transIns.add(CISales.TransactionInbound.Account, idAccount);
