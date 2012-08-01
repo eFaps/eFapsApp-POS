@@ -81,7 +81,7 @@
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
         <attribute>
-            <name>Account</name>
+            <name>AccountLink</name>
             <type>Link</type>
             <typelink>Sales_AccountAbstract</typelink>
             <sqltable>POS_POSSQLTable</sqltable>
