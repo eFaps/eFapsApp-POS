@@ -3,22 +3,26 @@ package org.efaps.esjp.pos.documents;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
+import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
+import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.esjp.pos.jaxb.TicketLineInfo;
 import org.efaps.esjp.sales.document.DocumentSum;
 import org.efaps.util.EFapsException;
-
 
 @EFapsUUID("a5ee4a8e-ccd3-44b0-8ca5-66aea9c11bcc")
 @EFapsRevision("$Rev: 6430 $")
@@ -29,26 +33,37 @@ public class PosReceipt_Base
     public Return createTicketInfo(final TicketInfo _ticket)
         throws EFapsException
     {
-        final CreatedDoc doc = createTicket(_ticket);
+        QueryBuilder queryBldr1 = new QueryBuilder(CIPOS.ReceiptClass);
+        queryBldr1.addWhereAttrEqValue(CIPOS.ReceiptClass.ActiveCash, _ticket.getActiveCash());
+        final MultiPrintQuery multi1 = queryBldr1.getPrint();
+        multi1.execute();
+        // Si existe el activeCash entrante
+        if (multi1.next()) {
+            //Se inserta el ticket en un receipt y se insertan sus posiciones, clasificaciones y pagos respectivas
+            final CreatedDoc doc = createTicket(_ticket);
+            createdClassification(_ticket, doc);
+            new PosPayment().create(_ticket, doc);
+        }
+        //Si no existe el activeCash entrante
+        else {
+            // Antes de insertar los pagos, como es un nuevo activeCash; inicializa un balance en caso de que aun no se hayan registrado pagos respectivos para ese pos
+            //o hace el balance del pos correspondiente a ese activeCash porque hubo un cierre.
+            new PosAccount().cashDeskBalance(_ticket);
 
-        // create classifications
-        final Classification classification1 = (Classification) CIPOS.ReceiptClass.getType();
-        final Insert relInsert1 = new Insert(classification1.getClassifyRelationType());
-        relInsert1.add(classification1.getRelLinkAttributeName(), doc.getInstance().getId());
-        relInsert1.add(classification1.getRelTypeAttributeName(), classification1.getId());
-        relInsert1.execute();
-
-        final Insert classInsert1 = new Insert(classification1);
-        classInsert1.add(classification1.getLinkAttributeName(), doc.getInstance().getId());
-        classInsert1.add(CIPOS.ReceiptClass.UserName,_ticket.getUser().getName());
-        classInsert1.execute();
-
+            //Inserta ticket con posiciones, clasificaciones y pagos normalmente.
+            final CreatedDoc doc = createTicket(_ticket);
+            createdClassification(_ticket, doc);
+            new PosPayment().create(_ticket, doc);
+        }
         return new Return();
     }
 
     protected CreatedDoc createTicket(final TicketInfo _ticket)
         throws EFapsException
     {
+
+        final Instance baseCurrInst = SystemConfiguration.get(
+                        UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
         final Insert insert = new Insert(CIPOS.Receipt);
 
         insert.add(CIPOS.Receipt.RateCrossTotal, BigDecimal.ZERO);
@@ -62,22 +77,25 @@ public class PosReceipt_Base
         insert.add(CIPOS.Receipt.Status, ((Long) Status.find(CIPOS.ReceiptStatus.uuid, "Open").getId()).toString());
         insert.add(CIPOS.Receipt.Note, "");
         insert.add(CIPOS.Receipt.DueDate, _ticket.getDate());
-        insert.add(CIPOS.Receipt.CurrencyId, 1);
-        insert.add(CIPOS.Receipt.RateCurrencyId, 1);
+        insert.add(CIPOS.Receipt.CurrencyId, baseCurrInst.getId());
+        insert.add(CIPOS.Receipt.RateCurrencyId, baseCurrInst.getId());
         insert.add(CIPOS.Receipt.Rate, new Object[] { BigDecimal.ONE, BigDecimal.ONE });
         insert.execute();
 
         final CreatedDoc createdDoc = new CreatedDoc(insert.getInstance());
         createPositions(_ticket, createdDoc);
         return createdDoc;
-
     }
 
     protected void createPositions(final TicketInfo _ticket,
                                    final CreatedDoc _createdDoc)
         throws EFapsException
     {
+        final Instance baseCurrInst = SystemConfiguration.get(
+                        UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
+
         for (final TicketLineInfo t : _ticket.getTicketLines()) {
+
             final Insert posIns = new Insert(CIPOS.ReceiptPosition);
 
             final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
@@ -98,9 +116,9 @@ public class PosReceipt_Base
                                 .getId());
                 posIns.add(CIPOS.ReceiptPosition.Tax, 1);
                 posIns.add(CIPOS.ReceiptPosition.Discount, BigDecimal.ZERO);
-                posIns.add(CIPOS.ReceiptPosition.CurrencyId, 1);
+                posIns.add(CIPOS.ReceiptPosition.CurrencyId, baseCurrInst.getId());
                 posIns.add(CIPOS.ReceiptPosition.Rate, new Object[] { BigDecimal.ONE, BigDecimal.ONE });
-                posIns.add(CIPOS.ReceiptPosition.RateCurrencyId, 1);
+                posIns.add(CIPOS.ReceiptPosition.RateCurrencyId, baseCurrInst.getId());
                 posIns.add(CIPOS.ReceiptPosition.CrossUnitPrice, t.getPrice());
                 posIns.add(CIPOS.ReceiptPosition.NetUnitPrice, t.getPrice());
                 posIns.add(CIPOS.ReceiptPosition.CrossPrice, t.getPrice());
@@ -111,5 +129,23 @@ public class PosReceipt_Base
                 _createdDoc.addPosition(posIns.getInstance());
             }
         }
+    }
+
+    protected void createdClassification(final TicketInfo _ticket,
+                                         final CreatedDoc doc)
+        throws EFapsException
+    {
+        // create classifications
+        final Classification classification1 = (Classification) CIPOS.ReceiptClass.getType();
+        final Insert relInsert1 = new Insert(classification1.getClassifyRelationType());
+        relInsert1.add(classification1.getRelLinkAttributeName(), doc.getInstance().getId());
+        relInsert1.add(classification1.getRelTypeAttributeName(), classification1.getId());
+        relInsert1.execute();
+
+        final Insert classInsert1 = new Insert(classification1);
+        classInsert1.add(classification1.getLinkAttributeName(), doc.getInstance().getId());
+        classInsert1.add(CIPOS.ReceiptClass.UserName, _ticket.getUser().getName());
+        classInsert1.add(CIPOS.ReceiptClass.ActiveCash, _ticket.getActiveCash());
+        classInsert1.execute();
     }
 }
