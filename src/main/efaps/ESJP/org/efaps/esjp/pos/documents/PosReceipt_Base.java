@@ -39,18 +39,23 @@ public class PosReceipt_Base
         multi1.execute();
         // Si existe el activeCash entrante
         if (multi1.next()) {
-            //Se inserta el ticket en un receipt y se insertan sus posiciones, clasificaciones y pagos respectivas
+            // Se inserta el ticket en un receipt y se insertan sus posiciones,
+            // clasificaciones y pagos respectivas
             final CreatedDoc doc = createTicket(_ticket);
             createdClassification(_ticket, doc);
             new PosPayment().create(_ticket, doc);
         }
-        //Si no existe el activeCash entrante
+        // Si no existe el activeCash entrante
         else {
-            // Antes de insertar los pagos, como es un nuevo activeCash; inicializa un balance en caso de que aun no se hayan registrado pagos respectivos para ese pos
-            //o hace el balance del pos correspondiente a ese activeCash porque hubo un cierre.
+            // Antes de insertar los pagos, como es un nuevo activeCash;
+            // inicializa un balance en caso de que aun no se hayan registrado
+            // pagos respectivos para ese pos
+            // o hace el balance del pos correspondiente a ese activeCash porque
+            // hubo un cierre.
             new PosAccount().cashDeskBalance(_ticket);
 
-            //Inserta ticket con posiciones, clasificaciones y pagos normalmente.
+            // Inserta ticket con posiciones, clasificaciones y pagos
+            // normalmente.
             final CreatedDoc doc = createTicket(_ticket);
             createdClassification(_ticket, doc);
             new PosPayment().create(_ticket, doc);
