@@ -38,6 +38,7 @@
             <column name="RECEIPTID" type="INTEGER" not-null="true" />
             <column name="USERNAME"    type="STRING_SHORT"    length="255"/>
             <foreign name="T_RECEIPTCLASS_FK_RECEIPTID" key="RECEIPTID" reference="T_ERPDOC(ID)" />
+            <column name="ACTIVECASH"       type="STRING_SHORT"     length="64"/>
         </database>
     </definition>
 
