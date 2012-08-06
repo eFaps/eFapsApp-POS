@@ -60,6 +60,12 @@
             <sqltable>POS_ReceiptClassSQLTable</sqltable>
             <sqlcolumn>USERNAME</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>ActiveCash</name>
+            <type>String</type>
+            <sqltable>POS_ReceiptClassSQLTable</sqltable>
+            <sqlcolumn>ACTIVECASH</sqlcolumn>
+        </attribute>
         <classifies type="POS_Receipt" relType="POS_Receipt2Class"
                     relLinkAttribute="ReceiptLink" relTypeAttribute="ClassTypeId" multipleSelect="true"/>
     </definition>
