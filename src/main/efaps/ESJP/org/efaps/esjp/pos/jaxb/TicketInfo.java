@@ -18,7 +18,6 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.pos.jaxb;
 
 import java.util.Date;
@@ -35,12 +34,12 @@ import javax.xml.bind.annotation.XmlType;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
+ * @version $Id: TicketInfo.java 7796 2012-07-18 00:49:51Z diana.uriol@efaps.org
+ *          $
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "pos4a_TicketInfo")
@@ -65,17 +64,19 @@ public class TicketInfo
     @XmlElement(name = "user")
     private UserInfo user;
 
-
     @XmlAttribute(name = "activeCash")
     private String activeCash;
 
     @XmlAttribute(name = "host")
     private String host;
 
-
-	@XmlElementWrapper(name = "ticketLineInfos")
+    @XmlElementWrapper(name = "ticketLineInfos")
     @XmlElement(name = "ticketLineInfo")
     private List<TicketLineInfo> ticketLines;
+
+    @XmlElementWrapper(name = "paymentInfos")
+    @XmlElement(name = "pos4a_PaymentInfo")
+    private List<PaymentInfo> payments;
 
     /**
      * Getter method for the instance variable {@link #uuid}.
@@ -200,14 +201,25 @@ public class TicketInfo
         this.activeCash = _activeCash;
     }
 
-    public String getHost() {
-		return this.host;
-	}
+    public String getHost()
+    {
+        return this.host;
+    }
 
-	public void setHost(String _host) {
-		this.host = _host;
-	}
+    public void setHost(String _host)
+    {
+        this.host = _host;
+    }
 
+    public List<PaymentInfo> getPayments()
+    {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentInfo> payments)
+    {
+        this.payments = payments;
+    }
 
     /**
      * Getter method for the instance variable {@link #ticketLines}.
