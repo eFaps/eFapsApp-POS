@@ -66,9 +66,11 @@ import org.efaps.db.Update;
 import org.efaps.db.transaction.ConnectionResource;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.uiform.Create;
 import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
+import org.efaps.esjp.pos.jaxb.PaymentInfo;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.esjp.pos.jaxb.TicketLineInfo;
 import org.efaps.ui.wicket.util.DateUtil;
@@ -117,18 +119,21 @@ public abstract class PosAccount_Base
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
         queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _ticket.getHost());
         final MultiPrintQuery multi = queryBldr.getPrint();
-        multi.addAttribute(CIPOS.POS.Account);
+        multi.addAttribute(CIPOS.POS.AccountLink);
+        multi.addAttribute(CIPOS.POS.ID);
         multi.execute();
-        long idAccount = 0;
+        Long idAccount = null;
+        Long idPos = null;
         while (multi.next()) {
-            idAccount = multi.getAttribute(CIPOS.POS.Account);
+            idAccount = multi.<Long>getAttribute(CIPOS.POS.AccountLink);
+            idPos = multi.<Long>getAttribute(CIPOS.POS.ID);
         }
 
         // Sales-Configuration
         final Instance baseCurrInst = SystemConfiguration.get(
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
         final DateTime date = new DateTime(_ticket.getDate());
-        final Insert insert = new Insert(CIPOS.CashDeskBalance);
+        final Insert insert = new Insert(CISales.CashDeskBalance);
         insert.add(CISales.CashDeskBalance.Name, new DateTime().toLocalTime());
         insert.add(CISales.CashDeskBalance.Date, date);
         insert.add(CISales.CashDeskBalance.Status, Status.find("Sales_CashDeskBalanceStatus", "Closed").getId());
@@ -145,15 +150,34 @@ public abstract class PosAccount_Base
 
         final Instance balanceInst = insert.getInstance();
 
-        for (final TicketLineInfo t : _ticket.getTicketLines()) {
+        final Insert payInsert = new Insert(CIPOS.Payment);
+        payInsert.add(CIPOS.Payment.Date, new DateTime());
+        payInsert.add(CIPOS.Payment.CreateDocument, balanceInst.getId());
+        payInsert.execute();
 
-            QueryBuilder attrQueryBldr = new QueryBuilder(CISales.TransactionAbstract);
-            attrQueryBldr.addWhereAttrEqValue(CISales.TransactionAbstract.Date, new Date());
-            attrQueryBldr.addWhereAttrEqValue(CISales.TransactionAbstract.Account, idAccount);
-            AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CISales.TransactionAbstract.Payment);
+        final Instance payInst = payInsert.getInstance();
+        Long payIds = null;
+        BigDecimal amount = BigDecimal.ZERO;
 
-            QueryBuilder queryBldr2 = new QueryBuilder(CISales.Payment);
-            queryBldr2.addWhereAttrInQuery(CISales.Payment.ID, attrQuery);
+        for (final PaymentInfo t : _ticket.getPayments()) {
+
+            final QueryBuilder queryBldr1 = new QueryBuilder(CIERP.AttributeDefinitionAbstract);
+            queryBldr1.addWhereAttrEqValue(CIERP.AttributeDefinitionAbstract.Value, t.getPaymentName());
+            final MultiPrintQuery multi1 = queryBldr1.getPrint();
+            multi.addAttribute(CIERP.AttributeDefinitionAbstract.ID);
+            multi.execute();
+            while (multi.next()) {
+                payIds = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
+            }
+
+            QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
+            attrQueryBldr.addWhereAttrLessValue(CIPOS.TransactionAbstract.Date, new DateTime());
+            attrQueryBldr.addWhereAttrEqValue(CIPOS.TransactionAbstract.POSLink, idPos); //.Account,idAccount);
+            AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CIPOS.TransactionAbstract.Payment);
+
+            QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Payment);
+            queryBldr2.addWhereAttrInQuery(CIPOS.Payment.ID, attrQuery);
+            queryBldr2.addWhereAttrIsNull(CIPOS.Payment.TargetDocument);
             InstanceQuery query = queryBldr2.getQuery();
             query.execute();
             while (query.next()) {
@@ -161,50 +185,38 @@ public abstract class PosAccount_Base
                 final Update update = new Update(instPay);
                 update.add("TargetDocument", balanceInst.getId());
                 update.execute();
+
+                final QueryBuilder queryBldr4 = new QueryBuilder(CIPOS.TransactionInbound);
+                queryBldr4.addWhereAttrEqValue(CIPOS.TransactionInbound.Payment, instPay.getId());
+                final MultiPrintQuery multi4 = queryBldr4.getPrint();
+                multi4.addAttribute(CIPOS.TransactionInbound.Amount);
+                multi4.execute();
+                while (multi4.next()) {
+                    amount = amount.add(multi4.<BigDecimal>getAttribute(CIPOS.TransactionInbound.Amount));
+                }
             }
         }
-
-        final Insert payInsert = new Insert(CIPOS.Payment);
-        payInsert.add(CIPOS.Payment.Date, new DateTime());
-        payInsert.add(CIPOS.Payment.CreateDocument, balanceInst.getId());
-        payInsert.execute();
-
-        final Instance payInst = payInsert.getInstance();
-
-        for (final TicketLineInfo t : _ticket.getTicketLines()) {
-
-            Integer payIds = t.getLineId();
-            Long currId = baseCurrInst.getId();
-            Double amounts = t.getTotal();
-
-            BigDecimal crossTotal = BigDecimal.ZERO;
-            final Map<Long, BigDecimal> curr2Rate = new HashMap<Long, BigDecimal>();
-            final BigDecimal amount = new BigDecimal(amounts);
-            final BigDecimal rate;
-            if (curr2Rate.containsKey(currId)) {
-                rate = curr2Rate.get(currId);
-            } else {
-                rate = getRate(date, currId);
-                curr2Rate.put(currId, rate);
-            }
-
-            crossTotal = crossTotal.add(amount.divide(rate, BigDecimal.ROUND_HALF_UP));
-            final Insert transInsert = new Insert(CISales.TransactionOutbound);
-            transInsert.add(CISales.TransactionOutbound.Amount, amount);
-            transInsert.add(CISales.TransactionOutbound.CurrencyId, currId);
-            transInsert.add(CISales.TransactionOutbound.PaymentType, payIds);
-            transInsert.add(CISales.TransactionOutbound.Payment, payInst.getId());
-            transInsert.add(CISales.TransactionOutbound.Account, idAccount);
-            transInsert.add(CISales.TransactionOutbound.Description, "CashDeskBalance");
-            transInsert.add(CISales.TransactionOutbound.Date, new DateTime());
-            transInsert.execute();
-        }
-
-        BigDecimal crossTotal = BigDecimal.ZERO;
+        Long currId = baseCurrInst.getId();
         final Map<Long, BigDecimal> curr2Rate = new HashMap<Long, BigDecimal>();
-        final Update update = new Update(balanceInst);
-        update.add("CrossTotal", crossTotal);
-        update.execute();
+
+        final BigDecimal rate;
+        if (curr2Rate.containsKey(currId)) {
+            rate = curr2Rate.get(currId);
+        } else {
+            rate = getRate(date, currId);
+            curr2Rate.put(currId, rate);
+        }
+
+        final Insert transInsert = new Insert(CIPOS.TransactionOutbound);
+        transInsert.add(CIPOS.TransactionOutbound.Amount, amount);
+        transInsert.add(CIPOS.TransactionOutbound.CurrencyId, currId);
+        transInsert.add(CIPOS.TransactionOutbound.PaymentType, 1);
+        transInsert.add(CIPOS.TransactionOutbound.Payment, payInst.getId());
+        transInsert.add(CIPOS.TransactionOutbound.Account, idAccount);
+        transInsert.add(CIPOS.TransactionOutbound.Description, "CashDeskBalance");
+        transInsert.add(CIPOS.TransactionOutbound.Date, new DateTime());
+        transInsert.add(CIPOS.TransactionOutbound.POSLink, idPos);
+        transInsert.execute();
 
         return new Return();
     }
