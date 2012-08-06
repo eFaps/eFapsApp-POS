@@ -62,6 +62,7 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.uitable.MultiPrint;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
+import org.efaps.esjp.pos.jaxb.PaymentInfo;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.esjp.pos.jaxb.TicketLineInfo;
 import org.efaps.esjp.sales.Calculator_Base;
@@ -74,11 +75,11 @@ import org.joda.time.DateTime;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id: Payment_Base.java 7179 2011-10-07 18:34:24Z jorge.cueva@moxter.net $
+ * @version $Id: Payment_Base.java 7179 2011-10-07 18:34:24Z
  */
 @EFapsUUID("dda77565-8a2b-4a69-b100-b723f062ffcc")
 @EFapsRevision("$Rev: 7179 $")
-public  abstract class PosPayment_Base
+public abstract class PosPayment_Base
     implements Serializable
 {
 
@@ -99,65 +100,61 @@ public  abstract class PosPayment_Base
      * @return new Return
      * @throws EFapsException on error
      */
-    public Return create(final TicketInfo _ticket)
+    public Return create(final TicketInfo _ticket,
+                         final CreatedDoc doc)
         throws EFapsException
     {
-            final CreatedDoc docInst = new PosReceipt().createTicket(_ticket);
-            //final TicketInfo docInst = new TicketInfo();
 
-            /*QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Receipt);
-            queryBldr2.addWhereAttrEqValue(CIPOS.Receipt.Type, _ticket);
-            final MultiPrintQuery multi1 = queryBldr2.getPrint();
-            multi1.execute();
-            Long instPay=null;
-            while (multi1.next()) {
-                instPay = multi1.getCurrentInstance().getId();
-            }*/
+        final Insert insert = new Insert(CIPOS.Payment);
+        insert.add(CIPOS.Payment.Date, _ticket.getDate());
+        insert.add(CIPOS.Payment.CreateDocument, doc.getInstance().getId());
+        insert.execute();
 
-            //final String dateStr = _ticket.getDate().toString();
+        final Instance paymentInst = insert.getInstance();
 
-            final Insert insert = new Insert(CISales.Payment);
-            insert.add(CISales.Payment.Date, _ticket.getDate());//dateStr);
-            insert.add(CISales.Payment.CreateDocument, docInst.getInstance().getId());//((Long) docInst.getInstance().getId()));
-            insert.execute();
+        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
+        queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _ticket.getHost());
+        final MultiPrintQuery multi = queryBldr.getPrint();
+        multi.addAttribute(CIPOS.POS.AccountLink);
+        multi.addAttribute(CIPOS.POS.ID);
+        multi.execute();
+        Long idAccount = null;
+        Long idPos = null;
+        while (multi.next()) {
+            idAccount = multi.<Long>getAttribute(CIPOS.POS.AccountLink);
+            idPos = multi.<Long>getAttribute(CIPOS.POS.ID);
+        }
 
-            final Instance paymentInst = insert.getInstance();
+        // Sales-Configuration
+        final Instance baseCurrInst = SystemConfiguration.get(
+                        UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
 
-            final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
-            queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _ticket.getHost());
-            final MultiPrintQuery multi = queryBldr.getPrint();
-            multi.addAttribute(CIPOS.POS.Account);
-            multi.execute();
-            Long idAccount = null;
-            while (multi.next()) {
-                idAccount = multi.<Long>getAttribute(CIPOS.POS.Account);
-            }
+        for (final PaymentInfo t : _ticket.getPayments()) {
 
-            final QueryBuilder queryBldr1 = new QueryBuilder(CISales.AbstractAttr);
-            queryBldr1.addWhereAttrEqValue(CISales.AbstractAttr.Value, _ticket.getM_paymentName());
-            final MultiPrintQuery multi1 = queryBldr.getPrint();
-            multi1.addAttribute(CISales.AbstractAttr.Type);
+            final QueryBuilder queryBldr1 = new QueryBuilder(CIERP.AttributeDefinitionAbstract);
+            queryBldr1.addWhereAttrEqValue(CIERP.AttributeDefinitionAbstract.Value, t.getPaymentName());
+            final MultiPrintQuery multi1 = queryBldr1.getPrint();
+            multi1.addAttribute(CIERP.AttributeDefinitionAbstract.ID);
             multi1.execute();
             Long idPayType = null;
-            while (multi.next()) {
-                idPayType = multi1.<Long>getAttribute(CISales.AbstractAttr.Type);
+            while (multi1.next()) {
+                idPayType = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
             }
 
-            for (final TicketLineInfo t : _ticket.getTicketLines()) {
-                final Insert transIns = new Insert(CISales.TransactionInbound);
-                transIns.add(CISales.TransactionInbound.Amount, t.getTotal());
-                transIns.add(CISales.TransactionInbound.CurrencyId, 1);
-                transIns.add(CISales.TransactionInbound.Payment, paymentInst.getId());//((Long) paymentInst.getId()).toString());
-                transIns.add(CISales.TransactionInbound.PaymentType, idPayType);
-                transIns.add(CISales.TransactionInbound.Description, t.getProductName());
-                transIns.add(CISales.TransactionInbound.Date, _ticket.getDate());
-                transIns.add(CISales.TransactionInbound.Account, idAccount);
-                transIns.execute();
-            }
+            final Insert transIns = new Insert(CIPOS.TransactionInbound);
+            transIns.add(CIPOS.TransactionInbound.Amount, t.getPaymentTotal());
+            transIns.add(CIPOS.TransactionInbound.CurrencyId, baseCurrInst.getId());
+            transIns.add(CIPOS.TransactionInbound.Payment, paymentInst.getId());
+            transIns.add(CIPOS.TransactionInbound.PaymentType, idPayType);
+            transIns.add(CIPOS.TransactionInbound.Description, t.getPaymentName());
+            transIns.add(CIPOS.TransactionInbound.Date, _ticket.getDate());
+            transIns.add(CIPOS.TransactionInbound.Account, idAccount);
+            transIns.add(CIPOS.TransactionInbound.POSLink, idPos);
+
+            transIns.execute();
+        }
         return new Return();
     }
-
-
 
     /**
      * Method to calculate the open amount for an instance.
@@ -196,8 +193,8 @@ public  abstract class PosPayment_Base
 
         /**
          * @param _currencyInstance Currency Instance
-         * @param _crossTotal       Cross Total
-         * @param _rateDate         date of the rate
+         * @param _crossTotal Cross Total
+         * @param _rateDate date of the rate
          */
         public OpenAmount(final CurrencyInst _currencyInstance,
                           final BigDecimal _crossTotal,
