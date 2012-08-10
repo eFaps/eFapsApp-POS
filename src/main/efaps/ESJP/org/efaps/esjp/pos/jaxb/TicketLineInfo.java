@@ -52,8 +52,11 @@ public class TicketLineInfo
     @XmlElement(name = "productName")
     private String productName;
 
-    @XmlElement(name = "tax")
+    //@XmlElement(name = "tax")
     private TaxInfo Tax;
+
+    @XmlElement(name = "tax")
+    private double priceTax;
 
     @XmlElement(name = "value")
     private double total;
@@ -130,6 +133,16 @@ public class TicketLineInfo
     public void setTax(TaxInfo tax)
     {
         Tax = tax;
+    }
+
+    public double getPriceTax()
+    {
+        return priceTax;
+    }
+
+    public void setPriceTax(double priceTax)
+    {
+        this.priceTax = priceTax;
     }
 
     public double getTotal()
