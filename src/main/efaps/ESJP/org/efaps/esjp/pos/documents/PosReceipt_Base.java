@@ -12,6 +12,7 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
+import org.efaps.db.Update;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.PrintQuery;
@@ -25,11 +26,10 @@ import org.efaps.esjp.sales.document.DocumentSum;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("a5ee4a8e-ccd3-44b0-8ca5-66aea9c11bcc")
-@EFapsRevision("$Rev: 6430 $")
+@EFapsRevision("$Rev$")
 public class PosReceipt_Base
     extends DocumentSum
 {
-
     public Return createTicketInfo(final TicketInfo _ticket)
         throws EFapsException
     {
@@ -66,7 +66,6 @@ public class PosReceipt_Base
     protected CreatedDoc createTicket(final TicketInfo _ticket)
         throws EFapsException
     {
-
         final Instance baseCurrInst = SystemConfiguration.get(
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
         final Insert insert = new Insert(CIPOS.Receipt);
@@ -99,6 +98,10 @@ public class PosReceipt_Base
         final Instance baseCurrInst = SystemConfiguration.get(
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
 
+        double netTotal=0;
+        double taxTotal=0;
+        double crossTotal=0;
+
         for (final TicketLineInfo t : _ticket.getTicketLines()) {
 
             final Insert posIns = new Insert(CIPOS.ReceiptPosition);
@@ -112,6 +115,8 @@ public class PosReceipt_Base
                 idProd = multi.getCurrentInstance().getId();
             }
             if (idProd > 0) {
+                crossTotal= crossTotal + t.getTotal();
+                netTotal= netTotal + (t.getTotal()- t.getPriceTax());
                 posIns.add(CIPOS.ReceiptPosition.ReceiptLink, _createdDoc.getInstance().getId());
                 posIns.add(CIPOS.ReceiptPosition.PositionNumber, t.getLineId());
                 posIns.add(CIPOS.ReceiptPosition.Product, idProd);
@@ -126,13 +131,18 @@ public class PosReceipt_Base
                 posIns.add(CIPOS.ReceiptPosition.RateCurrencyId, baseCurrInst.getId());
                 posIns.add(CIPOS.ReceiptPosition.CrossUnitPrice, t.getPrice());
                 posIns.add(CIPOS.ReceiptPosition.NetUnitPrice, t.getPrice());
-                posIns.add(CIPOS.ReceiptPosition.CrossPrice, t.getPrice());
-                posIns.add(CIPOS.ReceiptPosition.NetPrice, t.getTotal());
+                posIns.add(CIPOS.ReceiptPosition.CrossPrice,t.getTotal());
+                posIns.add(CIPOS.ReceiptPosition.NetPrice, t.getTotal()- t.getPriceTax());
                 posIns.add(CIPOS.ReceiptPosition.DiscountNetUnitPrice, BigDecimal.ZERO);
-
                 posIns.execute();
+
                 _createdDoc.addPosition(posIns.getInstance());
             }
+
+            final Update update = new Update(_createdDoc.getInstance());
+            update.add(CIPOS.Receipt.CrossTotal, crossTotal);
+            update.add(CIPOS.Receipt.NetTotal, netTotal);
+            update.execute();
         }
     }
 
@@ -140,6 +150,16 @@ public class PosReceipt_Base
                                          final CreatedDoc doc)
         throws EFapsException
     {
+        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
+        queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _ticket.getHost());
+        final MultiPrintQuery multi = queryBldr.getPrint();
+        multi.addAttribute(CIPOS.POS.ID);
+        multi.execute();
+        Long idPos = null;
+        while (multi.next()) {
+            idPos = multi.<Long>getAttribute(CIPOS.POS.ID);
+        }
+
         // create classifications
         final Classification classification1 = (Classification) CIPOS.ReceiptClass.getType();
         final Insert relInsert1 = new Insert(classification1.getClassifyRelationType());
@@ -151,6 +171,10 @@ public class PosReceipt_Base
         classInsert1.add(classification1.getLinkAttributeName(), doc.getInstance().getId());
         classInsert1.add(CIPOS.ReceiptClass.UserName, _ticket.getUser().getName());
         classInsert1.add(CIPOS.ReceiptClass.ActiveCash, _ticket.getActiveCash());
+        classInsert1.add(CIPOS.ReceiptClass.POSLink, idPos);
         classInsert1.execute();
     }
+
+
+
 }
