@@ -35,6 +35,9 @@
         </target>
         <!-- type tree for -->
         <type>POS_POS</type>
+        <childs>
+            <child>POS_POSTree_Receipt</child>
+        </childs>
 
         <!-- properties -->
         <property name="Target">content</property>

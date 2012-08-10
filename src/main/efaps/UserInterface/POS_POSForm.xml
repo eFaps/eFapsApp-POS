@@ -40,6 +40,15 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
+        <!--
+        <field name="account">
+            <property name="Attribute">AccountLink</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Required">true</property>
+        </field>
+         -->
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
         </field>
