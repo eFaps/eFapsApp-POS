@@ -17,9 +17,9 @@
  limitations under the License.
 
  Author:          The eFaps Team
- Revision:        $Rev: 5316 $
- Last Changed:    $Date: 2010-08-16 11:37:54 -0500 (lun, 16 ago 2010) $
- Last Changed By: $Author: miguel.a.aranya $
+ Revision:        $Rev$
+ Last Changed:    $Date$
+ Last Changed By: $Author$
 
 -->
 
@@ -28,7 +28,7 @@
                      xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>b504230b-4dcf-49a3-bfdb-f51050a08c37</uuid>
     <file-application>eFapsApp-pos</file-application>
-    <file-revision>$Rev: 5316 $</file-revision>
+    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_ReceiptClassSQLTable</name>
@@ -37,8 +37,10 @@
             <!-- columns -->
             <column name="RECEIPTID" type="INTEGER" not-null="true" />
             <column name="USERNAME"    type="STRING_SHORT"    length="255"/>
-            <foreign name="T_RECEIPTCLASS_FK_RECEIPTID" key="RECEIPTID" reference="T_ERPDOC(ID)" />
             <column name="ACTIVECASH"       type="STRING_SHORT"     length="64"/>
+            <column name="POSID" type="INTEGER"/>
+            <foreign name="T_RECEIPTCLASS_FK_RECEIPTID" key="RECEIPTID" reference="T_ERPDOC(ID)" />
+            <foreign key="POSID" name="T_POSPOS_FK_ID" reference="T_POSPOS(ID)"/>
         </database>
     </definition>
 

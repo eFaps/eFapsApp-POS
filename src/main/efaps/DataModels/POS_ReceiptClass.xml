@@ -17,9 +17,9 @@
  limitations under the License.
 
  Author:          The eFaps Team
- Revision:        $Rev: 5626 $
- Last Changed:    $Date: 2010-10-05 11:56:11 -0500 (mar, 05 oct 2010) $
- Last Changed By: $Author: jorge.m.cueva $
+ Revision:        $Rev$
+ Last Changed:    $Date$
+ Last Changed By: $Author$
 
 -->
 
@@ -28,7 +28,7 @@
                  xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>d960a834-dc26-482d-b590-38f0e7a7e245</uuid>
     <file-application>eFapsApp-pos</file-application>
-    <file-revision>$Rev: 5626 $</file-revision>
+    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_ReceiptClass</name>
@@ -65,6 +65,13 @@
             <type>String</type>
             <sqltable>POS_ReceiptClassSQLTable</sqltable>
             <sqlcolumn>ACTIVECASH</sqlcolumn>
+            </attribute>
+        <attribute>
+            <name>POSLink</name>
+            <type>Link</type>
+            <typelink>POS_POS</typelink>
+            <sqltable>POS_ReceiptClassSQLTable</sqltable>
+            <sqlcolumn>POSID</sqlcolumn>
         </attribute>
         <classifies type="POS_Receipt" relType="POS_Receipt2Class"
                     relLinkAttribute="ReceiptLink" relTypeAttribute="ClassTypeId" multipleSelect="true"/>
