@@ -88,24 +88,6 @@ import org.joda.time.DateTime;
 @EFapsRevision("$Rev: 7479 $")
 public abstract class PosAccount_Base
 {
-
-    /**
-     * method to get a formater.
-     *
-     * @return formater with value.
-     * @throws EFapsException on error.
-     */
-    protected DecimalFormat getTwoDigitsformater()
-        throws EFapsException
-    {
-        final DecimalFormat formater = (DecimalFormat) NumberFormat.getInstance(Context.getThreadContext().getLocale());
-        formater.setMaximumFractionDigits(2);
-        formater.setMinimumFractionDigits(2);
-        formater.setRoundingMode(RoundingMode.HALF_UP);
-        formater.setParseBigDecimal(true);
-        return formater;
-    }
-
     /**
      * Method for create a new Cash Desk Balance.
      *
@@ -129,23 +111,23 @@ public abstract class PosAccount_Base
             idPos = multi.<Long>getAttribute(CIPOS.POS.ID);
         }
 
-        // Sales-Configuration
         final Instance baseCurrInst = SystemConfiguration.get(
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
         final DateTime date = new DateTime(_ticket.getDate());
-        final Insert insert = new Insert(CISales.CashDeskBalance);
-        insert.add(CISales.CashDeskBalance.Name, new DateTime().toLocalTime());
-        insert.add(CISales.CashDeskBalance.Date, date);
-        insert.add(CISales.CashDeskBalance.Status, Status.find("Sales_CashDeskBalanceStatus", "Closed").getId());
-        insert.add(CISales.CashDeskBalance.CrossTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.NetTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.DiscountTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.RateCrossTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.RateNetTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.RateDiscountTotal, BigDecimal.ZERO);
-        insert.add(CISales.CashDeskBalance.Rate, new Object[] { 1, 1 });
-        insert.add(CISales.CashDeskBalance.RateCurrencyId, baseCurrInst.getId());
-        insert.add(CISales.CashDeskBalance.CurrencyId, baseCurrInst.getId());
+
+        final Insert insert = new Insert(CIPOS.CashDeskBalance);
+        insert.add(CIPOS.CashDeskBalance.Name, new DateTime().toLocalTime());
+        insert.add(CIPOS.CashDeskBalance.Date, date);
+        insert.add(CIPOS.CashDeskBalance.Status, Status.find("Sales_CashDeskBalanceStatus", "Closed").getId());
+        insert.add(CIPOS.CashDeskBalance.CrossTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.NetTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.DiscountTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.RateCrossTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.RateNetTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.RateDiscountTotal, BigDecimal.ZERO);
+        insert.add(CIPOS.CashDeskBalance.Rate, new Object[] { 1, 1 });
+        insert.add(CIPOS.CashDeskBalance.RateCurrencyId, baseCurrInst.getId());
+        insert.add(CIPOS.CashDeskBalance.CurrencyId, baseCurrInst.getId());
         insert.execute();
 
         final Instance balanceInst = insert.getInstance();
@@ -156,8 +138,21 @@ public abstract class PosAccount_Base
         payInsert.execute();
 
         final Instance payInst = payInsert.getInstance();
-        Long payIds = null;
+        Long currId = baseCurrInst.getId();
         BigDecimal amount = BigDecimal.ZERO;
+
+        final Insert transInsert = new Insert(CIPOS.TransactionOutbound);
+        transInsert.add(CIPOS.TransactionOutbound.Amount, amount);
+        transInsert.add(CIPOS.TransactionOutbound.CurrencyId, currId);
+        transInsert.add(CIPOS.TransactionOutbound.PaymentType, 1);
+        transInsert.add(CIPOS.TransactionOutbound.Payment, payInst.getId());
+        transInsert.add(CIPOS.TransactionOutbound.Account, idAccount);
+        transInsert.add(CIPOS.TransactionOutbound.Description, "CashDeskBalance");
+        transInsert.add(CIPOS.TransactionOutbound.Date, new DateTime());
+        transInsert.add(CIPOS.TransactionOutbound.POSLink, idPos);
+        transInsert.execute();
+        final Instance transInst = transInsert.getInstance();
+
 
         for (final PaymentInfo t : _ticket.getPayments()) {
 
@@ -167,7 +162,7 @@ public abstract class PosAccount_Base
             multi.addAttribute(CIERP.AttributeDefinitionAbstract.ID);
             multi.execute();
             while (multi.next()) {
-                payIds = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
+                Long payIds = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
             }
 
             QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
@@ -181,10 +176,8 @@ public abstract class PosAccount_Base
             InstanceQuery query = queryBldr2.getQuery();
             query.execute();
             while (query.next()) {
+
                 Instance instPay = query.getCurrentValue();
-                final Update update = new Update(instPay);
-                update.add("TargetDocument", balanceInst.getId());
-                update.execute();
 
                 final QueryBuilder queryBldr4 = new QueryBuilder(CIPOS.TransactionInbound);
                 queryBldr4.addWhereAttrEqValue(CIPOS.TransactionInbound.Payment, instPay.getId());
@@ -194,51 +187,27 @@ public abstract class PosAccount_Base
                 while (multi4.next()) {
                     amount = amount.add(multi4.<BigDecimal>getAttribute(CIPOS.TransactionInbound.Amount));
                 }
+
+                final Update update = new Update(instPay);
+                update.add("TargetDocument", balanceInst.getId());
+                update.execute();
             }
         }
-        Long currId = baseCurrInst.getId();
-        final Map<Long, BigDecimal> curr2Rate = new HashMap<Long, BigDecimal>();
 
-        final BigDecimal rate;
-        if (curr2Rate.containsKey(currId)) {
-            rate = curr2Rate.get(currId);
-        } else {
-            rate = getRate(date, currId);
-            curr2Rate.put(currId, rate);
-        }
+        final Update update = new Update(balanceInst);
+        update.add(CISales.CashDeskBalance.CrossTotal, amount);
+        update.execute();
 
-        final Insert transInsert = new Insert(CIPOS.TransactionOutbound);
-        transInsert.add(CIPOS.TransactionOutbound.Amount, amount);
-        transInsert.add(CIPOS.TransactionOutbound.CurrencyId, currId);
-        transInsert.add(CIPOS.TransactionOutbound.PaymentType, 1);
-        transInsert.add(CIPOS.TransactionOutbound.Payment, payInst.getId());
-        transInsert.add(CIPOS.TransactionOutbound.Account, idAccount);
-        transInsert.add(CIPOS.TransactionOutbound.Description, "CashDeskBalance");
-        transInsert.add(CIPOS.TransactionOutbound.Date, new DateTime());
-        transInsert.add(CIPOS.TransactionOutbound.POSLink, idPos);
-        transInsert.execute();
+        final Update updateTrans = new Update(transInst);
+        updateTrans.add(CIPOS.TransactionOutbound.Amount, amount);
+        updateTrans.execute();
+
+        final Insert posToBalanceIns = new Insert(CIPOS.POS2CashDeskBalance);
+        posToBalanceIns.add(CIPOS.POS2CashDeskBalance.FromLink, idPos);
+        posToBalanceIns.add(CIPOS.POS2CashDeskBalance.ToLink, balanceInst.getId());
+        posToBalanceIns.execute();
 
         return new Return();
     }
 
-    protected BigDecimal getRate(final DateTime _date,
-                                 final Long _currId)
-        throws EFapsException
-    {
-        final BigDecimal ret;
-        final QueryBuilder queryBldr = new QueryBuilder(CIERP.CurrencyRateClient);
-        queryBldr.addWhereAttrEqValue(CIERP.CurrencyRateClient.CurrencyLink, _currId);
-        queryBldr.addWhereAttrLessValue(CIERP.CurrencyRateClient.ValidFrom, _date.plusMinutes(1));
-        queryBldr.addWhereAttrGreaterValue(CIERP.CurrencyRateClient.ValidUntil, _date);
-
-        final MultiPrintQuery multi = queryBldr.getPrint();
-        multi.addAttribute(CIERP.CurrencyRateClient.Rate);
-        multi.execute();
-        if (multi.next()) {
-            ret = multi.<BigDecimal>getAttribute(CIERP.CurrencyRateClient.Rate);
-        } else {
-            ret = BigDecimal.ONE;
-        }
-        return ret;
-    }
 }

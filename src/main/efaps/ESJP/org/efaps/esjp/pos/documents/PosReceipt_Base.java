@@ -99,7 +99,6 @@ public class PosReceipt_Base
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
 
         double netTotal=0;
-        double taxTotal=0;
         double crossTotal=0;
 
         for (final TicketLineInfo t : _ticket.getTicketLines()) {
