@@ -31,6 +31,7 @@
             <child>POS_CategoryMyDesk</child>
             <child>POS_SubscriptionMyDesk</child>
             <child>POS_POSMyDesk</child>
+            <child>POS_CashDeskBalanceMyDesk</child>
         </childs>
     </definition>
 </ui-menu>

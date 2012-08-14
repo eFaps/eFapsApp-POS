@@ -43,12 +43,12 @@
     </field>
     <field name="description">
       <property name="Attribute">Description</property>
-      <property name="Label">POS_PaymentTransactionTable/Date.Label</property>
+      <property name="Label">POS_PaymentTransactionTable/Description.Label</property>
       <property name="ModeCreate">EDITABLE</property>
     </field>
     <field name="amount">
       <property name="Attribute">Amount</property>
-      <property name="Label">POS_PaymentTransactionTable/Date.Label</property>
+      <property name="Label">POS_PaymentTransactionTable/Amount.Label</property>
       <property name="ModeCreate">EDITABLE</property>
     </field>
     <field name="buttonOpenInNewWindow">

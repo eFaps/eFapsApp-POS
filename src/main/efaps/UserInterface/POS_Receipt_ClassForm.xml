@@ -27,6 +27,7 @@
         <version-expression>(version==latest)</version-expression>
         <name>POS_Receipt_ClassForm</name>
         <type>POS_ReceiptClass</type>
+
         <field name="userName">
             <property name="Columns">15</property>
             <property name="Attribute">UserName</property>

@@ -72,15 +72,6 @@
             <property name="Attribute">Status</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
-        <field name="salespersonLink">
-            <property name="SelectAlternateOID">linkto[Salesperson].oid</property>
-            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
-            <property name="Attribute">Salesperson</property>
-            <property name="ModeCreate">NONE</property>
-            <property name="ModeEdit">NONE</property>
-            <property name="ModePrint">READONLY</property>
-            <property name="ModeView">READONLY</property>
-        </field>
         <field name="headingPositon" character="Heading">
             <property name="Level">2</property>
             <property name="Label">Sales_InvoiceForm.headingPositon.Heading</property>

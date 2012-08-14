@@ -39,7 +39,7 @@
         <!-- type tree for -->
         <type>POS_Payment</type>
         <childs>
-            <child>POS_PaymentTree_Transaction</child>
+<!--             <child>POS_PaymentTree_Transaction</child> -->
         </childs>
         <!-- properties -->
         <property name="Target">content</property>

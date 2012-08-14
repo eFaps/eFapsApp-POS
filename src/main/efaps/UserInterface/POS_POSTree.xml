@@ -37,6 +37,7 @@
         <type>POS_POS</type>
         <childs>
             <child>POS_POSTree_Receipt</child>
+            <child>POS_POSTree_CashDeskBalance</child>
         </childs>
 
         <!-- properties -->
