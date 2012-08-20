@@ -7,7 +7,6 @@ import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Status;
-import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -15,9 +14,7 @@ import org.efaps.db.Insert;
 import org.efaps.db.Update;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
-import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
@@ -33,33 +30,9 @@ public class PosReceipt_Base
     public Return createTicketInfo(final TicketInfo _ticket)
         throws EFapsException
     {
-        QueryBuilder queryBldr1 = new QueryBuilder(CIPOS.ReceiptClass);
-        queryBldr1.addWhereAttrEqValue(CIPOS.ReceiptClass.ActiveCash, _ticket.getActiveCash());
-        final MultiPrintQuery multi1 = queryBldr1.getPrint();
-        multi1.execute();
-        // Si existe el activeCash entrante
-        if (multi1.next()) {
-            // Se inserta el ticket en un receipt y se insertan sus posiciones,
-            // clasificaciones y pagos respectivas
-            final CreatedDoc doc = createTicket(_ticket);
-            createdClassification(_ticket, doc);
-            new PosPayment().create(_ticket, doc);
-        }
-        // Si no existe el activeCash entrante
-        else {
-            // Antes de insertar los pagos, como es un nuevo activeCash;
-            // inicializa un balance en caso de que aun no se hayan registrado
-            // pagos respectivos para ese pos
-            // o hace el balance del pos correspondiente a ese activeCash porque
-            // hubo un cierre.
-            new PosAccount().cashDeskBalance(_ticket);
-
-            // Inserta ticket con posiciones, clasificaciones y pagos
-            // normalmente.
-            final CreatedDoc doc = createTicket(_ticket);
-            createdClassification(_ticket, doc);
-            new PosPayment().create(_ticket, doc);
-        }
+        final CreatedDoc doc = createTicket(_ticket);
+        createdClassification(_ticket, doc);
+        new PosPayment().create(_ticket, doc);
         return new Return();
     }
 

@@ -21,68 +21,45 @@
 package org.efaps.esjp.pos.documents;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Status;
-import org.efaps.admin.datamodel.Type;
-import org.efaps.admin.datamodel.ui.FieldValue;
-import org.efaps.admin.dbproperty.DBProperties;
-import org.efaps.admin.event.Parameter;
-import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.ui.AbstractCommand;
-import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
-import org.efaps.ci.CIType;
 import org.efaps.db.AttributeQuery;
-import org.efaps.db.Context;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.MultiPrintQuery;
-import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
 import org.efaps.db.Update;
-import org.efaps.db.transaction.ConnectionResource;
-import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
-import org.efaps.esjp.common.uiform.Create;
-import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
-import org.efaps.esjp.pos.jaxb.PaymentInfo;
-import org.efaps.esjp.pos.jaxb.TicketInfo;
-import org.efaps.esjp.pos.jaxb.TicketLineInfo;
-import org.efaps.ui.wicket.util.DateUtil;
+import org.efaps.esjp.pos.jaxb.JmsCloseCash;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
 
 /**
- * TODO comment!
- *
- * @author The eFaps Team
- * @version $Id: Account_Base.java 7479 2012-04-30 15:51:42Z
- *          jorge.cueva@moxter.net $
+ Copyright 2003 - 2009 The eFaps Team
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ Author:          The eFaps Team
+ Revision:        $Rev: 7910 $
+ Last Changed:    $Date: 2012-08-14 18:19:11 -0500 (mar, 14 ago 2012) $
+ Last Changed By: $Author: diana.uriol@efaps.org $
  */
 @EFapsUUID("6a1e1062-3abb-4698-b4e3-44201bf6c7d3")
 @EFapsRevision("$Rev: 7479 $")
@@ -95,11 +72,11 @@ public abstract class PosAccount_Base
      * @return new Return.
      * @throws EFapsException on error.
      */
-    public Return cashDeskBalance(final TicketInfo _ticket)
+    public Return cashDeskBalance(final JmsCloseCash _close)
         throws EFapsException
     {
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
-        queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _ticket.getHost());
+        queryBldr.addWhereAttrEqValue(CIPOS.POS.Name, _close.getM_sHost());
         final MultiPrintQuery multi = queryBldr.getPrint();
         multi.addAttribute(CIPOS.POS.AccountLink);
         multi.addAttribute(CIPOS.POS.ID);
@@ -113,7 +90,7 @@ public abstract class PosAccount_Base
 
         final Instance baseCurrInst = SystemConfiguration.get(
                         UUID.fromString("c9a1cbc3-fd35-4463-80d2-412422a3802f")).getLink("CurrencyBase");
-        final DateTime date = new DateTime(_ticket.getDate());
+        final DateTime date = new DateTime(_close.getM_dDate());
 
         final Insert insert = new Insert(CIPOS.CashDeskBalance);
         insert.add(CIPOS.CashDeskBalance.Name, new DateTime().toLocalTime());
@@ -153,45 +130,32 @@ public abstract class PosAccount_Base
         transInsert.execute();
         final Instance transInst = transInsert.getInstance();
 
+        QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
+        attrQueryBldr.addWhereAttrLessValue(CIPOS.TransactionAbstract.Date, new DateTime());
+        attrQueryBldr.addWhereAttrEqValue(CIPOS.TransactionAbstract.POSLink, idPos); // .Account,idAccount);
+        AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CIPOS.TransactionAbstract.Payment);
 
-        for (final PaymentInfo t : _ticket.getPayments()) {
+        QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Payment);
+        queryBldr2.addWhereAttrInQuery(CIPOS.Payment.ID, attrQuery);
+        queryBldr2.addWhereAttrIsNull(CIPOS.Payment.TargetDocument);
+        InstanceQuery query = queryBldr2.getQuery();
+        query.execute();
+        while (query.next()) {
 
-            final QueryBuilder queryBldr1 = new QueryBuilder(CIERP.AttributeDefinitionAbstract);
-            queryBldr1.addWhereAttrEqValue(CIERP.AttributeDefinitionAbstract.Value, t.getPaymentName());
-            final MultiPrintQuery multi1 = queryBldr1.getPrint();
-            multi.addAttribute(CIERP.AttributeDefinitionAbstract.ID);
-            multi.execute();
-            while (multi.next()) {
-                Long payIds = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
+            Instance instPay = query.getCurrentValue();
+
+            final QueryBuilder queryBldr4 = new QueryBuilder(CIPOS.TransactionInbound);
+            queryBldr4.addWhereAttrEqValue(CIPOS.TransactionInbound.Payment, instPay.getId());
+            final MultiPrintQuery multi4 = queryBldr4.getPrint();
+            multi4.addAttribute(CIPOS.TransactionInbound.Amount);
+            multi4.execute();
+            while (multi4.next()) {
+                amount = amount.add(multi4.<BigDecimal>getAttribute(CIPOS.TransactionInbound.Amount));
             }
 
-            QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
-            attrQueryBldr.addWhereAttrLessValue(CIPOS.TransactionAbstract.Date, new DateTime());
-            attrQueryBldr.addWhereAttrEqValue(CIPOS.TransactionAbstract.POSLink, idPos); //.Account,idAccount);
-            AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CIPOS.TransactionAbstract.Payment);
-
-            QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Payment);
-            queryBldr2.addWhereAttrInQuery(CIPOS.Payment.ID, attrQuery);
-            queryBldr2.addWhereAttrIsNull(CIPOS.Payment.TargetDocument);
-            InstanceQuery query = queryBldr2.getQuery();
-            query.execute();
-            while (query.next()) {
-
-                Instance instPay = query.getCurrentValue();
-
-                final QueryBuilder queryBldr4 = new QueryBuilder(CIPOS.TransactionInbound);
-                queryBldr4.addWhereAttrEqValue(CIPOS.TransactionInbound.Payment, instPay.getId());
-                final MultiPrintQuery multi4 = queryBldr4.getPrint();
-                multi4.addAttribute(CIPOS.TransactionInbound.Amount);
-                multi4.execute();
-                while (multi4.next()) {
-                    amount = amount.add(multi4.<BigDecimal>getAttribute(CIPOS.TransactionInbound.Amount));
-                }
-
-                final Update update = new Update(instPay);
-                update.add("TargetDocument", balanceInst.getId());
-                update.execute();
-            }
+            final Update update = new Update(instPay);
+            update.add("TargetDocument", balanceInst.getId());
+            update.execute();
         }
 
         final Update update = new Update(balanceInst);
