@@ -27,7 +27,7 @@
   <definition>
     <version-expression>(version==latest)</version-expression>
     <name>POS_ReceiptPosition</name>
-    <parent>Sales_PositionAbstract</parent>
+    <parent>Sales_PositionSumAbstract</parent>
 
     <attribute>
       <name>ReceiptLink</name>
