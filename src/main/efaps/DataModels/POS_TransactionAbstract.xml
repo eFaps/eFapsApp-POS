@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
- Copyright 2003 - 2010 The eFaps Team
+ Copyright 2003 - 2012 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,139 +20,128 @@
  Last Changed By: $Author: luis.estrada@efaps.org $
 
 --><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-  <uuid>f3c0af3d-723f-441a-ae4c-f692002514c1</uuid>
-  <file-application>eFapsApp-pos</file-application>
-  <file-revision>$Rev: 7787 $</file-revision>
+    <uuid>f3c0af3d-723f-441a-ae4c-f692002514c1</uuid>
+    <file-application>eFapsApp-pos</file-application>
+    <file-revision>$Rev: 7787 $</file-revision>
 
-  <definition>
+    <definition>
 
-    <version-expression>(version==latest)</version-expression>
-    <name>POS_TransactionAbstract</name>
-    <purpose abstract="true"/>
-    <attribute>
-      <name>Type</name>
-      <type>Type</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>TYPEID</sqlcolumn>
-    </attribute>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_TransactionAbstract</name>
+        <purpose abstract="true" />
+        <attribute>
+            <name>Type</name>
+            <type>Type</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>TYPEID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>OID</name>
-      <type>OID</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>TYPEID, ID</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>OID</name>
+            <type>OID</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>TYPEID, ID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>ID</name>
-      <type>Long</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>ID</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>ID</name>
+            <type>Long</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>ID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Company</name>
-      <type>CompanyLink</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>COMPANYID</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Company</name>
+            <type>CompanyLink</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>COMPANYID</sqlcolumn>
+        </attribute>
 
-   <attribute>
-      <name>Amount</name>
-      <type>Decimal</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>AMOUNT</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Amount</name>
+            <type>Decimal</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>AMOUNT</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>CurrencyId</name>
-      <type>LinkWithRanges</type>
-      <typelink>ERP_Currency</typelink>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>CURRENCYID</sqlcolumn>
-      <trigger event="RANGE_VALUE" name="Sales_Payment.CurrencyId.RANGE_VALUE" program="org.efaps.esjp.admin.datamodel.RangesValue">
-        <property name="Value">Name</property>
-        <property name="Type">ERP_Currency</property>
-      </trigger>
-    </attribute>
+        <attribute>
+            <name>CurrencyId</name>
+            <type>LinkWithRanges</type>
+            <typelink>ERP_Currency</typelink>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>CURRENCYID</sqlcolumn>
+            <trigger event="RANGE_VALUE"
+                name="Sales_Payment.CurrencyId.RANGE_VALUE" program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Name</property>
+                <property name="Type">ERP_Currency</property>
+            </trigger>
+        </attribute>
 
-    <attribute>
-      <name>Account</name>
-      <type>Link</type>
-      <typelink>Sales_AccountAbstract</typelink>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>ACCOUNTID</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Account</name>
+            <type>Link</type>
+            <typelink>Sales_AccountAbstract</typelink>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>ACCOUNTID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Payment</name>
-      <type>Link</type>
-      <typelink>Sales_Payment</typelink>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>PAYMENTID</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Payment</name>
+            <type>Link</type>
+            <typelink>Sales_Payment</typelink>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>PAYMENTID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>PaymentType</name>
-      <type>LinkWithRanges</type>
-      <typelink>Sales_PaymentTypeAttr</typelink>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>PAYTYPATTRID</sqlcolumn>
-      <trigger event="RANGE_VALUE" name="Sales_Payment.PaymentType.RANGE_VALUE" program="org.efaps.esjp.admin.datamodel.RangesValue">
-        <property name="Value">Value</property>
-        <property name="Type">Sales_PaymentTypeAttr</property>
-      </trigger>
-    </attribute>
+        <attribute>
+            <name>Description</name>
+            <type>String</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>DESCR</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Description</name>
-      <type>String</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>DESCR</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Date</name>
+            <type>Date</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>DATE</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Date</name>
-      <type>Date</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>DATE</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Creator</name>
+            <type>CreatorLink</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>CREATOR</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Creator</name>
-      <type>CreatorLink</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>CREATOR</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Created</name>
+            <type>Created</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>CREATED</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Created</name>
-      <type>Created</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>CREATED</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Modifier</name>
+            <type>ModifierLink</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>MODIFIER</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Modifier</name>
-      <type>ModifierLink</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>MODIFIER</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>Modified</name>
+            <type>Modified</type>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>MODIFIED</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>Modified</name>
-      <type>Modified</type>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>MODIFIED</sqlcolumn>
-    </attribute>
+        <attribute>
+            <name>POSLink</name>
+            <type>Link</type>
+            <typelink>POS_POS</typelink>
+            <sqltable>POS_TransactionAbstractSQLTable</sqltable>
+            <sqlcolumn>POSID</sqlcolumn>
+        </attribute>
 
-    <attribute>
-      <name>POSLink</name>
-      <type>Link</type>
-      <typelink>POS_POS</typelink>
-      <sqltable>POS_TransactionAbstractSQLTable</sqltable>
-      <sqlcolumn>POSID</sqlcolumn>
-    </attribute>
-
-  </definition>
+    </definition>
 </datamodel-type>
