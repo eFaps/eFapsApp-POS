@@ -115,13 +115,12 @@ public abstract class PosAccount_Base
         payInsert.execute();
 
         final Instance payInst = payInsert.getInstance();
-        Long currId = baseCurrInst.getId();
+        final Long currId = baseCurrInst.getId();
         BigDecimal amount = BigDecimal.ZERO;
 
         final Insert transInsert = new Insert(CIPOS.TransactionOutbound);
         transInsert.add(CIPOS.TransactionOutbound.Amount, amount);
         transInsert.add(CIPOS.TransactionOutbound.CurrencyId, currId);
-        transInsert.add(CIPOS.TransactionOutbound.PaymentType, 1);
         transInsert.add(CIPOS.TransactionOutbound.Payment, payInst.getId());
         transInsert.add(CIPOS.TransactionOutbound.Account, idAccount);
         transInsert.add(CIPOS.TransactionOutbound.Description, "CashDeskBalance");
@@ -130,19 +129,19 @@ public abstract class PosAccount_Base
         transInsert.execute();
         final Instance transInst = transInsert.getInstance();
 
-        QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
+        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.TransactionAbstract);
         attrQueryBldr.addWhereAttrLessValue(CIPOS.TransactionAbstract.Date, new DateTime());
         attrQueryBldr.addWhereAttrEqValue(CIPOS.TransactionAbstract.POSLink, idPos); // .Account,idAccount);
-        AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CIPOS.TransactionAbstract.Payment);
+        final AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(CIPOS.TransactionAbstract.Payment);
 
-        QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Payment);
+        final QueryBuilder queryBldr2 = new QueryBuilder(CIPOS.Payment);
         queryBldr2.addWhereAttrInQuery(CIPOS.Payment.ID, attrQuery);
         queryBldr2.addWhereAttrIsNull(CIPOS.Payment.TargetDocument);
-        InstanceQuery query = queryBldr2.getQuery();
+        final InstanceQuery query = queryBldr2.getQuery();
         query.execute();
         while (query.next()) {
 
-            Instance instPay = query.getCurrentValue();
+            final Instance instPay = query.getCurrentValue();
 
             final QueryBuilder queryBldr4 = new QueryBuilder(CIPOS.TransactionInbound);
             queryBldr4.addWhereAttrEqValue(CIPOS.TransactionInbound.Payment, instPay.getId());

@@ -22,52 +22,22 @@ package org.efaps.esjp.pos.documents;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 
 import org.efaps.admin.common.SystemConfiguration;
-import org.efaps.admin.datamodel.Status;
-import org.efaps.admin.datamodel.Type;
-import org.efaps.admin.datamodel.ui.FieldValue;
-import org.efaps.admin.dbproperty.DBProperties;
-import org.efaps.admin.event.Parameter;
-import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.db.Context;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
-import org.efaps.db.InstanceQuery;
 import org.efaps.db.MultiPrintQuery;
-import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
-import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.ci.CIProducts;
-import org.efaps.esjp.ci.CISales;
-import org.efaps.esjp.common.uitable.MultiPrint;
-import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
+import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.pos.jaxb.PaymentInfo;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
-import org.efaps.esjp.pos.jaxb.TicketLineInfo;
-import org.efaps.esjp.sales.Calculator_Base;
-import org.efaps.esjp.sales.PriceUtil;
-import org.efaps.ui.wicket.util.EFapsKey;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
 
@@ -136,16 +106,14 @@ public abstract class PosPayment_Base
             final MultiPrintQuery multi1 = queryBldr1.getPrint();
             multi1.addAttribute(CIERP.AttributeDefinitionAbstract.ID);
             multi1.execute();
-            Long idPayType = null;
             while (multi1.next()) {
-                idPayType = multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
+                multi1.<Long>getAttribute(CIERP.AttributeDefinitionAbstract.ID);
             }
 
             final Insert transIns = new Insert(CIPOS.TransactionInbound);
             transIns.add(CIPOS.TransactionInbound.Amount, t.getPaymentTotal());
             transIns.add(CIPOS.TransactionInbound.CurrencyId, baseCurrInst.getId());
             transIns.add(CIPOS.TransactionInbound.Payment, paymentInst.getId());
-            transIns.add(CIPOS.TransactionInbound.PaymentType, idPayType);
             transIns.add(CIPOS.TransactionInbound.Description, t.getPaymentName());
             transIns.add(CIPOS.TransactionInbound.Date, _ticket.getDate());
             transIns.add(CIPOS.TransactionInbound.Account, idAccount);
