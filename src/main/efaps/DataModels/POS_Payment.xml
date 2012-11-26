@@ -41,5 +41,6 @@
             <sqltable>ERP_Document2PaymentDocumentAbstractSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
         </attribute>
+        <trigger program="org.efaps.esjp.admin.access.SimpleAccessCheckOnType" name="POS_Payment.ACCESSCHECK" event="ACCESSCHECK" />
     </definition>
 </datamodel-type>

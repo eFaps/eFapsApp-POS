@@ -39,5 +39,6 @@
                 program="org.efaps.esjp.admin.datamodel.StatusValue">
             </trigger>
         </attribute>
+        <trigger program="org.efaps.esjp.admin.access.SimpleAccessCheckOnType" name="POS_Receipt.ACCESSCHECK" event="ACCESSCHECK" />
     </definition>
 </datamodel-type>

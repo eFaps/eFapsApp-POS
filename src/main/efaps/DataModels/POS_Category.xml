@@ -95,5 +95,6 @@
         </attribute>
         <trigger program="org.efaps.esjp.pos.Category" name="POS_Category.UPDATE_POST" method="updateTrigger" event="UPDATE_POST"/>
         <trigger program="org.efaps.esjp.pos.Category" name="POS_Category.INSERT_POST" method="insertTrigger" event="INSERT_POST"/>
+        <trigger program="org.efaps.esjp.admin.access.SimpleAccessCheckOnType" name="POS_Category.ACCESSCHECK" event="ACCESSCHECK" />
     </definition>
 </datamodel-type>

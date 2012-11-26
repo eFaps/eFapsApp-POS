@@ -31,6 +31,7 @@
     <parent>POS_TransactionAbstract</parent>
 
     <trigger event="INSERT_POST" method="outboundTrigger" name="Sales_TransactionInbound.INSERT_POST" program="org.efaps.esjp.sales.Transaction"/>
+    <trigger program="org.efaps.esjp.admin.access.SimpleAccessCheckOnType" name="POS_TransactionOutbound.ACCESSCHECK" event="ACCESSCHECK" />
 
   </definition>
 </datamodel-type>

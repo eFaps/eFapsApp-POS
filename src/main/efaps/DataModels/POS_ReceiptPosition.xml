@@ -37,5 +37,7 @@
       <sqlcolumn>DOCID</sqlcolumn>
     </attribute>
 
+    <trigger program="org.efaps.esjp.admin.access.SimpleAccessCheckOnType" name="POS_ReceiptPosition.ACCESSCHECK" event="ACCESSCHECK" />
+                 
   </definition>
 </datamodel-type>
