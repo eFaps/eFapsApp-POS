@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+  Copyright 2009 moxter.net S.A.C.
+
+  All Rights Reserved.
+  This program contains proprietary and trade secret information of
+  moxter.net S.A.C. Copyright notice is precautionary only and does not
+  evidence any actual or intended publication of such program.
+
+  Author:          moxter.net S.A.C.
+  Revision:        $Rev: 7932 $
+  Last Changed:    $Date: 2012-08-22 11:05:56 -0500 (mié, 22 ago 2012) $
+  Last Changed By: $Author: jan@moxter.net $
+
+--><access-set xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>eac0324b-08c2-4520-a11a-cfd0411d3a81</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <file-revision>$Rev: 7932 $</file-revision>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_Reader</name>
+
+        <access-type>show</access-type>
+        <access-type>read</access-type>
+        <access-type>checkout</access-type>
+
+        <type>POS_Receipt</type>
+        <type>POS_Receipt2Class</type>
+        <type>POS_ReceiptClass</type>
+        <type>POS_ReceiptPosition</type>
+
+        <status group="POS_ReceiptStatus">
+            <key>Open</key>
+            <key>Paid</key>
+            <key>Booked</key>
+            <key>Replaced</key>
+        </status>
+
+        <role>POS_Reader</role>
+    </definition>
+
+</access-set>
