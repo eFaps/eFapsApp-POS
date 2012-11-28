@@ -24,10 +24,12 @@
         <access-type>read</access-type>
         <access-type>checkout</access-type>
 
+        <type>POS_Category</type>
+        <type>POS_Payment</type>
         <type>POS_Receipt</type>
-        <type>POS_Receipt2Class</type>
-        <type>POS_ReceiptClass</type>
         <type>POS_ReceiptPosition</type>
+        <type>POS_TransactionInbound</type>
+        <type>POS_TransactionOutbound</type>
 
         <status group="POS_ReceiptStatus">
             <key>Open</key>
