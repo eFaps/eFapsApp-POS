@@ -74,31 +74,11 @@
             import org.efaps.admin.runlevel.RunLevel;
             import org.efaps.db.Context;
             import org.efaps.db.Insert;
-            import org.efaps.db.SearchQuery;
             import org.efaps.esjp.admin.ui.UIUpdate;
-            import org.efaps.importer.DataImport;
             import org.efaps.db.Instance;
 
             import java.net.URL
             import java.io.File;
-
-            EFAPS_LOGGER.info("Checking for import of JaasKeys for eFapsApp-POS");
-
-            SearchQuery query = new SearchQuery();
-            query.setQueryTypes("Admin_User_JAASKey");
-            query.addWhereExprEqValue("Key", "POS_Admin");
-            query.addSelect("OID");
-            query.execute();
-            if (!query.next()) {
-
-                RunLevel.init("shell");
-                RunLevel.execute();
-
-                EFAPS_LOGGER.info("    Importing JaasKeys for eFapsApp-POS");
-                URL url = new URL(EFAPS_ROOTURL, "Data/IMPORT_UserJAASKey.xml");
-                DataImport imp = DataImport.readFile(url);
-                imp.updateInDB();
-            }
 
             UIUpdate update = new UIUpdate();
              <!-- connect the POS_MyDesk Menu to the main menu from efaps -->
