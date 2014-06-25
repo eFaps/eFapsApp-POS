@@ -11,21 +11,22 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
-import org.efaps.db.Update;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.esjp.pos.jaxb.TicketLineInfo;
-import org.efaps.esjp.sales.document.DocumentSum;
+import org.efaps.esjp.sales.document.AbstractDocumentSum;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("a5ee4a8e-ccd3-44b0-8ca5-66aea9c11bcc")
 @EFapsRevision("$Rev$")
 public class PosReceipt_Base
-    extends DocumentSum
+    extends AbstractDocumentSum
 {
     public Return createTicketInfo(final TicketInfo _ticket)
         throws EFapsException
