@@ -3,8 +3,8 @@
 <suite name="Suite" parallel="false">
     <test name="CITests">
         <parameter name="baseFolder" value="../../../main/efaps"></parameter>
-        <classes>
-            <class name="org.efaps.tests.ci.form.FormValidation"></class>
-        </classes>
+         <packages>
+            <package name="org.efaps.tests.ci.*"></package>
+        </packages>
     </test>
 </suite>
