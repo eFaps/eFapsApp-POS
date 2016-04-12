@@ -49,7 +49,7 @@
     <field name="crosstotal">
       <property name="SelectAlternateOID">linkto[ToLink].oid</property>
       <property name="Phrase">$&lt;linkto[ToLink].attribute[CrossTotal].format[#,##0.00]&gt; $&lt;linkto[ToLink]attribute[CurrencyId].attribute[Symbol]&gt;</property>
-      <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
+      <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
       <property name="Label">POS_CashDeskBalance/CrossTotal.Label</property>
     </field>
     <field name="status">

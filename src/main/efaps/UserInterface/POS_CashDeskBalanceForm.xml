@@ -74,7 +74,7 @@
         <field name="crossTotal4Read">
             <property name="ModeEdit">NONE</property>
             <property name="Phrase">$&lt;attribute[CrossTotal].format[#,##0.00]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
-            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
             <property name="Label">POS_CashDeskBalance/CrossTotal.Label</property>
         </field>
         <field name="payment">
@@ -82,7 +82,7 @@
             <property name="Phrase">$&lt;linkfrom[POS_Payment#CreateDocument].type.label&gt; - $&lt;linkfrom[POS_Payment#CreateDocument].attribute[Date]&gt;</property>
             <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
             <property name="Label">POS_CashDeskBalanceForm.payment.Label</property>
-            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
         </field>
 
         <field character="Heading" name="targetPayments">
