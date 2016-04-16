@@ -21,7 +21,7 @@
 
 --><ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>7074dca7-07de-40c0-aaa3-fbe4126546e1</uuid>
-    <file-application>eFapsApp-Sales</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>

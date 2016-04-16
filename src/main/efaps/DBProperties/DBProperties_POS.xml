@@ -22,7 +22,7 @@
 --><dbproperties xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
 
     <uuid>731ac053-9b1e-4a91-b4b4-b95f44008e35</uuid>
-    <bundle name="eFapsApp-Pos" sequence="1"/>
+    <bundle name="eFapsApp-POS" sequence="1"/>
     <resource>
         <type>Properties</type>
         <language>es</language>

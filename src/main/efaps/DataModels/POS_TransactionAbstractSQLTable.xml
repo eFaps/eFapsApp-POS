@@ -21,7 +21,7 @@
 
 --><datamodel-sqltable xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>6cc510f0-83e8-473a-9b2e-af6855bf091c</uuid>
-    <file-application>eFapsApp-pos</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <file-revision>$Rev: 7786 $</file-revision>
 
     <definition>
