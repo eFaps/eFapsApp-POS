@@ -16,26 +16,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Author:          The eFaps Team
- Revision:        $Rev: 7516 $
- Last Changed:    $Date: 2012-05-11 14:26:25 -0500 (Fri, 11 May 2012) $
- Last Changed By: $Author: jan@moxter.net $
-
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- ************************************************************************
-    * Module Definition
-    ************************************************************************* -->
     <parent>
         <groupId>org.efaps</groupId>
         <artifactId>efaps-parent</artifactId>
-        <version>5.0.0-SNAPSHOT</version>
+        <version>8.0.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -112,15 +102,8 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
-    <!-- ************************************************************************
-  * Project itself
-  ************************************************************************* -->
     <build>
         <plugins>
-            <!--
-                eFaps plugin
-            -->
             <plugin>
                 <groupId>org.efaps</groupId>
                 <artifactId>efaps-maven-plugin</artifactId>
@@ -152,7 +135,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                
+
                 <configuration>
                     <suiteXmlFiles>
                         <suiteXmlFile>${basedir}/src/test/resources/testng.xml</suiteXmlFile>
@@ -161,10 +144,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <!-- ************************************************************************
-    * Dependencies
-    ************************************************************************* -->
     <dependencies>
         <dependency>
             <groupId>org.efaps.apps</groupId>
