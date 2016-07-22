@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Suite" parallel="false">
+<suite name="Suite">
     <test name="CITests">
         <parameter name="baseFolder" value="../../../main/efaps"></parameter>
         <parameter name="application" value="eFapsApp-POS"/>
         <parameter name="regex4MenuLabelExclude" value=".*_Menu.Label$"/>
         <packages>
-            <package name="org.efaps.tests.ci.*"></package>
+            <package name="org.efaps.tests.*"></package>
         </packages>
     </test>
 </suite>
