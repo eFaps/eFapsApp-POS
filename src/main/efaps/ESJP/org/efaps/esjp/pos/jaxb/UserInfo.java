@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 
 /**
@@ -39,7 +39,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "pos4a.UserInfo")
 @EFapsUUID("050ba86a-e682-4ea8-91fe-0ffa40d8b226")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class UserInfo  {
 
     @XmlAttribute(name = "id")

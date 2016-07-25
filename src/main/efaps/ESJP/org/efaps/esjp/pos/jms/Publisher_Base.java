@@ -26,7 +26,6 @@ import javax.jms.TextMessage;
 
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAdminCommon;
 import org.efaps.db.Instance;
@@ -35,6 +34,7 @@ import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.jms.JmsHandler;
 import org.efaps.jms.JmsHandler.JmsDefinition;
 import org.efaps.util.EFapsException;
@@ -46,7 +46,7 @@ import org.efaps.util.EFapsException;
  * @version $Id$
  */
 @EFapsUUID("b052d33e-4bc2-4ed8-92ec-fe7bbdfce2f7")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public abstract class Publisher_Base
 {
 

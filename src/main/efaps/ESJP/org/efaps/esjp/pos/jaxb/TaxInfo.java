@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -44,7 +44,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlRootElement(name = "pos4a_TaxInfo")
 @XmlType(name = "pos4a.TaxInfo")
 @EFapsUUID("7f6ec6cf-c2a4-42a0-bcf6-db895cd5cd6d")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class TaxInfo
 {
     /**

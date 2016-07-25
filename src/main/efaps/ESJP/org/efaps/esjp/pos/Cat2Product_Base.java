@@ -29,7 +29,7 @@ import javax.xml.bind.Marshaller;
 
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
@@ -54,7 +54,7 @@ import org.joda.time.LocalDate;
  * @version $Id$
  */
 @EFapsUUID("a09a00df-a428-4df4-851a-708b3f7508af")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public abstract class Cat2Product_Base
 {
 

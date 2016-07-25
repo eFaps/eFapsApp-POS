@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
@@ -36,6 +35,7 @@ import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
 import org.efaps.esjp.erp.CurrencyInst;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.esjp.pos.jaxb.PaymentInfo;
 import org.efaps.esjp.pos.jaxb.TicketInfo;
 import org.efaps.util.EFapsException;
@@ -48,7 +48,7 @@ import org.joda.time.DateTime;
  * @version $Id: Payment_Base.java 7179 2011-10-07 18:34:24Z
  */
 @EFapsUUID("dda77565-8a2b-4a69-b100-b723f062ffcc")
-@EFapsRevision("$Rev: 7179 $")
+@EFapsApplication("eFapsApp-POS")
 public abstract class PosPayment_Base
     implements Serializable
 {

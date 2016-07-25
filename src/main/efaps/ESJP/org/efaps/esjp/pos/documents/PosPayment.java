@@ -20,8 +20,8 @@
 
 package org.efaps.esjp.pos.documents;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 /**
  * This class must be replaced for customization, therefore it is left empty.
@@ -32,7 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id: Payment.java 3449 2009-11-29 23:06:11Z tim.moxter $
  */
 @EFapsUUID("1167ecbc-b9b9-43e4-9254-3d31661cd7fc")
-@EFapsRevision("$Rev: 3449 $")
+@EFapsApplication("eFapsApp-POS")
 public class PosPayment extends PosPayment_Base
 {
 

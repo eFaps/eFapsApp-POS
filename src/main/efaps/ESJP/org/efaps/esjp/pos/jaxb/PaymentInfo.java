@@ -7,11 +7,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "pos4a_PaymentInfo")
 @XmlType(name = "pos4a.PaymentInfo")
 @EFapsUUID("5ee59b9c-dd96-4347-92e0-1058901903d4")
+@EFapsApplication("eFapsApp-POS")
 public  class PaymentInfo
 {
     @XmlElement(name = "totalPayment")
@@ -22,20 +24,20 @@ public  class PaymentInfo
 
     public double getPaymentTotal()
     {
-        return paymentTotal;
+        return this.paymentTotal;
     }
 
-    public void setTotal(double paymentTotal)
+    public void setTotal(final double paymentTotal)
     {
         this.paymentTotal = paymentTotal;
     }
 
     public String getPaymentName()
     {
-        return paymentName;
+        return this.paymentName;
     }
 
-    public void setPaymentName(String paymentName)
+    public void setPaymentName(final String paymentName)
     {
         this.paymentName = paymentName;
     }

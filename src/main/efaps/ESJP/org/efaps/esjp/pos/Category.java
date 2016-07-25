@@ -20,7 +20,7 @@
 
 package org.efaps.esjp.pos;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
@@ -32,7 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id$
  */
 @EFapsUUID("08cb38c9-0161-4664-af1a-9e5b8dc9c3f8")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class Category
     extends Category_Base
 {

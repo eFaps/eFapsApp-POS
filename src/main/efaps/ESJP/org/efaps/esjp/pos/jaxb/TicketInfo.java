@@ -31,8 +31,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 /**
  * TODO comment!
@@ -45,7 +45,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlRootElement(name = "pos4a_TicketInfo")
 @XmlType(name = "pos4a.TicketInfo")
 @EFapsUUID("67ae60c8-dbf9-48b6-b2c7-67b99c2e290f")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class TicketInfo
 {
 
@@ -206,17 +206,17 @@ public class TicketInfo
         return this.host;
     }
 
-    public void setHost(String _host)
+    public void setHost(final String _host)
     {
         this.host = _host;
     }
 
     public List<PaymentInfo> getPayments()
     {
-        return payments;
+        return this.payments;
     }
 
-    public void setPayments(List<PaymentInfo> payments)
+    public void setPayments(final List<PaymentInfo> payments)
     {
         this.payments = payments;
     }

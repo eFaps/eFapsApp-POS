@@ -26,8 +26,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 /**
  * TODO comment!
@@ -39,7 +39,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlRootElement(name = "pos4a_TaxcategoryInfo")
 @XmlType(name = "pos4a.TaxCategoryInfo")
 @EFapsUUID("abc8c4db-4fb8-4030-b184-8e8c6cc92bed")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class TaxCategoryInfo
 {
     /**

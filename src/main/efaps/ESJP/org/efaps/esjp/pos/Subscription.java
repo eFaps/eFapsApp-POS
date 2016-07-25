@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.pos;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -34,7 +34,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id$
  */
 @EFapsUUID("fe28e294-cba1-48d1-8802-223a176a85ab")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class Subscription
     extends Subscription_Base
 {

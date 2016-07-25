@@ -20,8 +20,8 @@
 
 package org.efaps.esjp.pos.jms;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 /**
  * This class must be replaced for customization, therefore it is left empty.
@@ -32,7 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id$
  */
 @EFapsUUID("41a82804-125a-4055-8fed-dd0d38c1cf92")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class Publisher
     extends Publisher_Base
 {

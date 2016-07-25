@@ -20,7 +20,7 @@
 
 package org.efaps.esjp.pos.documents;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
@@ -32,7 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id: Account.java 3449 2009-11-29 23:06:11Z tim.moxter $
  */
 @EFapsUUID("cacf8cb7-1683-4427-b30a-7dae9ca0543d")
-@EFapsRevision("$Rev: 3449 $")
+@EFapsApplication("eFapsApp-POS")
 public class PosAccount extends PosAccount_Base
 {
 

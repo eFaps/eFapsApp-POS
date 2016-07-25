@@ -31,11 +31,11 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.jms.actions.IAction;
 import org.efaps.esjp.jms.msg.listener.AbstractSecuredListener;
 import org.efaps.esjp.jms.msg.listener.AbstractSecuredListener_Base;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.esjp.pos.documents.PosAccount;
 import org.efaps.esjp.pos.documents.PosReceipt;
 import org.efaps.esjp.pos.jaxb.JmsCloseCash;
@@ -49,7 +49,7 @@ import org.efaps.util.EFapsException;
  * @version $Id: SecuredActionListener_Base.java 7442 2012-03-29 05:45:04Z jan@moxter.net $
  */
 @EFapsUUID("67f30b76-cfb0-4481-bd07-13ba19f0c203")
-@EFapsRevision("$Rev: 7442 $")
+@EFapsApplication("eFapsApp-POS")
 public abstract class PosActionListener_Base
     extends AbstractSecuredListener
 {

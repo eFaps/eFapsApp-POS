@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.AttributeQuery;
 import org.efaps.db.Insert;
@@ -41,34 +41,20 @@ import org.efaps.esjp.pos.jaxb.JmsCloseCash;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
 
+
+// TODO: Auto-generated Javadoc
 /**
- Copyright 2003 - 2009 The eFaps Team
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-
- Author:          The eFaps Team
- Revision:        $Rev: 7910 $
- Last Changed:    $Date: 2012-08-14 18:19:11 -0500 (mar, 14 ago 2012) $
- Last Changed By: $Author: diana.uriol@efaps.org $
+ * The Class PosAccount_Base.
  */
 @EFapsUUID("6a1e1062-3abb-4698-b4e3-44201bf6c7d3")
-@EFapsRevision("$Rev: 7479 $")
+@EFapsApplication("eFapsApp-POS")
 public abstract class PosAccount_Base
 {
+
     /**
      * Method for create a new Cash Desk Balance.
      *
-     * @param _parameter Parameter as passed from the eFaps API.
+     * @param _close the close
      * @return new Return.
      * @throws EFapsException on error.
      */

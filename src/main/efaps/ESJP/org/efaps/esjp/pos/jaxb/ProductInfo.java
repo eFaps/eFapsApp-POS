@@ -28,8 +28,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 
 /**
@@ -42,7 +42,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlRootElement(name = "pos4a_ProductInfoExt")
 @XmlType(name = "pos4a.ProductInfoExt")
 @EFapsUUID("89269485-e6a8-486b-86e3-f738f4d966a1")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class ProductInfo
 {
 

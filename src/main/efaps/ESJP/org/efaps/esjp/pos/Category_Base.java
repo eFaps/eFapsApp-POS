@@ -28,7 +28,7 @@ import javax.xml.bind.Marshaller;
 
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
@@ -48,7 +48,7 @@ import org.efaps.util.EFapsException;
  * @version $Id$
  */
 @EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public abstract class Category_Base
 {
 

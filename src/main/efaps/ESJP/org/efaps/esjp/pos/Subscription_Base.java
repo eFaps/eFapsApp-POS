@@ -29,7 +29,7 @@ import javax.xml.bind.Marshaller;
 
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
@@ -51,7 +51,7 @@ import org.joda.time.DateTime;
  * @version $Id$
  */
 @EFapsUUID("6e42ce3b-eb4f-4ad1-b2e3-aeb4fa2b0f1c")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public abstract class Subscription_Base
 {
 

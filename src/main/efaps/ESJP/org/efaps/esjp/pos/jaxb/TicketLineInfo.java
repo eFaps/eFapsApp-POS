@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 /**
  * TODO comment!
@@ -37,7 +37,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "pos4a.TicketLineInfo")
 @EFapsUUID("375629cc-bdf8-4d73-9cf3-2ff2b9bb3ea8")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class TicketLineInfo
 {
     @XmlElement(name = "id")
@@ -107,60 +107,60 @@ public class TicketLineInfo
 
     public double getPrice()
     {
-        return price;
+        return this.price;
     }
 
-    public void setPrice(double price)
+    public void setPrice(final double price)
     {
         this.price = price;
     }
 
     public String getProductName()
     {
-        return productName;
+        return this.productName;
     }
 
-    public void setProductName(String productName)
+    public void setProductName(final String productName)
     {
         this.productName = productName;
     }
 
     public TaxInfo getTax()
     {
-        return Tax;
+        return this.Tax;
     }
 
-    public void setTax(TaxInfo tax)
+    public void setTax(final TaxInfo tax)
     {
-        Tax = tax;
+        this.Tax = tax;
     }
 
     public double getPriceTax()
     {
-        return priceTax;
+        return this.priceTax;
     }
 
-    public void setPriceTax(double priceTax)
+    public void setPriceTax(final double priceTax)
     {
         this.priceTax = priceTax;
     }
 
     public double getTotal()
     {
-        return total;
+        return this.total;
     }
 
-    public void setTotal(double total)
+    public void setTotal(final double total)
     {
         this.total = total;
     }
 
     public double getQuantity()
     {
-        return quantity;
+        return this.quantity;
     }
 
-    public void setQuantity(double quantity)
+    public void setQuantity(final double quantity)
     {
         this.quantity = quantity;
     }

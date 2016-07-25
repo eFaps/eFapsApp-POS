@@ -21,8 +21,8 @@
 
 package org.efaps.esjp.pos.jms;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 
 
@@ -35,7 +35,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id: SecuredActionListener.java 7442 2012-03-29 05:45:04Z jan@moxter.net $
  */
 @EFapsUUID("24452835-c101-4c2e-a9af-a4f81396d03c")
-@EFapsRevision("$Rev: 7442 $")
+@EFapsApplication("eFapsApp-POS")
 public class PosActionListener
     extends PosActionListener_Base
 {

@@ -29,8 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.EFapsApplication;
 
 
 /**
@@ -43,7 +43,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @XmlRootElement(name = "pos4a_CategoryInfo")
 @XmlType(name = "pos4a.CategoryInfo")
 @EFapsUUID("e7e9f5e6-cf90-4680-babf-c50a9ba49419")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class CategoryInfo
 {
     @XmlAttribute(name = "id")

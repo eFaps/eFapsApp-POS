@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.pos;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -34,7 +34,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @version $Id$
  */
 @EFapsUUID("e38247db-80cd-46b4-a9da-3fdc44354e4d")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFapsApp-POS")
 public class Cat2Product
     extends Cat2Product_Base
 {
