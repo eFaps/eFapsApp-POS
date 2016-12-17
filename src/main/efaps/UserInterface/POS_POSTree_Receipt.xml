@@ -30,8 +30,8 @@
 <!--             <menu>POS_ReceiptTree_Category_Menu</menu> -->
             <table>POS_ReceiptTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFroms">POSLink</property>
-                <property name="Types">POS_ReceiptClass</property>
+                <property name="LinkFrom">POSLink</property>
+                <property name="Type">POS_ReceiptClass</property>
             </evaluate>
         </target>
         <!-- properties -->

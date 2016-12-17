@@ -82,8 +82,8 @@
             <property name="ModeCreate">EDITABLE</property>
             <table>POS_ReceiptPositionTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_ReceiptPosition</property>
-                <property name="LinkFroms">ReceiptLink</property>
+                <property name="Type">POS_ReceiptPosition</property>
+                <property name="LinkFrom">ReceiptLink</property>
             </evaluate>
         </field>
         <field name="note">

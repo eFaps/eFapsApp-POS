@@ -30,8 +30,8 @@
             <menu>POS_CategoryTree_Category_Menu</menu>
             <table>POS_CategoryTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFroms">ParentLink</property>
-                <property name="Types">POS_Category</property>
+                <property name="LinkFrom">ParentLink</property>
+                <property name="Type">POS_Category</property>
             </evaluate>
         </target>
         <!-- properties -->

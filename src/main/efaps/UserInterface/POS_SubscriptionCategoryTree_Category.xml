@@ -30,8 +30,8 @@
             <menu>POS_SubscriptionCategoryTree_Category_Menu</menu>
             <table>POS_Subscription2CategoryTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFroms">ToLinkAbstract</property>
-                <property name="Types">POS_Category2SubscriptionAbstract</property>
+                <property name="LinkFrom">ToLinkAbstract</property>
+                <property name="Type">POS_Category2SubscriptionAbstract</property>
             </evaluate>
         </target>
         <!-- properties -->

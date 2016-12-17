@@ -93,8 +93,8 @@
         <field character="Target" name="paymentTable">
             <table>POS_PaymentTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_Payment</property>
-                <property name="LinkFroms">TargetDocument</property>
+                <property name="Type">POS_Payment</property>
+                <property name="LinkFrom">TargetDocument</property>
             </evaluate>
         </field>
     </definition>

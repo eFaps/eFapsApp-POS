@@ -39,8 +39,8 @@
             <property name="ModeCreate">EDITABLE</property>
             <table>POS_PaymentTransactionTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_TransactionAbstract</property>
-                <property name="LinkFroms">Payment</property>
+                <property name="Type">POS_TransactionAbstract</property>
+                <property name="LinkFrom">Payment</property>
             </evaluate>
         </field>
     </definition>

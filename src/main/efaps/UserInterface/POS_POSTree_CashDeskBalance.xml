@@ -32,8 +32,8 @@
     <target>
         <table>POS_CashDeskBalanceTable</table>
         <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-            <property name="Types">POS_POS2CashDeskBalance</property>
-            <property name="LinkFroms">FromLink</property>
+            <property name="Type">POS_POS2CashDeskBalance</property>
+            <property name="LinkFrom">FromLink</property>
         </evaluate>
     </target>
     <!-- properties -->

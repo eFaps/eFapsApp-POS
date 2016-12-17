@@ -32,8 +32,8 @@
 <!--             <menu>Sales_InvoiceTree_Payment_Menu</menu> -->
             <table>POS_PaymentTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_Payment</property>
-                <property name="LinkFroms">CreateDocument</property>
+                <property name="Type">POS_Payment</property>
+                <property name="LinkFrom">CreateDocument</property>
             </evaluate>
         </target>
         <property name="Target">content</property>

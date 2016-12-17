@@ -31,8 +31,8 @@
 <!--             <menu>Sales_InvoiceTree_Payment_Menu</menu> -->
             <table>POS_PaymentTransactionTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_TransactionInbound</property>
-                <property name="LinkFroms">Payment</property>
+                <property name="Type">POS_TransactionInbound</property>
+                <property name="LinkFrom">Payment</property>
             </evaluate>
         </target>
         <!-- properties -->

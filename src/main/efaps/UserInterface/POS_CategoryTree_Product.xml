@@ -30,8 +30,8 @@
             <menu>POS_CategoryTree_Product_Menu</menu>
             <table>POS_Category2ProductTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFroms">FromLink</property>
-                <property name="Types">POS_Category2ProductAbstract</property>
+                <property name="LinkFrom">FromLink</property>
+                <property name="Type">POS_Category2ProductAbstract</property>
             </evaluate>
         </target>
         <!-- properties -->

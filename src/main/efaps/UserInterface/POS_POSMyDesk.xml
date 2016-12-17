@@ -30,7 +30,7 @@
             <menu>POS_POSMyDesk_Menu</menu>
             <table>POS_POSTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_POS</property>
+                <property name="Type">POS_POS</property>
             </evaluate>
         </target>
         <!-- properties -->

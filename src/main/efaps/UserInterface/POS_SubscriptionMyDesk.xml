@@ -30,7 +30,7 @@
             <menu>POS_SubscriptionMyDesk_Menu</menu>
             <table>POS_SubscriptionTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_SubscriptionAbstract</property>
+                <property name="Type">POS_SubscriptionAbstract</property>
             </evaluate>
         </target>
         <!-- properties -->

@@ -33,7 +33,7 @@
         <target>
             <table>POS_CashDeskBalance_Pos_Table</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Types">POS_POS2CashDeskBalance</property>
+                <property name="Type">POS_POS2CashDeskBalance</property>
             </evaluate>
         </target>
 
