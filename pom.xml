@@ -146,6 +146,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>org.efaps</groupId>
+            <artifactId>efaps-pos-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.efaps.apps</groupId>
             <artifactId>sales</artifactId>
             <version>${efaps.app.dependencies}</version>

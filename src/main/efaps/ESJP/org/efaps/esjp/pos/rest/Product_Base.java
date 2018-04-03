@@ -16,10 +16,18 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.MultiPrintQuery;
+import org.efaps.db.QueryBuilder;
+import org.efaps.esjp.ci.CIProducts;
+import org.efaps.pos.dto.ProductDto;
+import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +44,31 @@ public abstract class Product_Base
      */
     private static final Logger LOG = LoggerFactory.getLogger(Product.class);
 
+    /**
+     * Gets the products.
+     *
+     * @return the products
+     * @throws EFapsException the eFaps exception
+     */
     public Response getProducts()
+        throws EFapsException
     {
-        final Response ret = Response.ok().build();
+        final List<ProductDto> products = new ArrayList<>();
+        final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
+        final MultiPrintQuery multi = queryBldr.getPrint();
+        multi.addAttribute(CIProducts.ProductAbstract.Description);
+        multi.execute();
+        while (multi.next()) {
+            final ProductDto dto = ProductDto.builder()
+                .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
+                .withOID(multi.getCurrentInstance().getOid())
+                .build();
+            products.add(dto);
+        }
+
+        final Response ret = Response.ok()
+                        .entity(products)
+                        .build();
         return ret;
     }
 }

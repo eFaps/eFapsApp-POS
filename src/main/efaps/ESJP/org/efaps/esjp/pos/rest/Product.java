@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
 
 /**
  * The Class Product.
@@ -39,6 +40,7 @@ public class Product
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Response getProducts()
+        throws EFapsException
     {
         return super.getProducts();
     }
