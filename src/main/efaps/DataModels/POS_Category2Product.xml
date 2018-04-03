@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
- Copyright 2003 - 2012 The eFaps Team
+ Copyright 2003 - 2018 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,15 +15,11 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Author:          The eFaps Team
- Revision:        $Rev$
- Last Changed:    $Date$
- Last Changed By: $Author$
-
---><datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+-->
+<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>370448f7-6936-452f-85cb-3651ef5445e8</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Category2Product</name>
@@ -34,7 +31,5 @@
             <sqltable>POS_Category2ProductSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
         </attribute>
-        <trigger program="org.efaps.esjp.pos.Cat2Product" name="POS_Category2Product.INSERT_POST" event="INSERT_POST" method="insertTrigger"/>
-        <trigger program="org.efaps.esjp.pos.Cat2Product" name="POS_Category2Product.UPDATE_POST" event="UPDATE_POST" method="updateTrigger"/>
     </definition>
 </datamodel-type>

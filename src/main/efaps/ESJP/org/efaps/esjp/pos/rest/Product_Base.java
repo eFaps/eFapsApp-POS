@@ -14,21 +14,31 @@
  * limitations under the License.
  *
  */
+package org.efaps.esjp.pos.rest;
 
-package org.efaps.esjp.pos;
+import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * TODO comment!
- *
- * @author The eFaps Team
+ * The Class Product_Base.
  */
 @EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Category_Base
+public abstract class Product_Base
 {
 
+    /**
+     * Logging instance used in this class.
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(Product.class);
 
+    public Response getProducts()
+    {
+        final Response ret = Response.ok().build();
+        return ret;
+    }
 }

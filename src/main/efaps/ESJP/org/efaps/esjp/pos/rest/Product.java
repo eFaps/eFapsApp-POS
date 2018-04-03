@@ -14,21 +14,32 @@
  * limitations under the License.
  *
  */
+package org.efaps.esjp.pos.rest;
 
-package org.efaps.esjp.pos;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
- * TODO comment!
- *
- * @author The eFaps Team
+ * The Class Product.
  */
 @EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Category_Base
+@Path("/pos")
+public class Product
+    extends Product_Base
 {
-
-
+    @Override
+    @Path("products")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getProducts()
+    {
+        return super.getProducts();
+    }
 }
