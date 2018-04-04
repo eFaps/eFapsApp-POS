@@ -56,10 +56,12 @@ public abstract class Product_Base
         final List<ProductDto> products = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
         final MultiPrintQuery multi = queryBldr.getPrint();
-        multi.addAttribute(CIProducts.ProductAbstract.Description);
+        multi.addAttribute(CIProducts.ProductAbstract.Name,
+                        CIProducts.ProductAbstract.Description);
         multi.execute();
         while (multi.next()) {
             final ProductDto dto = ProductDto.builder()
+                .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
                 .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
                 .withOID(multi.getCurrentInstance().getOid())
                 .build();
