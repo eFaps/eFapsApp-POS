@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
  Copyright 2003 - 2018 The eFaps Team
 
@@ -15,87 +14,79 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
-
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>34b05081-9291-4055-a5f4-98e6ef49e617</uuid>
+    <uuid>5aef8988-00e7-42e1-8f2b-07127a829241</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_POS</name>
+        <name>POS_Workspace</name>
         <attribute>
             <name>OID</name>
             <type>OID</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
             <name>ID</name>
             <type>Long</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
             <name>Company</name>
             <type>CompanyLink</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
         <attribute>
             <name>Name</name>
             <type>String</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>NAME</sqlcolumn>
         </attribute>
         <attribute>
             <name>Description</name>
             <type>String</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>DESCR</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>POSLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_POS</typelink>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>POSID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_Workspace.POSLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Name</property>
+                <property name="Type">POS_POS</property>
+            </trigger>
         </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>CREATOR</sqlcolumn>
         </attribute>
         <attribute>
             <name>Created</name>
             <type>Created</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>CREATED</sqlcolumn>
         </attribute>
         <attribute>
             <name>Modifier</name>
             <type>ModifierLink</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>MODIFIER</sqlcolumn>
         </attribute>
         <attribute>
             <name>Modified</name>
             <type>Modified</type>
-            <sqltable>POS_POSSQLTable</sqltable>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>AccountLink</name>
-            <type>LinkWithRanges</type>
-            <typelink>Sales_AccountAbstract</typelink>
-            <sqltable>POS_POSSQLTable</sqltable>
-            <sqlcolumn>ACCOUNTID</sqlcolumn>
-            <trigger event="RANGE_VALUE" name="POS_POS.AccountLink.RANGE_VALUE"
-                program="org.efaps.esjp.admin.datamodel.RangesValue">
-                <property name="Value">Name</property>
-                <property name="Type">Sales_AccountAbstract</property>
-            </trigger>
-        </attribute>
-        <attribute>
-            <name>DefaultContactLink</name>
-            <type>Link</type>
-            <typelink>Contacts_ContactAbstract</typelink>
-            <sqltable>POS_POSSQLTable</sqltable>
-            <sqlcolumn>CONTACTID</sqlcolumn>
         </attribute>
     </definition>
 </datamodel-type>
