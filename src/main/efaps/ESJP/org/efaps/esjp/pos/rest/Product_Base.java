@@ -17,7 +17,10 @@
 package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
@@ -25,6 +28,8 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.SelectBuilder;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.util.EFapsException;
@@ -50,20 +55,34 @@ public abstract class Product_Base
      * @return the products
      * @throws EFapsException the eFaps exception
      */
+    @SuppressWarnings("unchecked")
     public Response getProducts()
         throws EFapsException
     {
         final List<ProductDto> products = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
         final MultiPrintQuery multi = queryBldr.getPrint();
+        final SelectBuilder selCat = SelectBuilder.get()
+                        .linkfrom(CIPOS.Category2Product.ToLink)
+                        .linkto(CIPOS.Category2Product.FromLink)
+                        .oid();
+        multi.addSelect(selCat);
         multi.addAttribute(CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description);
         multi.execute();
         while (multi.next()) {
+            final Object cats = multi.getSelect(selCat);
+            final Set<String> catOids = new HashSet<>();
+            if (cats instanceof List) {
+                catOids.addAll((Collection<? extends String>) cats);
+            } else if (cats instanceof String) {
+                catOids.add((String) cats);
+            }
             final ProductDto dto = ProductDto.builder()
                 .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
                 .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
                 .withOID(multi.getCurrentInstance().getOid())
+                .withCategoryOids(catOids)
                 .build();
             products.add(dto);
         }

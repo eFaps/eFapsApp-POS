@@ -15,7 +15,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
-
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
@@ -56,13 +55,6 @@
             <typelink>Products_ProductAbstract</typelink>
             <sqltable>POS_Category2ProductSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>NetPrice</name>
-            <type>Decimal</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>NETPRICE</sqlcolumn>
-            <defaultvalue>0</defaultvalue>
         </attribute>
         <attribute>
             <name>Creator</name>

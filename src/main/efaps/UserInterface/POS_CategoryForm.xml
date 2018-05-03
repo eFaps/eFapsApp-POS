@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
-  Copyright 2003 - 2012 The eFaps Team
+  Copyright 2003 - 2018 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,20 +14,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
---><ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+-->
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>619a6722-f0ec-46e4-adb4-fe9269c5bda9</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_CategoryForm</name>
-        <!-- fields -->
-
         <field name="name">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
@@ -39,39 +33,6 @@
             <property name="Attribute">Description</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="uuidGroup" character="Group">
-            <property name="GroupCount">2</property>
-            <property name="ModeCreate">READONLY</property>
-            <property name="ModeView">NONE</property>
-            <property name="ModeEdit">NONE</property>
-        </field>
-        <field name="uUID">
-            <property name="Attribute">UUID</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-            <property name="ModeSearch">EDITABLE</property>
-            <property name="Required">true</property>
-        </field>
-        <field name="createUUID" character="Command">
-            <property name="ModeCreate">READONLY</property>
-            <property name="ModeView">NONE</property>
-            <property name="ModeEdit">NONE</property>
-            <property name="Label">POS_POSCategoryForm.createUUID.Label</property>
-            <property name="CmdIcon">ACCEPT</property>
-            <trigger program="org.efaps.esjp.common.uiform.Field"
-                name="Products_ProductForm.createUUID.UI_FIELD_CMD"
-                event="UI_FIELD_CMD"
-                method="createUUID">
-                <property name="TargetField">uUID</property>
-             </trigger>
-        </field>
-        <field name="parentLink">
-            <property name="SelectAlternateOID">linkto[ParentLink].oid</property>
-            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
-            <property name="Select">linkto[ParentLink].attribute[Name]</property>
-            <property name="ModeCreate">NONE</property>
-            <property name="ModeEdit">NONE</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>

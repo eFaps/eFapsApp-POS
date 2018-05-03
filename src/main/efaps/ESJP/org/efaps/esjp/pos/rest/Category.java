@@ -15,20 +15,38 @@
  *
  */
 
-package org.efaps.esjp.pos;
+package org.efaps.esjp.pos.rest;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
 
 /**
- * TODO comment!
+ * This class must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_base</code>"
+ * class.
  *
  * @author The eFaps Team
  */
-@EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
+@EFapsUUID("08cb38c9-0161-4664-af1a-9e5b8dc9c3f8")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Category_Base
+@Path("/pos")
+public class Category
+    extends Category_Base
 {
-
-
+    @Override
+    @Path("categories")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getCategories()
+        throws EFapsException
+    {
+        return super.getCategories();
+    }
 }

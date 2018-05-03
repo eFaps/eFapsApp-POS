@@ -41,13 +41,6 @@
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>ParentLink</name>
-            <type>Link</type>
-            <typelink>POS_Category</typelink>
-            <sqltable>POS_CategorySQLTable</sqltable>
-            <sqlcolumn>PARENTID</sqlcolumn>
-        </attribute>
-        <attribute>
             <name>Name</name>
             <type>String</type>
             <sqltable>POS_CategorySQLTable</sqltable>
@@ -58,12 +51,6 @@
             <type>String</type>
             <sqltable>POS_CategorySQLTable</sqltable>
             <sqlcolumn>DESCR</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>UUID</name>
-            <type>String</type>
-            <sqltable>POS_CategorySQLTable</sqltable>
-            <sqlcolumn>UUID</sqlcolumn>
         </attribute>
         <attribute>
             <name>Creator</name>
