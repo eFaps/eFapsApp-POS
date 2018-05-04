@@ -16,6 +16,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
@@ -31,7 +33,12 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.sales.Calculator;
+import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.pos.dto.ProductDto;
+import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,11 +85,32 @@ public abstract class Product_Base
             } else if (cats instanceof String) {
                 catOids.add((String) cats);
             }
+            final Parameter parameter = ParameterUtil.instance();
+
+            final Calculator calculator = new Calculator(parameter, null, multi.getCurrentInstance(), BigDecimal.ONE,
+                            null, null, true, getCalcConf());
+
+            final Set<TaxDto> taxes = new HashSet<>();
+            calculator.getTaxes().forEach(tax -> {
+                try {
+                    taxes.add(TaxDto.builder()
+                                    .withOID(tax.getInstance().getOid())
+                                    .withName(tax.getName())
+                                    .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
+                                    .build());
+                } catch (final EFapsException e) {
+                    LOG.error("Catched", e);
+                }
+            });
+
             final ProductDto dto = ProductDto.builder()
                 .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
                 .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
                 .withOID(multi.getCurrentInstance().getOid())
                 .withCategoryOids(catOids)
+                .withNetPrice(calculator.getNetUnitPrice())
+                .withCrossPrice(calculator.getCrossUnitPrice())
+                .withTaxes(taxes)
                 .build();
             products.add(dto);
         }
@@ -91,5 +119,33 @@ public abstract class Product_Base
                         .entity(products)
                         .build();
         return ret;
+    }
+
+    protected ICalculatorConfig getCalcConf()
+    {
+        return new ICalculatorConfig()
+        {
+
+            @Override
+            public String getSysConfKey4Doc(final Parameter _parameter)
+                throws EFapsException
+            {
+                return CISales.Receipt.getType().getName();
+            }
+
+            @Override
+            public String getSysConfKey4Pos(final Parameter _parameter)
+                throws EFapsException
+            {
+                return "DefaultPosition";
+            }
+
+            @Override
+            public boolean priceFromUIisNet(final Parameter _parameter)
+                throws EFapsException
+            {
+                return false;
+            }
+        };
     }
 }
