@@ -18,17 +18,13 @@
 -->
 <ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>73aa0da8-fb47-4136-b19c-5c5c8dd5309e</uuid>
+    <uuid>d40a2d3b-f117-48fa-b9a4-a64f24bd80b9</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MyDesk</name>
+        <name>POS_UserMyDesk_Menu</name>
         <childs>
-            <child>POS_CategoryMyDesk</child>
-            <child>POS_POSMyDesk</child>
-            <child>POS_CashDeskBalanceMyDesk</child>
-            <child>POS_WorkspaceMyDesk</child>
-            <child>POS_UserMyDesk</child>
+            <child>POS_UserMyDesk_Menu_Action</child>
         </childs>
     </definition>
 </ui-menu>

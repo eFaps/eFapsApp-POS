@@ -157,7 +157,7 @@
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>jms</artifactId>
+            <artifactId>humanresource</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
