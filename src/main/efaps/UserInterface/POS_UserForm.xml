@@ -34,6 +34,7 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">NONE</property>
             <property name="ModeView">NONE</property>
+            <property name="Label">POS_UserForm.clearTextPwd.Label</property>
         </field>
         <field name="employeeLink">
             <property name="SelectAlternateOID">linkto[EmployeeLink].oid</property>

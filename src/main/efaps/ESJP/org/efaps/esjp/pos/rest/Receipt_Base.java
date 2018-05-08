@@ -17,10 +17,16 @@
 
 package org.efaps.esjp.pos.rest;
 
+import java.math.BigDecimal;
+
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Insert;
+import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.erp.util.ERP;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -45,11 +51,40 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final ReceiptDto _receipt)
+    public Response addReceipt(final ReceiptDto _receiptDto)
         throws EFapsException
     {
-        LOG.debug("Recieved: {}", _receipt);
-        final ReceiptDto dto = _receipt;
+        LOG.debug("Recieved: {}", _receiptDto);
+        final ReceiptDto dto;
+        if (_receiptDto.getOid() == null) {
+            final Insert insert = new Insert(CISales.Receipt);
+            insert.add(CISales.Receipt.Name, _receiptDto.getNumber());
+            insert.add(CISales.Receipt.Date, _receiptDto.getDate());
+            insert.add(CISales.Receipt.Status, Status.find(CISales.ReceiptStatus.Paid));
+
+            final BigDecimal netTotal = _receiptDto.getNetTotal() == null ? BigDecimal.ZERO : _receiptDto.getNetTotal();
+            final BigDecimal crossTotal = _receiptDto.getCrossTotal() == null ? BigDecimal.ZERO
+                            : _receiptDto.getCrossTotal();
+
+            insert.add(CISales.Receipt.NetTotal, netTotal);
+            insert.add(CISales.Receipt.CrossTotal, crossTotal);
+            insert.add(CISales.Receipt.DiscountTotal, BigDecimal.ZERO);
+            insert.add(CISales.Receipt.RateNetTotal, netTotal);
+            insert.add(CISales.Receipt.RateCrossTotal, crossTotal);
+            insert.add(CISales.Receipt.RateDiscountTotal, BigDecimal.ZERO);
+            insert.add(CISales.Receipt.CurrencyId, ERP.CURRENCYBASE.get());
+            insert.add(CISales.Receipt.RateCurrencyId, ERP.CURRENCYBASE.get());
+            insert.add(CISales.Receipt.Rate, new Object[] { 1, 1 });
+            insert.execute();
+
+            dto = ReceiptDto.builder()
+                            .withId(_receiptDto.getId())
+                            .withOID(insert.getInstance().getOid())
+                            .build();
+        } else {
+            dto = ReceiptDto.builder().build();
+        }
+
         final Response ret = Response.ok()
                         .entity(dto)
                         .build();
