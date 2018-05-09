@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
  Copyright 2003 - 2018 The eFaps Team
 
@@ -15,21 +14,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
+
+ Original Author: turkkub,
+ Original Name:   cash-register.png
+ Original Web:    Flaticon
+                  [ https://www.flaticon.com/authors/turkkub ]
+ Original License:Creative Creative Commons Attribution 3.0 License.
+                  [ http://creativecommons.org/licenses/by/3.0/ ]
+
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-image xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>73aa0da8-fb47-4136-b19c-5c5c8dd5309e</uuid>
+    <uuid>0070f2a3-67ff-46e5-9ebd-ee0d0ed0c22e</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MyDesk</name>
-        <icon>POS_MyDeskImg</icon>
-        <childs>
-            <child>POS_CategoryMyDesk</child>
-            <child>POS_POSMyDesk</child>
-            <child>POS_CashDeskBalanceMyDesk</child>
-            <child>POS_WorkspaceMyDesk</child>
-            <child>POS_UserMyDesk</child>
-        </childs>
+        <name>POS_MyDeskImg</name>
+        <file>POS_MyDeskImg.png</file>
     </definition>
-</ui-menu>
+</ui-image>
