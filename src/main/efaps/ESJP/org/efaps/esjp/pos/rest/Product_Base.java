@@ -73,7 +73,11 @@ public abstract class Product_Base
                         .linkfrom(CIPOS.Category2Product.ToLink)
                         .linkto(CIPOS.Category2Product.FromLink)
                         .oid();
-        multi.addSelect(selCat);
+        final SelectBuilder selImageOid = SelectBuilder.get()
+                        .linkfrom(CIProducts.Product2ImageThumbnail.ProductLink)
+                        .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
+                        .oid();
+        multi.addSelect(selCat, selImageOid);
         multi.addAttribute(CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description);
         multi.execute();
@@ -85,6 +89,16 @@ public abstract class Product_Base
             } else if (cats instanceof String) {
                 catOids.add((String) cats);
             }
+            final Object imageOids = multi.getSelect(selImageOid);
+            final String imageOid;
+            if (imageOids instanceof List) {
+               imageOid = (String) ((List<?>) imageOids).get(0);
+            } else if (imageOids instanceof String) {
+                imageOid = (String) imageOids;
+            } else {
+                imageOid = null;
+            }
+
             final Parameter parameter = ParameterUtil.instance();
 
             final Calculator calculator = new Calculator(parameter, null, multi.getCurrentInstance(), BigDecimal.ONE,
@@ -111,6 +125,7 @@ public abstract class Product_Base
                 .withNetPrice(calculator.getNetUnitPrice())
                 .withCrossPrice(calculator.getCrossUnitPrice())
                 .withTaxes(taxes)
+                .withImageOid(imageOid)
                 .build();
             products.add(dto);
         }
