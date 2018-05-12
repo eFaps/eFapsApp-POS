@@ -33,7 +33,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.pos.User_Base.Role;
+import org.efaps.esjp.pos.util.Pos.Role;
 import org.efaps.pos.dto.Roles;
 import org.efaps.pos.dto.UserDto;
 import org.efaps.util.EFapsException;

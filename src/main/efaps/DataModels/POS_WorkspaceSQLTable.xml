@@ -26,13 +26,14 @@
         <database>
             <table-name>T_POSWS</table-name>
             <column name="COMPANYID" not-null="true" type="INTEGER"/>
-            <column length="255" name="NAME" not-null="true" type="STRING_SHORT"/>
-            <column length="255" name="DESCR" type="STRING_SHORT"/>
-            <column name="POSID" not-null="true" type="INTEGER"/>
-            <column name="CREATOR" not-null="true" type="INTEGER"/>
-            <column name="CREATED" not-null="true" type="DATETIME"/>
-            <column name="MODIFIER" not-null="true" type="INTEGER"/>
-            <column name="MODIFIED" not-null="true" type="DATETIME"/>
+            <column name="NAME"      not-null="true" type="STRING_SHORT" length="255"/>
+            <column name="DESCR"                     type="STRING_SHORT" length="255" />
+            <column name="POSID"    not-null="true"  type="INTEGER"/>
+            <column name="DOCTYPES"                  type="INTEGER"/>
+            <column name="CREATOR"  not-null="true"  type="INTEGER"/>
+            <column name="CREATED"  not-null="true"  type="DATETIME"/>
+            <column name="MODIFIER" not-null="true"  type="INTEGER"/>
+            <column name="MODIFIED" not-null="true"  type="DATETIME"/>
             <foreign key="COMPANYID" name="T_POSWS_FK_COMPANYID" reference="T_USERABSTRACT(ID)"/>
             <foreign key="CREATOR" name="T_POSWS_FK_CRTR" reference="T_USERPERSON(ID)"/>
             <foreign key="MODIFIER" name="T_POSWS_FK_MDFR" reference="T_USERPERSON(ID)"/>

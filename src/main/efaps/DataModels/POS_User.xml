@@ -63,7 +63,7 @@
         <attribute>
             <name>Roles</name>
             <type>BitEnum</type>
-            <className>org.efaps.esjp.pos.User_Base$Role</className>
+            <className>org.efaps.esjp.pos.util.Pos$Role</className>
             <sqltable>POS_UserSQLTable</sqltable>
             <sqlcolumn>ROLES</sqlcolumn>
         </attribute>

@@ -28,6 +28,7 @@
             <property name="HRef">MenuTree</property>
             <property name="Label">POS_Workspace/Name.Label</property>
             <property name="ModeSearch">READONLY</property>
+            <property name="HRef">TREE</property>
         </field>
         <field name="description">
             <property name="Attribute">Description</property>

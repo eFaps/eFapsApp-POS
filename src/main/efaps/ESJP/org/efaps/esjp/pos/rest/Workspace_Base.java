@@ -18,16 +18,21 @@
 package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.pos.util.Pos.DocType;
 import org.efaps.pos.dto.WorkspaceDto;
 import org.efaps.util.EFapsException;
 
@@ -56,13 +61,20 @@ public abstract class Workspace_Base
                         .linkto(CIPOS.Workspace.POSLink)
                         .oid();
         multi.addSelect(selPosOID);
-        multi.addAttribute(CIPOS.Workspace.Name);
+        multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes);
         multi.execute();
         while (multi.next()) {
+            final Collection<DocType> docTypes = multi.getAttribute(CIPOS.Workspace.DocTypes);
+            final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
+            for (final DocType docType : docTypes) {
+                dtoDocTypes.add(EnumUtils.getEnum(org.efaps.pos.dto.DocType.class, docType.name()));
+            }
+
             poss.add(WorkspaceDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Workspace.Name))
                 .withPosOid(multi.getSelect(selPosOID))
+                .withDocTypes(dtoDocTypes)
                 .build());
         }
         final Response ret = Response.ok()

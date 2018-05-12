@@ -64,6 +64,13 @@
                 <property name="Type">POS_POS</property>
             </trigger>
         </attribute>
+         <attribute>
+            <name>DocTypes</name>
+            <type>BitEnum</type>
+            <className>org.efaps.esjp.pos.util.Pos$DocType</className>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>DOCTYPES</sqlcolumn>
+        </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
