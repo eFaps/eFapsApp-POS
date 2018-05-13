@@ -28,13 +28,13 @@
             <property name="Label">POS_Category2ProductAbstract/Type.Label</property>
         </field>
         <field name="name">
-            <property name="Select">linkto[ToLinkAbstract].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkto[ToLinkAbstract].oid</property>
+            <property name="Select">linkto[ToLink].attribute[Name]</property>
+            <property name="SelectAlternateOID">linkto[ToLink].oid</property>
             <property name="HRef">MenuTree</property>
             <property name="Label">Products_ProductAbstract/Name.Label</property>
         </field>
         <field name="description">
-            <property name="Select">linkto[ToLinkAbstract].attribute[Description]</property>
+            <property name="Select">linkto[ToLink].attribute[Description]</property>
             <property name="Label">Products_ProductAbstract/Description.Label</property>
         </field>
     </definition>

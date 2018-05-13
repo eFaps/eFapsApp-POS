@@ -63,7 +63,16 @@ public abstract class POS_Base
         final SelectBuilder selContactOid = SelectBuilder.get()
                         .linkto(CIPOS.POS.DefaultContactLink)
                         .oid();
-        multi.addSelect(selCurrency, selContactOid);
+        final SelectBuilder selReceiptSeqOid = SelectBuilder.get()
+                        .linkto(CIPOS.POS.ReceiptSequenceLink)
+                        .oid();
+        final SelectBuilder selInvoiceSeqOid = SelectBuilder.get()
+                        .linkto(CIPOS.POS.InvoiceSequenceLink)
+                        .oid();
+        final SelectBuilder selTicketSeqOid = SelectBuilder.get()
+                        .linkto(CIPOS.POS.TicketSequenceLink)
+                        .oid();
+        multi.addSelect(selCurrency, selContactOid, selReceiptSeqOid, selInvoiceSeqOid, selTicketSeqOid);
         multi.addAttribute(CIPOS.POS.Name);
         multi.execute();
         while (multi.next()) {
@@ -72,6 +81,9 @@ public abstract class POS_Base
                 .withName(multi.getAttribute(CIPOS.POS.Name))
                 .withCurrency(multi.getSelect(selCurrency))
                 .withDefaultContactOid(multi.getSelect(selContactOid))
+                .withReceiptSeqOid(multi.getSelect(selReceiptSeqOid))
+                .withInvoiceSeqOid(multi.getSelect(selInvoiceSeqOid))
+                .withTicketSeqOid(multi.getSelect(selTicketSeqOid))
                 .withCompany(CompanyDto.builder()
                                 .withName(ERP.COMPANY_NAME.get())
                                 .withTaxNumber(ERP.COMPANY_TAX.get())
