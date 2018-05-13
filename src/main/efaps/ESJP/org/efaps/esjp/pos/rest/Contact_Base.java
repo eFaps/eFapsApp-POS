@@ -19,34 +19,48 @@ package org.efaps.esjp.pos.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.esjp.ci.CIPOS;
-import org.efaps.pos.dto.SequenceDto;
+import org.efaps.db.SelectBuilder;
+import org.efaps.esjp.ci.CIContacts;
+import org.efaps.pos.dto.ContactDto;
 import org.efaps.util.EFapsException;
 
-@EFapsUUID("9c5ece77-9940-4bfd-9514-24f6e3e771c9")
+@EFapsUUID("d74ba98c-e90c-4704-8d59-0e78d58a9bdb")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Sequence_Base
+public abstract class Contact_Base
 {
 
-    public Response getSequences()
+    @Path("contacts")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getContacts()
         throws EFapsException
     {
-        final List<SequenceDto> sequences = new ArrayList<>();
-        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Sequence);
+        final List<ContactDto> sequences = new ArrayList<>();
+        final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
+        queryBldr.addWhereClassification((Classification) CIContacts.ClassOrganisation.getType());
         final MultiPrintQuery multi = queryBldr.getPrint();
-        multi.addAttribute(CIPOS.Sequence.Format, CIPOS.Sequence.Value);
+        final SelectBuilder selTaxNumber = SelectBuilder.get()
+                        .clazz(CIContacts.ClassOrganisation)
+                        .attribute(CIContacts.ClassOrganisation.TaxNumber);
+        multi.addAttribute(CIContacts.Contact.Name);
+        multi.addSelect(selTaxNumber);
         multi.execute();
         while(multi.next()) {
-            sequences.add(SequenceDto.builder()
+            sequences.add(ContactDto.builder()
                             .withOID(multi.getCurrentInstance().getOid())
-                            .withSeq(multi.getAttribute(CIPOS.Sequence.Value))
-                            .withFormat(multi.getAttribute(CIPOS.Sequence.Format))
+                            .withName(multi.getAttribute(CIContacts.Contact.Name))
+                            .withTaxNumber(multi.getSelect(selTaxNumber))
                             .build());
         }
         final Response ret = Response.ok()
