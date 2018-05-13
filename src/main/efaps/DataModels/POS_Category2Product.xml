@@ -23,12 +23,19 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Category2Product</name>
-        <parent>POS_Category2ProductAbstract</parent>
+        <parent>POS_Object2ObjectAbstract</parent>
+        <attribute>
+            <name>FromLink</name>
+            <type>Link</type>
+            <typelink>POS_Category</typelink>
+            <sqltable>POS_Object2ObjectSQLTable</sqltable>
+            <sqlcolumn>FROMID</sqlcolumn>
+        </attribute>
         <attribute>
             <name>ToLink</name>
             <type>Link</type>
             <typelink>Products_ProductAbstract</typelink>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_Object2ObjectSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
         </attribute>
     </definition>

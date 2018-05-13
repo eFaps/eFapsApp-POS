@@ -14,70 +14,72 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>6e4b7243-8d6e-4081-a47b-e890caa0ed03</uuid>
+    <uuid>a34ae0d3-de41-4eef-8a19-f0ef5fa78aa5</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2ProductAbstract</name>
-        <purpose abstract="true" />
-        <attribute>
-            <name>Type</name>
-            <type>Type</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>TYPEID</sqlcolumn>
-        </attribute>
+        <name>POS_Sequence</name>
         <attribute>
             <name>OID</name>
             <type>OID</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>TYPEID,ID</sqlcolumn>
+            <sqltable>POS_SequenceSQLTable</sqltable>
+            <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
             <name>ID</name>
             <type>Long</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_SequenceSQLTable</sqltable>
             <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>FromLink</name>
-            <type>Link</type>
-            <typelink>POS_Category</typelink>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>FROMID</sqlcolumn>
+            <name>Company</name>
+            <type>CompanyLink</type>
+            <sqltable>POS_SequenceSQLTable</sqltable>
+            <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>ToLinkAbstract</name>
-            <type>Link</type>
-            <typelink>Products_ProductAbstract</typelink>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
-            <sqlcolumn>TOID</sqlcolumn>
+            <name>Name</name>
+            <type>String</type>
+            <sqltable>POS_SequenceSQLTable</sqltable>
+            <sqlcolumn>NAME</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Format</name>
+            <type>String</type>
+            <sqltable>POS_SequenceSQLTable</sqltable>
+            <sqlcolumn>FORMAT</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Value</name>
+            <type>Long</type>
+            <sqltable>POS_SequenceSQLTable</sqltable>
+            <sqlcolumn>VALUE</sqlcolumn>
         </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_SequenceSQLTable</sqltable>
             <sqlcolumn>CREATOR</sqlcolumn>
         </attribute>
         <attribute>
             <name>Created</name>
             <type>Created</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_SequenceSQLTable</sqltable>
             <sqlcolumn>CREATED</sqlcolumn>
         </attribute>
         <attribute>
             <name>Modifier</name>
             <type>ModifierLink</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_SequenceSQLTable</sqltable>
             <sqlcolumn>MODIFIER</sqlcolumn>
         </attribute>
         <attribute>
             <name>Modified</name>
             <type>Modified</type>
-            <sqltable>POS_Category2ProductSQLTable</sqltable>
+            <sqltable>POS_SequenceSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
     </definition>

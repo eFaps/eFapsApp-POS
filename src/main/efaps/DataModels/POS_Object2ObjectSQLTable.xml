@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
  Copyright 2003 - 2018 The eFaps Team
 
@@ -19,23 +18,23 @@
 <datamodel-sqltable xmlns="http://www.efaps.org/xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>b456d59d-b4c3-472e-9acd-f0cd77107213</uuid>
+    <uuid>ebde3d26-82ea-4007-8308-2bf1567c0e2f</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2ProductSQLTable</name>
+        <name>POS_Object2ObjectSQLTable</name>
         <typeid-column>TYPEID</typeid-column>
         <database>
-            <table-name>T_POS2PROD</table-name>
-            <column name="TYPEID" type="INTEGER" not-null="true" />
-            <column name="FROMID" type="INTEGER" not-null="true" />
-            <column name="TOID" type="INTEGER" not-null="true" />
-            <column name="CREATOR" type="INTEGER" not-null="true" />
-            <column name="CREATED" type="DATETIME" not-null="true" />
+            <table-name>T_POSOBJ2OBJ</table-name>
+            <column name="TYPEID"   type="INTEGER" not-null="true" />
+            <column name="FROMID"   type="INTEGER" not-null="true" />
+            <column name="TOID"     type="INTEGER" not-null="true" />
+            <column name="CREATOR"  type="INTEGER" not-null="true" />
+            <column name="CREATED"  type="DATETIME" not-null="true" />
             <column name="MODIFIER" type="INTEGER" not-null="true" />
             <column name="MODIFIED" type="DATETIME" not-null="true" />
-            <foreign key="CREATOR" name="T_POS2PROD_FK_CRTR" reference="T_USERPERSON(ID)" />
-            <foreign key="MODIFIER" name="T_POS2PROD_FK_MDFR" reference="T_USERPERSON(ID)" />
+            <foreign key="CREATOR"  name="T_POSOBJ2OBJ_FK_CRTR" reference="T_USERPERSON(ID)" />
+            <foreign key="MODIFIER" name="T_POSOBJ2OBJ_FK_MDFR" reference="T_USERPERSON(ID)" />
         </database>
     </definition>
 </datamodel-sqltable>

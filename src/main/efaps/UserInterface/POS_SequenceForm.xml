@@ -18,11 +18,11 @@
 -->
 <ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>d7fef5e6-9c1e-41a0-898b-bc7a0d5dab90</uuid>
+    <uuid>cfc887ed-8036-42c8-9993-a1bce121ce83</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_POSForm</name>
+        <name>POS_SequenceForm</name>
         <field name="name">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
@@ -30,53 +30,17 @@
             <property name="Attribute">Name</property>
             <property name="Required">true</property>
         </field>
-        <field name="description">
-            <property name="Attribute">Description</property>
+        <field name="format">
+            <property name="Attribute">Format</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
-        <field name="accountLink">
-            <property name="Attribute">AccountLink</property>
+        <field name="value">
+            <property name="Attribute">Value</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
             <property name="ModeSearch">EDITABLE</property>
             <property name="Required">true</property>
-        </field>
-        <field name="defaultContactLink">
-            <property name="Attribute">DefaultContactLink</property>
-            <property name="SelectAlternateOID">linkto[DefaultContactLink].oid</property>
-            <property name="HRef">TREE</property>
-            <property name="Label">Sales_InvoiceForm.contact.Label</property>
-            <property name="Select">linkto[DefaultContactLink].attribute[Name]</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-            <property name="ModeView">NONE</property>
-            <property name="Required">true</property>
-            <trigger program="org.efaps.esjp.contacts.Contacts"
-                method="autoComplete4Contact"
-                name="POS_POSForm.defaultContactLink.UI_FIELD_AUTOCOMPLETE"
-                event="UI_FIELD_AUTOCOMPLETE" >
-                <property name="Key">ID</property>
-            </trigger>
-        </field>
-        <field name="defaultContactLink4View">
-            <property name="Select">linkto[DefaultContactLink].attribute[Name]</property>
-            <property name="ModeEdit">NONE</property>
-        </field>
-        <field name="receiptSequenceLink">
-            <property name="Attribute">ReceiptSequenceLink</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="invoiceSequenceLink">
-            <property name="Attribute">InvoiceSequenceLink</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="ticketSequenceLink">
-            <property name="Attribute">TicketSequenceLink</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>

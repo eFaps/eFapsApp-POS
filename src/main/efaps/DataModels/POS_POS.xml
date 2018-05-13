@@ -55,6 +55,45 @@
             <sqlcolumn>DESCR</sqlcolumn>
         </attribute>
         <attribute>
+            <name>ReceiptSequenceLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Sequence</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>RECEIPTSEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.ReceiptSequenceLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Sequence</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+        <attribute>
+            <name>InvoiceSequenceLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Sequence</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>INVOICESEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.InvoiceSequenceLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Sequence</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+        <attribute>
+            <name>TicketSequenceLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Sequence</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>TICKETSEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.TicketSequenceLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Sequence</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_POSSQLTable</sqltable>
