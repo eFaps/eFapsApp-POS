@@ -14,29 +14,20 @@
  * limitations under the License.
  *
  */
-
 package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.db.Instance;
-import org.efaps.esjp.ci.CISales;
-import org.efaps.pos.dto.AbstractDocItemDto;
-import org.efaps.pos.dto.ReceiptDto;
+import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TODO comment!
- *
- * @author The eFaps Team
- */
-@EFapsUUID("a4b4a8af-2349-497b-af84-32d3b4d2dd57")
+@EFapsUUID("dc0a081c-f070-456b-a36e-c28e3cc825e5")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Receipt_Base
+public abstract class Ticket_Base
     extends AbstractDocument
 {
 
@@ -49,25 +40,11 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final ReceiptDto _receiptDto)
+    public Response addTicket(final TicketDto _ticketDto)
         throws EFapsException
     {
-        LOG.debug("Recieved: {}", _receiptDto);
-        final ReceiptDto dto;
-        if (_receiptDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.Receipt, _receiptDto);
-            for (final AbstractDocItemDto item : _receiptDto.getItems()) {
-                createPosition(docInst, CISales.ReceiptPosition, item);
-            }
-            dto = ReceiptDto.builder()
-                            .withId(_receiptDto.getId())
-                            .withOID(docInst.getOid())
-                            .build();
-        } else {
-            dto = ReceiptDto.builder().build();
-        }
+        LOG.debug("Recieved: {}", _ticketDto);
         final Response ret = Response.ok()
-                        .entity(dto)
                         .build();
         return ret;
     }

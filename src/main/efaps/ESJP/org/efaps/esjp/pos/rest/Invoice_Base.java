@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.core.Response;
@@ -24,19 +23,15 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.pos.dto.AbstractDocItemDto;
+import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TODO comment!
- *
- * @author The eFaps Team
- */
-@EFapsUUID("a4b4a8af-2349-497b-af84-32d3b4d2dd57")
+@EFapsUUID("7f36fc98-6a5f-40ab-9a29-4735a921def9")
 @EFapsApplication("eFapsApp-POS")
-public abstract class Receipt_Base
+public abstract class Invoice_Base
     extends AbstractDocument
 {
 
@@ -49,18 +44,18 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final ReceiptDto _receiptDto)
+    public Response addInvoice(final InvoiceDto _invoiceDto)
         throws EFapsException
     {
-        LOG.debug("Recieved: {}", _receiptDto);
+        LOG.debug("Recieved: {}", _invoiceDto);
         final ReceiptDto dto;
-        if (_receiptDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.Receipt, _receiptDto);
-            for (final AbstractDocItemDto item : _receiptDto.getItems()) {
-                createPosition(docInst, CISales.ReceiptPosition, item);
+        if (_invoiceDto.getOid() == null) {
+            final Instance docInst = createDocument(CISales.Invoice, _invoiceDto);
+            for (final AbstractDocItemDto item : _invoiceDto.getItems()) {
+                createPosition(docInst, CISales.InvoicePosition, item);
             }
             dto = ReceiptDto.builder()
-                            .withId(_receiptDto.getId())
+                            .withId(_invoiceDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {
