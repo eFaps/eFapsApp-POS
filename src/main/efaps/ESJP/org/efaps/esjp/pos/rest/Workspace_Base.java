@@ -64,10 +64,12 @@ public abstract class Workspace_Base
         multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes);
         multi.execute();
         while (multi.next()) {
-            final Collection<DocType> docTypes = multi.getAttribute(CIPOS.Workspace.DocTypes);
             final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
-            for (final DocType docType : docTypes) {
-                dtoDocTypes.add(EnumUtils.getEnum(org.efaps.pos.dto.DocType.class, docType.name()));
+            final Collection<DocType> docTypes = multi.getAttribute(CIPOS.Workspace.DocTypes);
+            if (docTypes != null) {
+                for (final DocType docType : docTypes) {
+                    dtoDocTypes.add(EnumUtils.getEnum(org.efaps.pos.dto.DocType.class, docType.name()));
+                }
             }
 
             poss.add(WorkspaceDto.builder()

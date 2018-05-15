@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -44,7 +45,11 @@ public abstract class Ticket_Base
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _ticketDto);
+        final ReceiptDto dto = ReceiptDto.builder()
+                        .withId(_ticketDto.getId())
+                        .build();
         final Response ret = Response.ok()
+                        .entity(dto)
                         .build();
         return ret;
     }

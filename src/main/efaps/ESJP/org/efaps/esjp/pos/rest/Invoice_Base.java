@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Instance;
@@ -50,7 +51,8 @@ public abstract class Invoice_Base
         LOG.debug("Recieved: {}", _invoiceDto);
         final ReceiptDto dto;
         if (_invoiceDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.Invoice, _invoiceDto);
+            final Instance docInst = createDocument(CISales.Invoice, Status.find(CISales.InvoiceStatus.Paid),
+                            _invoiceDto);
             for (final AbstractDocItemDto item : _invoiceDto.getItems()) {
                 createPosition(docInst, CISales.InvoicePosition, item);
             }

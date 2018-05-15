@@ -47,13 +47,13 @@ import org.efaps.util.EFapsException;
 public abstract class AbstractDocument_Base
 {
 
-    protected Instance createDocument(final CIType _ciType, final AbstractPayableDocumentDto _dto)
+    protected Instance createDocument(final CIType _ciType, final Status _status, final AbstractPayableDocumentDto _dto)
         throws EFapsException
     {
         final Insert insert = new Insert(_ciType);
         insert.add(CISales.Receipt.Name, _dto.getNumber());
         insert.add(CISales.Receipt.Date, _dto.getDate());
-        insert.add(CISales.Receipt.Status, Status.find(CISales.ReceiptStatus.Paid));
+        insert.add(CISales.Receipt.Status, _status);
 
         final BigDecimal netTotal = _dto.getNetTotal() == null ? BigDecimal.ZERO : _dto.getNetTotal();
         final BigDecimal crossTotal = _dto.getCrossTotal() == null ? BigDecimal.ZERO : _dto.getCrossTotal();
