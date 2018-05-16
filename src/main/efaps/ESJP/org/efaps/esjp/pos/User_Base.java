@@ -23,9 +23,11 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
+import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIFormPOS;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.common.uiform.Create;
+import org.efaps.esjp.common.uiform.Edit;
 import org.efaps.util.EFapsException;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.jasypt.util.password.StrongPasswordEncryptor;
@@ -55,4 +57,39 @@ public abstract class User_Base
             };
         }.execute(_parameter);
     }
+
+    public Return edit(final Parameter _parameter)
+        throws EFapsException
+    {
+        return new Edit()
+        {
+
+            @Override
+            protected void add2MainUpdate(final Parameter _parameter, final Update _update)
+                throws EFapsException
+            {
+                _update.add(CIPOS.User.EmployeeLink, Instance.get(_parameter.getParameterValue(
+                                CIFormPOS.POS_UserForm.employeeLink.name)));
+            };
+        }.execute(_parameter);
+    }
+
+    public Return setPassword(final Parameter _parameter)
+        throws EFapsException
+    {
+        return new Edit()
+        {
+
+            @Override
+            protected void add2MainUpdate(final Parameter _parameter, final Update _update)
+                throws EFapsException
+            {
+                final String clearTextPwd = _parameter.getParameterValue(CIFormPOS.POS_UserForm.clearTextPwd.name);
+
+                final PasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+                _update.add(CIPOS.User.Password, passwordEncryptor.encryptPassword(clearTextPwd));
+            };
+        }.execute(_parameter);
+    }
+
 }

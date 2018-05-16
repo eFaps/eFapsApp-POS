@@ -26,6 +26,7 @@
         <name>POS_UserTree_Menu_Action</name>
         <childs>
             <child>POS_UserTree_Menu_Action_Edit</child>
+            <child>POS_UserTree_Menu_Action_SetPassword</child>
         </childs>
     </definition>
 </ui-menu>
