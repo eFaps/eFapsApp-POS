@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
- Copyright 2003 - 2012 The eFaps Team
+ Copyright 2003 - 2018 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,27 +15,21 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Author:          The eFaps Team
- Revision:        $Rev$
- Last Changed:    $Date$
- Last Changed By: $Author$
-
---><ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+-->
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>93c03ac3-78a7-42ef-a7b6-ffbaea4dd664</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_POSTree_Receipt</name>
+        <name>POS_POSTree_Documents</name>
         <target>
-<!--             <menu>POS_ReceiptTree_Category_Menu</menu> -->
-            <table>POS_ReceiptTable</table>
+            <table>POS_POS2DocumentTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFrom">POSLink</property>
-                <property name="Type">POS_ReceiptClass</property>
+                <property name="LinkFrom">FromLink</property>
+                <property name="Type">POS_POS2Document</property>
             </evaluate>
         </target>
-        <!-- properties -->
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
         <property name="TargetShowCheckBoxes">true</property>
