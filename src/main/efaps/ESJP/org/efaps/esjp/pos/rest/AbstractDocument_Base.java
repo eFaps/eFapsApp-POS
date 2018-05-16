@@ -29,8 +29,10 @@ import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.sales.tax.Tax;
@@ -51,31 +53,45 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         final Insert insert = new Insert(_ciType);
-        insert.add(CISales.Receipt.Name, _dto.getNumber());
-        insert.add(CISales.Receipt.Date, _dto.getDate());
-        insert.add(CISales.Receipt.Status, _status);
+        insert.add(CISales.DocumentSumAbstract.Name, _dto.getNumber());
+        insert.add(CISales.DocumentSumAbstract.Date, _dto.getDate());
+        insert.add(CISales.DocumentSumAbstract.StatusAbstract, _status);
 
+        final Instance contactInst = Instance.get(_dto.getContactOid());
+        if (InstanceUtils.isValid(contactInst)) {
+            insert.add(CISales.DocumentSumAbstract.Contact, contactInst);
+        }
         final BigDecimal netTotal = _dto.getNetTotal() == null ? BigDecimal.ZERO : _dto.getNetTotal();
         final BigDecimal crossTotal = _dto.getCrossTotal() == null ? BigDecimal.ZERO : _dto.getCrossTotal();
 
-        insert.add(CISales.Receipt.NetTotal, netTotal);
-        insert.add(CISales.Receipt.CrossTotal, crossTotal);
-        insert.add(CISales.Receipt.DiscountTotal, BigDecimal.ZERO);
-        insert.add(CISales.Receipt.RateNetTotal, netTotal);
-        insert.add(CISales.Receipt.RateCrossTotal, crossTotal);
-        insert.add(CISales.Receipt.RateDiscountTotal, BigDecimal.ZERO);
-        insert.add(CISales.Receipt.CurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.Receipt.RateCurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.Receipt.Rate, new Object[] { 1, 1 });
-        insert.add(CISales.Receipt.Taxes, getTaxes(_dto.getDate(), _dto.getTaxes()));
+        insert.add(CISales.DocumentSumAbstract.NetTotal, netTotal);
+        insert.add(CISales.DocumentSumAbstract.CrossTotal, crossTotal);
+        insert.add(CISales.DocumentSumAbstract.DiscountTotal, BigDecimal.ZERO);
+        insert.add(CISales.DocumentSumAbstract.RateNetTotal, netTotal);
+        insert.add(CISales.DocumentSumAbstract.RateCrossTotal, crossTotal);
+        insert.add(CISales.DocumentSumAbstract.RateDiscountTotal, BigDecimal.ZERO);
+        insert.add(CISales.DocumentSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
+        insert.add(CISales.DocumentSumAbstract.RateCurrencyId, ERP.CURRENCYBASE.get());
+        insert.add(CISales.DocumentSumAbstract.Rate, new Object[] { 1, 1 });
+        insert.add(CISales.DocumentSumAbstract.Taxes, getTaxes(_dto.getDate(), _dto.getTaxes()));
         insert.execute();
-        return insert.getInstance();
+
+        final Instance ret = insert.getInstance();
+
+        final Instance posInst = Instance.get(_dto.getPosOid());
+        if (InstanceUtils.isValid(posInst)) {
+            final Insert relInsert = new Insert(CIPOS.POS2Document);
+            relInsert.add(CIPOS.POS2Document.FromLink, posInst);
+            relInsert.add(CIPOS.POS2Document.ToLink, ret);
+            relInsert.execute();
+        }
+        return ret;
     }
 
     protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto)
         throws EFapsException
     {
-        final Insert insert = new Insert(CISales.ReceiptPosition);
+        final Insert insert = new Insert(_ciType);
         insert.add(CISales.PositionAbstract.PositionNumber, _dto.getIndex());
         insert.add(CISales.PositionAbstract.DocumentAbstractLink, _docInstance);
 
