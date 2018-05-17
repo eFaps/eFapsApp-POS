@@ -48,7 +48,7 @@ public abstract class Contact_Base
     {
         final List<ContactDto> sequences = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
-        queryBldr.addWhereClassification((Classification) CIContacts.ClassOrganisation.getType());
+        queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selTaxNumber = SelectBuilder.get()
                         .clazz(CIContacts.ClassOrganisation)
