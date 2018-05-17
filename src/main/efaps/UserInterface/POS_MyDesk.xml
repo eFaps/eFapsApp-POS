@@ -32,5 +32,15 @@
             <child>POS_UserMyDesk</child>
             <child>POS_SequenceMyDesk</child>
         </childs>
+        <target>
+            <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI"
+                method="configCheck"
+                name="POS_MyDesk.UI_ACCESSCHECK"
+                event="UI_ACCESSCHECK">
+                <!-- POS-Configuration -->
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Activate</property>
+            </trigger>
+        </target>
     </definition>
 </ui-menu>

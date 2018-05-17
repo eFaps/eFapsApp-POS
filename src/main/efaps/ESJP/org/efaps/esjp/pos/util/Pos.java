@@ -17,15 +17,34 @@
 
 package org.efaps.esjp.pos.util;
 
+import java.util.UUID;
+
+import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.IBitEnum;
 import org.efaps.admin.datamodel.attributetype.BitEnumType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.api.annotation.EFapsSysConfAttribute;
+import org.efaps.api.annotation.EFapsSystemConfiguration;
+import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
+import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("77a6fc1e-a406-419f-a1aa-8207255a2522")
 @EFapsApplication("eFapsApp-POS")
+@EFapsSystemConfiguration("b038bf69-b588-431d-8c02-f53d4aac46c9")
 public class Pos
 {
+    /** The base. */
+    public static final String BASE = "org.efaps.pos.";
+    /** POS-Configuration. */
+    public static final UUID SYSCONFUUID = UUID.fromString("b038bf69-b588-431d-8c02-f53d4aac46c9");
+
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute ACTIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Activate")
+                    .description("Activate the POS implementation");
 
     public enum Role implements IBitEnum
     {
@@ -59,5 +78,16 @@ public class Pos
         {
             return ordinal();
         }
+    }
+
+    /**
+     * @return the SystemConfigruation for Payroll
+     * @throws CacheReloadException on error
+     */
+    public static SystemConfiguration getSysConfig()
+        throws CacheReloadException
+    {
+        // POS-Configuration
+        return SystemConfiguration.get(SYSCONFUUID);
     }
 }
