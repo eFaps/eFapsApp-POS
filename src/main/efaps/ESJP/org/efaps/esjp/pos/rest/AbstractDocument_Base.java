@@ -22,27 +22,41 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.efaps.admin.common.NumberGenerator;
 import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
+import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
+import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
 import org.efaps.esjp.sales.tax.Tax;
 import org.efaps.esjp.sales.tax.Tax_Base;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.AbstractDocItemDto;
+import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
+import org.efaps.pos.dto.PaymentDto;
+import org.efaps.pos.dto.PaymentType;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
+import org.joda.time.DateTime;
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
@@ -146,5 +160,150 @@ public abstract class AbstractDocument_Base
     {
         return Tax_Base.get(UUID.fromString("ed28d3c0-e55d-45e5-8025-e48fc989c9dd"), UUID.fromString(
                         "06e40be6-40d8-44f4-9d8f-585f2f97ce63"));
+    }
+
+    protected void addPayments(final Instance _docInst, final AbstractPayableDocumentDto _dto)
+        throws EFapsException
+    {
+        if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
+            for (final PaymentDto paymentDto : _dto.getPayments()) {
+                final Parameter parameter = ParameterUtil.instance();
+                final CIType docType = getPaymentDocType(paymentDto.getType());
+                final Insert insert = new Insert(docType);
+                final PosPayment posPayment = new PosPayment(docType);
+                insert.add(CISales.PaymentDocumentAbstract.Name,
+                                NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
+
+                final String code = posPayment.getCode4CreateDoc(parameter);
+                if (code != null) {
+                    insert.add(CISales.PaymentDocumentAbstract.Code, code);
+                }
+                insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
+                insert.add(CISales.PaymentDocumentAbstract.Date, _dto.getDate());
+                final Instance baseCurrInst = Currency.getBaseCurrency();
+                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
+                insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
+                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
+                insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
+
+                final Instance contactInst = Instance.get(_dto.getContactOid());
+                if (InstanceUtils.isValid(contactInst)) {
+                    insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
+                }
+                insert.add(CISales.PaymentDocumentAbstract.Rate, new Object[] { 1, 1 });
+                insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType()));
+                insert.execute();
+
+
+                final Insert payInsert = new Insert(CISales.Payment);
+                payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
+                payInsert.add(CISales.Payment.CreateDocument, _docInst);
+                payInsert.add(CISales.Payment.RateCurrencyLink, baseCurrInst);
+                payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
+                payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
+                payInsert.add(CISales.Payment.CurrencyLink, baseCurrInst);
+                payInsert.add(CISales.Payment.Date, new DateTime());
+                payInsert.add(CISales.Payment.Rate, new Object[] { 1, 1 });
+                payInsert.execute();
+
+                final Insert transIns;
+                if (InstanceUtils.isKindOf(insert.getInstance(), CISales.PaymentDocumentAbstract)) {
+                    transIns = new Insert(CISales.TransactionInbound);
+                } else {
+                    transIns = new Insert(CISales.TransactionOutbound);
+                }
+                transIns.add(CISales.TransactionAbstract.CurrencyId, baseCurrInst);
+                transIns.add(CISales.TransactionAbstract.Payment, payInsert.getInstance());
+                transIns.add(CISales.TransactionAbstract.Amount, paymentDto.getAmount());
+                transIns.add(CISales.TransactionAbstract.Date, _dto.getDate());
+                transIns.add(CISales.TransactionAbstract.Account, getAccountInst(_dto));
+                transIns.execute();
+            }
+        }
+    }
+
+    protected Instance getAccountInst(final AbstractDocumentDto _documentDto)
+        throws EFapsException
+    {
+        final Instance posInst = Instance.get(_documentDto.getPosOid());
+        final PrintQuery print = new PrintQuery(posInst);
+        final SelectBuilder selAccountInst = SelectBuilder.get().linkto(CIPOS.POS.AccountLink).instance();
+        print.addSelect(selAccountInst);
+        print.execute();
+        return print.getSelect(selAccountInst);
+    }
+
+    protected Status getPaymentDocStatus(final PaymentType _paymentType)
+        throws CacheReloadException
+    {
+        Status ret;
+        switch (_paymentType) {
+            case CREDITCARD:
+                ret = Status.find(CISales.PaymentCreditCardAbstractStatus.Closed);
+                break;
+            case DEBITCARD:
+                ret = Status.find(CISales.PaymentDebitCardAbstractStatus.Canceled);
+                break;
+            case CASH:
+                ret = Status.find(CISales.PaymentCashStatus.Closed);
+                break;
+            case CHANGE:
+                ret = Status.find(CISales.PaymentCashOutStatus.Closed);
+                break;
+            case FREE:
+            default:
+                ret = Status.find(CISales.PaymentInternalStatus.Closed);
+                break;
+        }
+        return ret;
+    }
+
+    protected CIType getPaymentDocType(final PaymentType _paymentType) {
+        CIType ret;
+        switch (_paymentType) {
+            case CREDITCARD:
+                ret = CISales.PaymentCreditCardVisa;
+                break;
+            case DEBITCARD:
+                ret = CISales.PaymentDebitCardVisa;
+                break;
+            case CASH:
+                ret = CISales.PaymentCash;
+                break;
+            case CHANGE:
+                ret = CISales.PaymentCashOut;
+                break;
+            case FREE:
+            default:
+                ret = CISales.PaymentInternal;
+                break;
+        }
+        return ret;
+    }
+
+    public static class PosPayment
+        extends AbstractPaymentDocument
+    {
+
+        private final CIType docType;
+
+        public PosPayment(final CIType _docType)
+        {
+            this.docType = _docType;
+        }
+
+        @Override
+        protected Type getType4DocCreate(final Parameter _parameter)
+            throws EFapsException
+        {
+            return this.docType.getType();
+        }
+
+        @Override
+        protected String getCode4CreateDoc(final Parameter _parameter)
+            throws EFapsException
+        {
+            return super.getCode4CreateDoc(_parameter);
+        }
     }
 }

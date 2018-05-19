@@ -61,6 +61,7 @@ public abstract class Receipt_Base
             for (final AbstractDocItemDto item : _receiptDto.getItems()) {
                 createPosition(docInst, CISales.ReceiptPosition, item);
             }
+            addPayments(docInst, _receiptDto);
             dto = ReceiptDto.builder()
                             .withId(_receiptDto.getId())
                             .withOID(docInst.getOid())
