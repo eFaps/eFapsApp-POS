@@ -16,7 +16,9 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -24,6 +26,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.ContactDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("c36628f2-d679-4b4e-ab45-a0bedb83468f")
@@ -40,5 +43,16 @@ public class Contact
         throws EFapsException
     {
         return super.getContacts();
+    }
+
+    @Override
+    @Path("contacts")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addContact(final ContactDto _contact)
+        throws EFapsException
+    {
+        return super.addContact(_contact);
     }
 }
