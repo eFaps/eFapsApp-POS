@@ -64,12 +64,19 @@
                 <property name="Type">POS_POS</property>
             </trigger>
         </attribute>
-         <attribute>
+        <attribute>
             <name>DocTypes</name>
             <type>BitEnum</type>
             <className>org.efaps.esjp.pos.util.Pos$DocType</className>
             <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>DOCTYPES</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>SpotConfig</name>
+            <type>Enum</type>
+            <className>org.efaps.esjp.pos.util.Pos$SpotConfig</className>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>SPOTCONF</sqlcolumn>
         </attribute>
         <attribute>
             <name>Creator</name>

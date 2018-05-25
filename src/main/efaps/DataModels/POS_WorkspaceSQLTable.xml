@@ -30,6 +30,7 @@
             <column name="DESCR"                     type="STRING_SHORT" length="255" />
             <column name="POSID"    not-null="true"  type="INTEGER"/>
             <column name="DOCTYPES"                  type="INTEGER"/>
+            <column name="SPOTCONF"                  type="INTEGER"/>
             <column name="CREATOR"  not-null="true"  type="INTEGER"/>
             <column name="CREATED"  not-null="true"  type="DATETIME"/>
             <column name="MODIFIER" not-null="true"  type="INTEGER"/>
