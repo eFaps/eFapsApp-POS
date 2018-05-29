@@ -53,6 +53,7 @@ public abstract class User_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
+    @SuppressWarnings("unchecked")
     public Response getUsers()
         throws EFapsException
     {
@@ -65,8 +66,10 @@ public abstract class User_Base
                         .attribute(CIHumanResource.Employee.FirstName);
         final SelectBuilder selEmployeeLastName = new SelectBuilder(selEmployee)
                         .attribute(CIHumanResource.Employee.LastName);
-
-        multi.addSelect(selEmployeeFirstName, selEmployeeLastName);
+        final SelectBuilder selWorkspaceOids = SelectBuilder.get()
+                        .linkfrom(CIPOS.User2Workspace.FromLink)
+                        .linkto(CIPOS.User2Workspace.ToLink).oid();
+        multi.addSelect(selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids);
         multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Roles);
         multi.execute();
         while (multi.next()) {
@@ -75,7 +78,13 @@ public abstract class User_Base
             for (final Role role : roles) {
                 dtoRoles.add(EnumUtils.getEnum(Roles.class, role.name()));
             }
-
+            final Object ws = multi.getSelect(selWorkspaceOids);
+            final Set<String> wsOids = new HashSet<>();
+            if (ws instanceof List) {
+                wsOids.addAll((Collection<? extends String>) ws);
+            } else if (ws instanceof String) {
+                wsOids.add((String) ws);
+            }
             users.add(UserDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withUsername(multi.getAttribute(CIPOS.User.Name))
@@ -83,6 +92,7 @@ public abstract class User_Base
                 .withFirstName(multi.getSelect(selEmployeeFirstName))
                 .withSurName(multi.getSelect(selEmployeeLastName))
                 .withRoles(dtoRoles)
+                .withWorkspaceOids(wsOids)
                 .build());
         }
         final Response ret = Response.ok()
@@ -90,7 +100,4 @@ public abstract class User_Base
                         .build();
         return ret;
     }
-
-
-
 }

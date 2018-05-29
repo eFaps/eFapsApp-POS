@@ -29,6 +29,9 @@
             <form>POS_UserForm</form>
         </target>
         <type>POS_User</type>
+        <childs>
+            <child>POS_UserTree_Workspace</child>
+        </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
     </definition>

@@ -16,22 +16,22 @@
  limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>8c3a07c5-9485-41f3-90e0-24565a5527c8</uuid>
+    <uuid>1d4dac4e-1289-403e-a071-d756c4630665</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2ProductTable</name>
-        <field name="name">
-            <property name="Select">linkto[ToLink].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkto[ToLink].oid</property>
-            <property name="HRef">MenuTree</property>
-            <property name="Label">Products_ProductAbstract/Name.Label</property>
-        </field>
-        <field name="description">
-            <property name="Select">linkto[ToLink].attribute[Description]</property>
-            <property name="Label">Products_ProductAbstract/Description.Label</property>
-        </field>
+        <name>POS_UserTree_Workspace_Menu_Action_AddExisting</name>
+        <target>
+            <search>POS_UserTree_Workspace_Menu_Action_AddExisting_Search</search>
+            <execute program="org.efaps.esjp.common.uisearch.Connect">
+                <property name="ConnectParentAttribute">FromLink</property>
+                <property name="ConnectChildAttribute">ToLink</property>
+                <property name="ConnectType">POS_User2Workspace</property>
+                <property name="AllowMultiple">true</property>
+            </execute>
+        </target>
+        <property name="Target">modal</property>
     </definition>
-</ui-table>
+</ui-command>

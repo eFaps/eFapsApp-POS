@@ -16,22 +16,17 @@
  limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>8c3a07c5-9485-41f3-90e0-24565a5527c8</uuid>
+    <uuid>c156b8a4-f4df-4e20-bb50-082d45aa9a60</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2ProductTable</name>
-        <field name="name">
-            <property name="Select">linkto[ToLink].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkto[ToLink].oid</property>
-            <property name="HRef">MenuTree</property>
-            <property name="Label">Products_ProductAbstract/Name.Label</property>
-        </field>
-        <field name="description">
-            <property name="Select">linkto[ToLink].attribute[Description]</property>
-            <property name="Label">Products_ProductAbstract/Description.Label</property>
-        </field>
+        <name>POS_UserTree_Workspace_Menu_Action_Disconnect</name>
+        <target>
+            <execute program="org.efaps.esjp.common.uitable.CommonDelete" />
+        </target>
+        <property name="AskUser">true</property>
+        <property name="Submit">true</property>
     </definition>
-</ui-table>
+</ui-command>

@@ -16,22 +16,20 @@
  limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>8c3a07c5-9485-41f3-90e0-24565a5527c8</uuid>
+    <uuid>4437f228-c154-40b0-96d7-9cb6e962377a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Category2ProductTable</name>
-        <field name="name">
-            <property name="Select">linkto[ToLink].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkto[ToLink].oid</property>
-            <property name="HRef">MenuTree</property>
-            <property name="Label">Products_ProductAbstract/Name.Label</property>
-        </field>
-        <field name="description">
-            <property name="Select">linkto[ToLink].attribute[Description]</property>
-            <property name="Label">Products_ProductAbstract/Description.Label</property>
-        </field>
+        <name>POS_WorkspaceSearch</name>
+        <target>
+            <form>POS_WorkspaceForm</form>
+            <table>POS_WorkspaceTable</table>
+            <evaluate program="org.efaps.esjp.common.uisearch.Search">
+                <property name="Type">POS_Workspace</property>
+            </evaluate>
+        </target>
+        <property name="TargetMode">search</property>
     </definition>
-</ui-table>
+</ui-command>
