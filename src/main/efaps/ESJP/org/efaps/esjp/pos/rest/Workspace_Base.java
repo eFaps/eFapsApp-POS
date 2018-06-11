@@ -61,7 +61,10 @@ public abstract class Workspace_Base
         final SelectBuilder selPosOID = SelectBuilder.get()
                         .linkto(CIPOS.Workspace.POSLink)
                         .oid();
-        multi.addSelect(selPosOID);
+        final SelectBuilder selWarehouseOID = SelectBuilder.get()
+                        .linkto(CIPOS.Workspace.WarehouseLink)
+                        .oid();
+        multi.addSelect(selPosOID, selWarehouseOID);
         multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig);
         multi.execute();
         while (multi.next()) {
@@ -78,6 +81,7 @@ public abstract class Workspace_Base
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Workspace.Name))
                 .withPosOid(multi.getSelect(selPosOID))
+                .withWarehouseOid(multi.getSelect(selWarehouseOID))
                 .withDocTypes(dtoDocTypes)
                 .withSpotConfig(EnumUtils.getEnum(org.efaps.pos.dto.SpotConfig.class, spotConfig.name()))
                 .build());

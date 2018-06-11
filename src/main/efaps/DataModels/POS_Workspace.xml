@@ -79,6 +79,19 @@
             <sqlcolumn>SPOTCONF</sqlcolumn>
         </attribute>
         <attribute>
+            <name>WarehouseLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>Products_Warehouse</typelink>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>WAREHOUSEID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_Workspace.WarehouseLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Name</property>
+                <property name="Type">Products_Warehouse</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_WorkspaceSQLTable</sqltable>
