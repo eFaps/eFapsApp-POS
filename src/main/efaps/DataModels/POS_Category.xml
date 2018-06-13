@@ -41,6 +41,16 @@
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Status</name>
+            <type>Status</type>
+            <typelink>POS_CategoryStatus</typelink>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>STATUS</sqlcolumn>
+            <trigger program="org.efaps.esjp.admin.datamodel.StatusValue"
+                name="POS_Category.Status.RANGE_VALUE" event="RANGE_VALUE">
+            </trigger>
+        </attribute>
+        <attribute>
             <name>Name</name>
             <type>String</type>
             <sqltable>POS_CategorySQLTable</sqltable>

@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
@@ -50,6 +51,7 @@ public abstract class Category_Base
     {
         final List<CategoryDto> categories = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);
+        queryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
         final MultiPrintQuery multi = queryBldr.getPrint();
         multi.addAttribute(CIPOS.Category.Name);
         multi.execute();

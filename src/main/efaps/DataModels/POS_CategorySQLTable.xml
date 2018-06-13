@@ -26,6 +26,7 @@
         <database>
             <table-name>T_POSCAT</table-name>
             <column name="COMPANYID"  type="INTEGER"      not-null="true"/>
+            <column name="STATUS"     type="INTEGER"      not-null="true" />
             <column name="NAME"       type="STRING_SHORT" not-null="true"     length="255"/>
             <column name="DESCR"      type="STRING_SHORT"                     length="255"/>
             <column name="CREATOR"    type="INTEGER"      not-null="true"/>

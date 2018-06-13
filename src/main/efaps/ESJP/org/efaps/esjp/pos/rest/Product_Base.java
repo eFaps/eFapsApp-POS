@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -67,7 +68,16 @@ public abstract class Product_Base
         throws EFapsException
     {
         final List<ProductDto> products = new ArrayList<>();
+        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
+        attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
+
+        final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
+        relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
+                        attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
+
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
+        queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                        relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selCat = SelectBuilder.get()
                         .linkfrom(CIPOS.Category2Product.ToLink)

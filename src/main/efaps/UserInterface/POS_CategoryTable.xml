@@ -34,5 +34,9 @@
             <property name="Label">POS_Category/Description.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+        <field name="status">
+            <property name="Attribute">Status</property>
+            <property name="Label">POS_Category/Status.Label</property>
+        </field>
     </definition>
 </ui-table>
