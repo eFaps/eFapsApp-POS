@@ -18,13 +18,21 @@
 package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Instance;
+import org.efaps.db.MultiPrintQuery;
+import org.efaps.db.QueryBuilder;
+import org.efaps.db.SelectBuilder;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.products.Inventory;
 import org.efaps.esjp.products.Inventory_Base.InventoryBean;
@@ -46,16 +54,33 @@ public abstract class Inventory_Base
         throws EFapsException
     {
         final List<InventoryEntryDto> entries = new ArrayList<>();
+        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
+        attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
+
+        final Set<Instance> prodInstances = new HashSet<>();
+        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category2Product);
+        queryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
+                        attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
+        final MultiPrintQuery multi = queryBldr.getPrint();
+        final SelectBuilder selProdInst = SelectBuilder.get().linkto(CIPOS.Category2Product.ToLink).instance();
+        multi.addSelect(selProdInst);
+        multi.executeWithoutAccessCheck();
+        while (multi.next()) {
+            prodInstances.add(multi.getSelect(selProdInst));
+        }
+
         final Inventory inventory = new Inventory();
         final Parameter parameter = ParameterUtil.instance();
         inventory.setShowStorage(true);
         final List<? extends InventoryBean> beans = inventory.getInventory(parameter);
         for (final InventoryBean bean : beans) {
-            entries.add(InventoryEntryDto.builder()
+            if (prodInstances.contains(bean.getProdInstance())) {
+                entries.add(InventoryEntryDto.builder()
                             .withQuantity(bean.getQuantity())
                             .withProductOid(bean.getProdOID())
                             .withWarehouseOid(bean.getStorageInstance().getOid())
                             .build());
+            }
         }
         final Response ret = Response.ok().entity(entries).build();
         return ret;
