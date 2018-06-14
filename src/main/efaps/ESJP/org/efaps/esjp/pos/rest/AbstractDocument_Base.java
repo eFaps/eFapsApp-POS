@@ -92,10 +92,14 @@ public abstract class AbstractDocument_Base
 
         final Instance ret = insert.getInstance();
 
-        final Instance posInst = Instance.get(_dto.getPosOid());
-        if (InstanceUtils.isValid(posInst)) {
+        final Instance workspacInst = Instance.get(_dto.getWorkspaceOid());
+        if (InstanceUtils.isValid(workspacInst)) {
+            final PrintQuery print = new PrintQuery(workspacInst);
+            print.addAttribute(CIPOS.Workspace.POSLink);
+            print.executeWithoutAccessCheck();
+
             final Insert relInsert = new Insert(CIPOS.POS2Document);
-            relInsert.add(CIPOS.POS2Document.FromLink, posInst);
+            relInsert.add(CIPOS.POS2Document.FromLink, print.getAttribute(CIPOS.Workspace.POSLink));
             relInsert.add(CIPOS.POS2Document.ToLink, ret);
             relInsert.execute();
         }
@@ -225,9 +229,11 @@ public abstract class AbstractDocument_Base
     protected Instance getAccountInst(final AbstractDocumentDto _documentDto)
         throws EFapsException
     {
-        final Instance posInst = Instance.get(_documentDto.getPosOid());
-        final PrintQuery print = new PrintQuery(posInst);
-        final SelectBuilder selAccountInst = SelectBuilder.get().linkto(CIPOS.POS.AccountLink).instance();
+        final Instance workspacInst = Instance.get(_documentDto.getWorkspaceOid());
+        final PrintQuery print = new PrintQuery(workspacInst);
+        final SelectBuilder selAccountInst = SelectBuilder.get()
+                        .linkto(CIPOS.Workspace.POSLink)
+                        .linkto(CIPOS.POS.AccountLink).instance();
         print.addSelect(selAccountInst);
         print.execute();
         return print.getSelect(selAccountInst);
