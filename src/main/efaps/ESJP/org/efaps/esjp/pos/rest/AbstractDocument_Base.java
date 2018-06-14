@@ -99,7 +99,7 @@ public abstract class AbstractDocument_Base
             print.executeWithoutAccessCheck();
 
             final Insert relInsert = new Insert(CIPOS.POS2Document);
-            relInsert.add(CIPOS.POS2Document.FromLink, print.getAttribute(CIPOS.Workspace.POSLink));
+            relInsert.add(CIPOS.POS2Document.FromLink, print.<Long>getAttribute(CIPOS.Workspace.POSLink));
             relInsert.add(CIPOS.POS2Document.ToLink, ret);
             relInsert.execute();
         }
