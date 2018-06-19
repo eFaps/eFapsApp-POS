@@ -18,11 +18,11 @@
 -->
 <ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>d4c7c585-99be-4d37-af6d-a05d77438895</uuid>
+    <uuid>8778e5ca-973b-4e90-8622-73c5d30496ca</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_WorkspaceForm</name>
+        <name>POS_PrinterForm</name>
         <field name="name">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
@@ -35,33 +35,10 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
-        <field name="posLink">
-            <property name="Attribute">POSLink</property>
-            <property name="ModeCreate">EDITABLE</property>
+        <field name="printerType">
+            <property name="Attribute">PrinterType</property>
             <property name="ModeEdit">EDITABLE</property>
-            <property name="Required">true</property>
-        </field>
-        <field name="docTypes">
-            <property name="Attribute">DocTypes</property>
             <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="spotConfig">
-            <property name="Attribute">SpotConfig</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="warehouseLink">
-            <property name="Attribute">WarehouseLink</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-        </field>
-        <field name="printCmdSet" character="Set">
-            <property name="Attribute">PrintCmdSet</property>
-            <property name="ModeCreate">EDITABLE</property>
-            <property name="ModeEdit">EDITABLE</property>
-            <property name="Label">POS_Workspace/PrintCmdSet.Label</property>
-            <property name="Order">PrinterLink|PrintTarget|TargetLink</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+ Copyright 2003 - 2018 The eFaps Team
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+-->
+<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>c4cc499b-b672-4ce3-9ffe-2150d50fa0f6</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_PrinterTable</name>
+        <field name="name">
+            <property name="Attribute">Name</property>
+            <property name="HRef">MenuTree</property>
+            <property name="Label">POS_Printer/Name.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="description">
+            <property name="Attribute">Description</property>
+            <property name="Label">POS_Printer/Description.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="printerType">
+            <property name="Attribute">PrinterType</property>
+            <property name="Label">POS_Printer/PrinterType.Label</property>
+        </field>
+    </definition>
+</ui-table>

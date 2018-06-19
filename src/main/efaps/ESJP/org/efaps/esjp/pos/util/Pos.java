@@ -103,6 +103,28 @@ public class Pos
         }
     }
 
+    public enum PrinterType implements IEnum
+    {
+        PREVIEW, PHYSICAL;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
+
+    public enum PrintTarget implements IEnum
+    {
+        JOB;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
+
     /**
      * @return the SystemConfigruation for Payroll
      * @throws CacheReloadException on error

@@ -91,6 +91,46 @@
                 <property name="EmptyValue">true</property>
             </trigger>
         </attribute>
+        <attributeset>
+            <name>PrintCmdSet</name>
+            <type>MultiLineArray</type>
+            <parent>POS_AttributeSetAbstract</parent>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>RELID</sqlcolumn>
+            <uuid>30293a34-0ac7-4843-bd5f-7d1c53e79ca0</uuid>
+            <attribute>
+                <name>PrinterLink</name>
+                <type>LinkWithRanges</type>
+                <typelink>POS_Printer</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT1</sqlcolumn>
+                <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.PrinterLink.RANGE_VALUE"
+                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    <property name="Value">Name</property>
+                    <property name="Type">POS_Printer</property>
+                </trigger>
+            </attribute>
+            <attribute>
+                <name>PrintTarget</name>
+                <type>Enum</type>
+                <className>org.efaps.esjp.pos.util.Pos$PrintTarget</className>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT2</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>TargetLink</name>
+                <type>LinkWithRanges</type>
+                <typelink>POS_Category</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT3</sqlcolumn>
+                <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.TargetLink.RANGE_VALUE"
+                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    <property name="Value">Name</property>
+                    <property name="Type">POS_Category</property>
+                    <property name="EmptyValue">true</property>
+                </trigger>
+            </attribute>
+        </attributeset>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
