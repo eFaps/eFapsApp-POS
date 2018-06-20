@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<!-- 2018-06-20T01:27:31 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="POS_Job" pageWidth="226" pageHeight="283" columnWidth="226" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Empty" isIgnorePagination="true" uuid="cecaa4a6-30e7-49c1-8874-f24546d2d085">
+	<property name="org.efaps.admin.program.jasper.EFapsApplication" value="eFapsApp-POS"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PosJSON"/>
+	<property name="com.jaspersoft.studio.unit." value="mm"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="mm"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<subDataset name="Dataset1" uuid="0c5eb528-4190-4e49-850a-a0ae95952b47">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="PosJSON"/>
+		<parameter name="JSON_INPUT_STREAM" class="java.io.InputStream" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.source" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.sources" class="java.util.List" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.date.pattern" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.number.pattern" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="JSON_LOCALE" class="java.util.Locale" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.locale.code" class="java.lang.String" isForPrompting="false"/>
+		<parameter name="JSON_TIME_ZONE" class="java.util.TimeZone" isForPrompting="false"/>
+		<parameter name="net.sf.jasperreports.json.timezone.id" class="java.lang.String" isForPrompting="false"/>
+		<queryString language="JSON">
+			<![CDATA[items]]>
+		</queryString>
+		<field name="quantity" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="quantity"/>
+			<fieldDescription><![CDATA[quantity]]></fieldDescription>
+		</field>
+		<field name="netUnitPrice" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="netUnitPrice"/>
+			<fieldDescription><![CDATA[netUnitPrice]]></fieldDescription>
+		</field>
+		<field name="crossUnitPrice" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="crossUnitPrice"/>
+			<fieldDescription><![CDATA[crossUnitPrice]]></fieldDescription>
+		</field>
+		<field name="netPrice" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="netPrice"/>
+			<fieldDescription><![CDATA[netPrice]]></fieldDescription>
+		</field>
+		<field name="crossPrice" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="crossPrice"/>
+			<fieldDescription><![CDATA[crossPrice]]></fieldDescription>
+		</field>
+		<field name="description" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="description"/>
+			<fieldDescription><![CDATA[description]]></fieldDescription>
+		</field>
+		<field name="sku" class="java.lang.String">
+			<property name="net.sf.jasperreports.json.field.expression" value="sku"/>
+			<fieldDescription><![CDATA[sku]]></fieldDescription>
+		</field>
+	</subDataset>
+	<parameter name="JSON_INPUT_STREAM" class="java.io.InputStream" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.source" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.sources" class="java.util.List" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.date.pattern" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.number.pattern" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="JSON_LOCALE" class="java.util.Locale" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.locale.code" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="JSON_TIME_ZONE" class="java.util.TimeZone" isForPrompting="false"/>
+	<parameter name="net.sf.jasperreports.json.timezone.id" class="java.lang.String" isForPrompting="false"/>
+	<queryString language="JSON">
+		<![CDATA[]]>
+	</queryString>
+	<field name="number" class="java.lang.String">
+		<fieldDescription><![CDATA[number]]></fieldDescription>
+	</field>
+	<field name="date" class="java.lang.String">
+		<fieldDescription><![CDATA[date]]></fieldDescription>
+	</field>
+	<field name="netTotal" class="java.lang.String">
+		<fieldDescription><![CDATA[netTotal]]></fieldDescription>
+	</field>
+	<field name="crossTotal" class="java.lang.String">
+		<fieldDescription><![CDATA[crossTotal]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="61" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="30" width="80" height="20" uuid="bf7dba56-dd78-49cb-b831-a2f6da71292f"/>
+				<textFieldExpression><![CDATA[$F{number}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="100" y="30" width="120" height="20" uuid="8f208782-3434-4c7a-82c2-677cca99f401"/>
+				<textFieldExpression><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="226" height="20" uuid="575ba06c-dfad-4b12-9d0e-deaec5b34117"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Kitchen Printer]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="75" splitType="Stretch">
+			<componentElement>
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="226" height="16" isPrintWhenDetailOverflows="true" uuid="f37f1bc7-118e-47c2-8d58-d66f2571f231">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+					<property name="com.jaspersoft.studio.unit.y" value="mm"/>
+					<property name="com.jaspersoft.studio.unit.width" value="mm"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Dataset1" uuid="fd018720-9775-457b-b05f-d405a75991e0">
+						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("items")]]></dataSourceExpression>
+					</datasetRun>
+					<jr:column width="60" uuid="d86bc38a-f245-4329-9a75-e6fffc4aca43">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:columnHeader height="2" rowSpan="1"/>
+						<jr:detailCell height="30">
+							<textField>
+								<reportElement x="0" y="0" width="60" height="30" uuid="540dbb31-db77-42bc-951f-e5a9d07e9bb0">
+									<property name="com.jaspersoft.studio.unit.height" value="mm"/>
+								</reportElement>
+								<textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="166" uuid="c32897d2-24a4-4b55-a383-6ee33d365276">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:columnHeader height="2" rowSpan="1"/>
+						<jr:detailCell height="30">
+							<textField>
+								<reportElement x="0" y="0" width="166" height="30" uuid="36fc0aa7-9571-4f7a-94c8-99c7a2a636db"/>
+								<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>
