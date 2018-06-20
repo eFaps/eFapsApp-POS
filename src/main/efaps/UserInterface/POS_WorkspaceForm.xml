@@ -61,7 +61,7 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
             <property name="Label">POS_Workspace/PrintCmdSet.Label</property>
-            <property name="Order">PrinterLink|PrintTarget|TargetLink</property>
+            <property name="Order">PrinterLink|PrintTarget|TargetLink|ReportLink</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>

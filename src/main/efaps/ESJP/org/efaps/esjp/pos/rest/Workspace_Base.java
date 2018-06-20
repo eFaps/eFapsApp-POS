@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIAdminProgram;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.PrintQuery;
@@ -67,7 +68,8 @@ public abstract class Workspace_Base
     public Response getWorkspaces()
         throws EFapsException
     {
-        final List<WorkspaceDto> poss = new ArrayList<>();
+        LOG.debug("Responding to request for Workspaces");
+        final List<WorkspaceDto> workspaces = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Workspace);
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selPosOID = SelectBuilder.get()
@@ -93,12 +95,12 @@ public abstract class Workspace_Base
             print.executeWithoutAccessCheck();
             final Map<String, Object> printCmds = print.getAttributeSet(CIPOS.Workspace.PrintCmdSet.name);
             if (printCmds != null) {
-                final List<Long> printerLinks = (ArrayList<Long>) printCmds.get("PrinterLink");
-                final List<PrintTarget> printTargets = (ArrayList<PrintTarget>) printCmds.get("PrintTarget");
-                final List<Long> targetLinks = (ArrayList<Long>) printCmds.get("TargetLink");
-                final Iterator<Long> printerLinkIter = printerLinks.iterator();
-                final Iterator<PrintTarget> printTargetIter = printTargets.iterator();
-                final Iterator<Long> targetLinkIter = targetLinks.iterator();
+                LOG.trace("PrintCmds: {} for {}", printCmds, multi.getCurrentInstance());
+                final Iterator<Long> printerLinkIter = ((ArrayList<Long>) printCmds.get("PrinterLink")).iterator();
+                final Iterator<PrintTarget> printTargetIter = ((ArrayList<PrintTarget>) printCmds.get("PrintTarget"))
+                                .iterator();
+                final Iterator<Long> targetLinkIter = ((ArrayList<Long>) printCmds.get("TargetLink")).iterator();
+                final Iterator<Long> reportLinkIter = ((ArrayList<Long>) printCmds.get("ReportLink")).iterator();
 
                 while (printerLinkIter.hasNext()) {
                     printCmdDtos.add(PrintCmdDto.builder()
@@ -106,12 +108,14 @@ public abstract class Workspace_Base
                             .withTarget(EnumUtils.getEnum(org.efaps.pos.dto.PrintTarget.class,
                                             printTargetIter.next().name()))
                             .withTargetOid(Instance.get(CIPOS.Category.getType(), targetLinkIter.next()).getOid())
+                            .withReportOid(Instance.get(CIAdminProgram.JasperReportCompiled.getType(),
+                                            reportLinkIter.next()).getOid())
                             .build());
                 }
             }
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
 
-            poss.add(WorkspaceDto.builder()
+            workspaces.add(WorkspaceDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Workspace.Name))
                 .withPosOid(multi.getSelect(selPosOID))
@@ -121,8 +125,9 @@ public abstract class Workspace_Base
                 .withPrintCmds(printCmdDtos)
                 .build());
         }
+        LOG.debug("Workspaces: {}", workspaces);
         final Response ret = Response.ok()
-                        .entity(poss)
+                        .entity(workspaces)
                         .build();
         return ret;
     }

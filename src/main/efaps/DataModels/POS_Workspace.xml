@@ -130,6 +130,18 @@
                     <property name="EmptyValue">true</property>
                 </trigger>
             </attribute>
+             <attribute>
+                <name>ReportLink</name>
+                <type>LinkWithRanges</type>
+                <typelink>Admin_Program_JasperReportCompiled</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT4</sqlcolumn>
+                <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.ReportLink.RANGE_VALUE"
+                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    <property name="Value">Name</property>
+                    <property name="Type">Admin_Program_JasperReportCompiled</property>
+                </trigger>
+            </attribute>
         </attributeset>
         <attribute>
             <name>Creator</name>

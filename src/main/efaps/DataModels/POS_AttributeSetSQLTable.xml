@@ -31,6 +31,7 @@
             <column name="INT1"     type="INTEGER"/>
             <column name="INT2"     type="INTEGER"/>
             <column name="INT3"     type="INTEGER"/>
+            <column name="INT4"     type="INTEGER"/>
             <column name="CREATOR"  type="INTEGER"  not-null="true"/>
             <column name="CREATED"  type="DATETIME" not-null="true"/>
             <column name="MODIFIER" type="INTEGER"  not-null="true"/>
