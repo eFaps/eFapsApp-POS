@@ -79,6 +79,12 @@
             <sqlcolumn>SPOTCONF</sqlcolumn>
         </attribute>
         <attribute>
+            <name>SpotCount</name>
+            <type>Integer</type>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>SPOTCOUNT</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>WarehouseLink</name>
             <type>LinkWithRanges</type>
             <typelink>Products_Warehouse</typelink>

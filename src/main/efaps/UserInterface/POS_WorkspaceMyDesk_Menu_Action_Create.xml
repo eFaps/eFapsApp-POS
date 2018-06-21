@@ -31,5 +31,6 @@
         <property name="TargetCreateType">POS_Workspace</property>
         <property name="TargetMode">create</property>
         <property name="TargetDefaultMenu">none</property>
+        <property name="WindowWidth">900</property>
     </definition>
 </ui-command>

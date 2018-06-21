@@ -79,7 +79,8 @@ public abstract class Workspace_Base
                         .linkto(CIPOS.Workspace.WarehouseLink)
                         .oid();
         multi.addSelect(selPosOID, selWarehouseOID);
-        multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig);
+        multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig,
+                        CIPOS.Workspace.SpotCount);
         multi.execute();
         while (multi.next()) {
             final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
@@ -114,6 +115,7 @@ public abstract class Workspace_Base
                 }
             }
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
+            final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
 
             workspaces.add(WorkspaceDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
@@ -122,6 +124,7 @@ public abstract class Workspace_Base
                 .withWarehouseOid(multi.getSelect(selWarehouseOID))
                 .withDocTypes(dtoDocTypes)
                 .withSpotConfig(EnumUtils.getEnum(org.efaps.pos.dto.SpotConfig.class, spotConfig.name()))
+                .withSpotCount(spotCount == null ? -1 : spotCount)
                 .withPrintCmds(printCmdDtos)
                 .build());
         }
