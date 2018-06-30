@@ -1,21 +1,25 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
-  Copyright 2009 moxter.net S.A.C.
+   Copyright 2003 - 2018 The eFaps Team
 
-  All Rights Reserved.
-  This program contains proprietary and trade secret information of
-  moxter.net S.A.C. Copyright notice is precautionary only and does not
-  evidence any actual or intended publication of such program.
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-  Author:          moxter.net S.A.C.
-  Revision:        $Rev: 7932 $
-  Last Changed:    $Date: 2012-08-22 11:05:56 -0500 (mié, 22 ago 2012) $
-  Last Changed By: $Author: jan@moxter.net $
+      http://www.apache.org/licenses/LICENSE-2.0
 
---><access-set xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+-->
+<access-set xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>1525424e-c9c0-42c0-a5b0-7564027f5fa6</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev: 7932 $</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Admin</name>
@@ -32,19 +36,7 @@
 
         <type>POS_Category</type>
         <type>POS_Payment</type>
-        <type>POS_Receipt</type>
-        <type>POS_ReceiptPosition</type>
-        <type>POS_TransactionInbound</type>
-        <type>POS_TransactionOutbound</type>
-
-        <status group="POS_ReceiptStatus">
-            <key>Open</key>
-            <key>Paid</key>
-            <key>Booked</key>
-            <key>Replaced</key>
-        </status>
-
+        
         <role>POS_Admin</role>
     </definition>
-
 </access-set>
