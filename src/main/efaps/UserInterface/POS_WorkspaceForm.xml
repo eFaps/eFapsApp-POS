@@ -60,6 +60,11 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
+        <field name="posLayout">
+            <property name="Attribute">PosLayout</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+        </field>
         <field name="warehouseLink">
             <property name="Attribute">WarehouseLink</property>
             <property name="ModeCreate">EDITABLE</property>

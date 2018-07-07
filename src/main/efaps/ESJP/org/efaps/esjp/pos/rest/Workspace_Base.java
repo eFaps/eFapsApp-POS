@@ -38,6 +38,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.pos.util.Pos.DocType;
+import org.efaps.esjp.pos.util.Pos.PosLayout;
 import org.efaps.esjp.pos.util.Pos.PrintTarget;
 import org.efaps.esjp.pos.util.Pos.SpotConfig;
 import org.efaps.pos.dto.PrintCmdDto;
@@ -80,7 +81,7 @@ public abstract class Workspace_Base
                         .oid();
         multi.addSelect(selPosOID, selWarehouseOID);
         multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig,
-                        CIPOS.Workspace.SpotCount);
+                        CIPOS.Workspace.SpotCount, CIPOS.Workspace.PosLayout);
         multi.execute();
         while (multi.next()) {
             final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
@@ -116,6 +117,7 @@ public abstract class Workspace_Base
             }
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
+            final PosLayout posLayout = multi.getAttribute(CIPOS.Workspace.PosLayout);
 
             workspaces.add(WorkspaceDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
@@ -126,6 +128,7 @@ public abstract class Workspace_Base
                 .withSpotConfig(EnumUtils.getEnum(org.efaps.pos.dto.SpotConfig.class, spotConfig.name()))
                 .withSpotCount(spotCount == null ? -1 : spotCount)
                 .withPrintCmds(printCmdDtos)
+                .withPosLayout(EnumUtils.getEnum(org.efaps.pos.dto.PosLayout.class, posLayout.name()))
                 .build());
         }
         LOG.debug("Workspaces: {}", workspaces);

@@ -33,6 +33,7 @@
             <column name="SPOTCONF"                  type="INTEGER"/>
             <column name="SPOTCOUNT"                 type="INTEGER"/>
             <column name="WAREHOUSEID"               type="INTEGER"/>
+            <column name="POSLAYOUT"                 type="INTEGER"/>
             <column name="CREATOR"  not-null="true"  type="INTEGER"/>
             <column name="CREATED"  not-null="true"  type="DATETIME"/>
             <column name="MODIFIER" not-null="true"  type="INTEGER"/>

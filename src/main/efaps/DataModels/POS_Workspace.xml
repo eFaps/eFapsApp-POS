@@ -150,6 +150,13 @@
             </attribute>
         </attributeset>
         <attribute>
+            <name>PosLayout</name>
+            <type>Enum</type>
+            <className>org.efaps.esjp.pos.util.Pos$PosLayout</className>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>POSLAYOUT</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_WorkspaceSQLTable</sqltable>

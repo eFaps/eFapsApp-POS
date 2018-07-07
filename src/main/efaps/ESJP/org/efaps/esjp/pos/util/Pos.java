@@ -125,6 +125,20 @@ public class Pos
         }
     }
 
+    public enum PosLayout implements IEnum
+    {
+        GRID,
+        LIST,
+        BOTH;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
+
+
     /**
      * @return the SystemConfigruation for Payroll
      * @throws CacheReloadException on error
