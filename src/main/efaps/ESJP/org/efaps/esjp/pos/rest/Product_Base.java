@@ -119,6 +119,7 @@ public abstract class Product_Base
                 try {
                     taxes.add(TaxDto.builder()
                                     .withOID(tax.getInstance().getOid())
+                                    .withKey(tax.getUUID().toString())
                                     .withName(tax.getName())
                                     .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
                                     .build());

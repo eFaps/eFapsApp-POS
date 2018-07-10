@@ -28,9 +28,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.api.annotation.EFapsSysConfAttribute;
 import org.efaps.api.annotation.EFapsSystemConfiguration;
 import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
+import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
 import org.efaps.esjp.ci.CINumGenPOS;
-import org.efaps.esjp.sales.util.Sales;
 import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("77a6fc1e-a406-419f-a1aa-8207255a2522")
@@ -53,10 +53,17 @@ public class Pos
     /** See description. */
     @EFapsSysConfAttribute
     public static final StringSysConfAttribute PAYMENTDOCUMENT_SEQ = new StringSysConfAttribute()
-                    .sysConfUUID(Sales.SYSCONFUUID)
-                    .key(Sales.BASE + "PaymentDocument.Sequence")
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "PaymentDocument.Sequence")
                     .defaultValue(CINumGenPOS.PaymentDocumentSequence.uuid.toString())
-                    .description("UUID of the Sequence used to AutoNumber the created Paymend Documents.");
+                    .description("UUID of the Sequence used to AutoNumber the created Payment Documents.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute CONFIG = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Configurations")
+                    .description("Configurations that will be forwarded to the offline POS.");
 
     public enum Role implements IBitEnum
     {
