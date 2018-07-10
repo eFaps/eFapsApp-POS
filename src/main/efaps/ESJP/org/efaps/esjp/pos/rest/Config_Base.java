@@ -38,12 +38,8 @@ public abstract class Config_Base
     public Response getConfig()
         throws EFapsException
     {
-        System.out.println("--------------");
-        System.out.println(Pos.CONFIG.get());
         final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
-        System.out.println(config);
-        System.out.println("--------------");
         LOG.debug("Request for Configs: {}", config);
         final Response ret = Response.ok()
                         .entity(config)

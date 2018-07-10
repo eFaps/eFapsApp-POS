@@ -25,6 +25,8 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Dimension;
+import org.efaps.admin.datamodel.Dimension.UoM;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -89,7 +91,8 @@ public abstract class Product_Base
                         .oid();
         multi.addSelect(selCat, selImageOid);
         multi.addAttribute(CIProducts.ProductAbstract.Name,
-                        CIProducts.ProductAbstract.Description);
+                        CIProducts.ProductAbstract.Description,
+                        CIProducts.ProductAbstract.DefaultUoM);
         multi.execute();
         while (multi.next()) {
             final Object cats = multi.getSelect(selCat);
@@ -127,6 +130,7 @@ public abstract class Product_Base
                     LOG.error("Catched", e);
                 }
             });
+            final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
             final ProductDto dto = ProductDto.builder()
                 .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
@@ -137,6 +141,8 @@ public abstract class Product_Base
                 .withCrossPrice(calculator.getCrossUnitPrice())
                 .withTaxes(taxes)
                 .withImageOid(imageOid)
+                .withUoM(uoM.getSymbol())
+                .withUoMCode(uoM.getCommonCode())
                 .build();
             products.add(dto);
         }
