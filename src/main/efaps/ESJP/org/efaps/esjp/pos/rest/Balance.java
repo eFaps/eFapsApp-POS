@@ -14,9 +14,11 @@
  * limitations under the License.
  *
  */
+
 package org.efaps.esjp.pos.rest;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -24,22 +26,23 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.BalanceDto;
 import org.efaps.util.EFapsException;
 
-@EFapsUUID("5bb09116-f83d-4ae9-9471-c261372a3202")
+@EFapsUUID("9b34adda-5341-4ed5-99b4-295842e43ee2")
 @EFapsApplication("eFapsApp-POS")
 @Path("/pos")
-public class Config
-    extends Config_Base
+public class Balance
+    extends Balance_Base
 {
-
     @Override
-    @GET
-    @Path("/config")
-    @Produces({ MediaType.APPLICATION_JSON })
-    public Response getConfig()
+    @Path("balance")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addBalance(final BalanceDto _balanceDto)
         throws EFapsException
     {
-        return super.getConfig();
+        return super.addBalance(_balanceDto);
     }
 }
