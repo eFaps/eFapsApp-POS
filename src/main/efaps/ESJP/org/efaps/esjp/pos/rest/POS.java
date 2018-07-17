@@ -42,10 +42,10 @@ public class POS
     extends POS_Base
 {
     @Override
-    @Path("/{identfier}/poss")
+    @Path("/{identifier}/poss")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getPOSs(@PathParam("identfier") final String _identifier)
+    public Response getPOSs(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
         return super.getPOSs(_identifier);

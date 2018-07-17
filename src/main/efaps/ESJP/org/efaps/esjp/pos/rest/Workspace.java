@@ -42,10 +42,10 @@ public class Workspace
     extends Workspace_Base
 {
     @Override
-    @Path("/{identfier}/workspaces")
+    @Path("/{identifier}/workspaces")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getWorkspaces(@PathParam("identfier") final String _identifier)
+    public Response getWorkspaces(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
         return super.getWorkspaces(_identifier);

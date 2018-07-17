@@ -37,10 +37,10 @@ public class Product
     extends Product_Base
 {
     @Override
-    @Path("/{identfier}/products")
+    @Path("/{identifier}/products")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getProducts(@PathParam("identfier") final String _identifier)
+    public Response getProducts(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
         return super.getProducts(_identifier);
