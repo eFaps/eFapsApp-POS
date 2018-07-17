@@ -30,6 +30,8 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.pos.dto.CategoryDto;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO comment!
@@ -40,15 +42,19 @@ import org.efaps.util.EFapsException;
 @EFapsApplication("eFapsApp-POS")
 public abstract class Category_Base
 {
+    /** The Constant LOG. */
+    private static final Logger LOG = LoggerFactory.getLogger(Category.class);
+
     /**
      * Gets the categories.
      *
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response getCategories()
+    public Response getCategories(final String _identifier)
         throws EFapsException
     {
+        LOG.debug("Responding to request for Categories for {}", _identifier);
         final List<CategoryDto> categories = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);
         queryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));

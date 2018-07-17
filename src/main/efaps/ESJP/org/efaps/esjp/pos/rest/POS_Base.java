@@ -34,6 +34,8 @@ import org.efaps.esjp.erp.util.ERP;
 import org.efaps.pos.dto.CompanyDto;
 import org.efaps.pos.dto.PosDto;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TODO comment!
@@ -44,15 +46,19 @@ import org.efaps.util.EFapsException;
 @EFapsApplication("eFapsApp-POS")
 public abstract class POS_Base
 {
+    /** The Constant LOG. */
+    private static final Logger LOG = LoggerFactory.getLogger(POS.class);
+
     /**
      * Gets the categories.
      *
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response getPOSs()
+    public Response getPOSs(final String _identifier)
         throws EFapsException
     {
+        LOG.debug("Responding to request for POS for {}", _identifier);
         final List<PosDto> poss = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);
         final MultiPrintQuery multi = queryBldr.getPrint();

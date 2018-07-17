@@ -61,15 +61,16 @@ public abstract class Workspace_Base
 
     /**
      * Gets the categories.
+     * @param _identifier
      *
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
     @SuppressWarnings("unchecked")
-    public Response getWorkspaces()
+    public Response getWorkspaces(final String _identifier)
         throws EFapsException
     {
-        LOG.debug("Responding to request for Workspaces");
+        LOG.debug("Responding to request for Workspaces for {}", _identifier);
         final List<WorkspaceDto> workspaces = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Workspace);
         final MultiPrintQuery multi = queryBldr.getPrint();

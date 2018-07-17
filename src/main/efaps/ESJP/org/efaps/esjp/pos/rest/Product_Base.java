@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Product_Base
+    extends AbstractRest
 {
 
     /**
@@ -66,9 +67,10 @@ public abstract class Product_Base
      * @throws EFapsException the eFaps exception
      */
     @SuppressWarnings("unchecked")
-    public Response getProducts()
+    public Response getProducts(final String _identifier)
         throws EFapsException
     {
+        LOG.debug("Received request for product sync from {}", _identifier);
         final List<ProductDto> products = new ArrayList<>();
         final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
         attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));

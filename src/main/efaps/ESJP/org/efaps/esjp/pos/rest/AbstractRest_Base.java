@@ -14,35 +14,15 @@
  * limitations under the License.
  *
  */
-package org.efaps.esjp.pos.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+package org.efaps.esjp.pos.rest;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.util.EFapsException;
 
-/**
- * The Class Product.
- */
-@EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
+@EFapsUUID("4f3f9a28-2cb4-440c-bbe0-98dac596c3b8")
 @EFapsApplication("eFapsApp-POS")
-@Path("/pos")
-public class Product
-    extends Product_Base
+public abstract class AbstractRest_Base
 {
-    @Override
-    @Path("/{identfier}/products")
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getProducts(@PathParam("identfier") final String _identifier)
-        throws EFapsException
-    {
-        return super.getProducts(_identifier);
-    }
+
 }
