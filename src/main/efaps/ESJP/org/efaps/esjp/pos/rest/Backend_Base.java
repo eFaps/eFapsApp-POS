@@ -1,0 +1,58 @@
+/*
+ * Copyright 2003 - 2018 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.efaps.esjp.pos.rest;
+
+import javax.ws.rs.core.Response;
+
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Insert;
+import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.pos.util.Pos;
+import org.efaps.util.EFapsException;
+import org.efaps.util.RandomUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@EFapsUUID("bed0d26f-3dd6-40dc-a75c-dbf0a075e353")
+@EFapsApplication("eFapsApp-POS")
+public abstract class Backend_Base
+{
+    /** The Constant LOG. */
+    private static final Logger LOG = LoggerFactory.getLogger(Backend.class);
+
+    public Response getIdentifier()
+        throws EFapsException
+    {
+        LOG.debug("Recieved request for Identifier");
+        final String ident;
+        if (Pos.ALLOWAUTOIDENT.get()) {
+            ident = RandomUtil.randomAlphanumeric(16);
+            final Insert insert = new Insert(CIPOS.Backend);
+            insert.add(CIPOS.Backend.Identifier, ident);
+            insert.add(CIPOS.Balance.Name, "New backend");
+            insert.execute();
+        } else {
+            ident = "Auto ident is deactivated.";
+        }
+        final Response ret = Response.ok()
+                        .entity(ident)
+                        .build();
+        return ret;
+    }
+}

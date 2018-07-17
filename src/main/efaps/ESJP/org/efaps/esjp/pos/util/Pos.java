@@ -52,6 +52,13 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute ALLOWAUTOIDENT = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "AllowBackendAutoIdent")
+                    .description("Allow the generation of automatic Backend Identifier");
+
+    /** See description. */
+    @EFapsSysConfAttribute
     public static final StringSysConfAttribute PAYMENTDOCUMENT_SEQ = new StringSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "PaymentDocument.Sequence")
