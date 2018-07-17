@@ -52,6 +52,7 @@ public class Balance
     @Path("balance/{oid}")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response updateBalance(@PathParam("oid") final String _balanceOid, final BalanceDto _balanceDto)
         throws EFapsException
     {

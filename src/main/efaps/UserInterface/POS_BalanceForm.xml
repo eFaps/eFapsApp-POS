@@ -33,6 +33,9 @@
             <property name="Select">linkto[UserLink].attribute[Name]</property>
             <property name="Label">POS_Balance/UserLink.Label</property>
         </field>
+        <field name="status">
+            <property name="Attribute">Status</property>
+        </field>
         <field name="startAt">
             <property name="Attribute">StartAt</property>
             <property name="ModeEdit">EDITABLE</property>
