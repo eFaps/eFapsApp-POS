@@ -19,7 +19,9 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,5 +46,15 @@ public class Balance
         throws EFapsException
     {
         return super.addBalance(_balanceDto);
+    }
+
+    @Override
+    @Path("balance/{oid}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateBalance(@PathParam("oid") final String _balanceOid, final BalanceDto _balanceDto)
+        throws EFapsException
+    {
+        return super.updateBalance(_balanceOid, _balanceDto);
     }
 }

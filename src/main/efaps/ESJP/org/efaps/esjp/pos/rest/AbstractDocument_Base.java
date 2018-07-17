@@ -103,6 +103,14 @@ public abstract class AbstractDocument_Base
             relInsert.add(CIPOS.POS2Document.ToLink, ret);
             relInsert.execute();
         }
+
+        final Instance balanceInst = Instance.get(_dto.getBalanceOid());
+        if (InstanceUtils.isKindOf(balanceInst, CIPOS.Balance)) {
+            final Insert relInsert = new Insert(CIPOS.Balance2Document);
+            relInsert.add(CIPOS.Balance2Document.FromLink, balanceInst);
+            relInsert.add(CIPOS.Balance2Document.ToLink, ret);
+            relInsert.execute();
+        }
         return ret;
     }
 

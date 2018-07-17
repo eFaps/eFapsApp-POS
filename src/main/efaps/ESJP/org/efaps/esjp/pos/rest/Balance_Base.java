@@ -24,8 +24,10 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
+import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.pos.dto.BalanceDto;
+import org.efaps.pos.dto.BalanceStatus;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,26 @@ public abstract class Balance_Base
         final Response ret = Response.ok()
                         .entity(dto)
                         .build();
+        return ret;
+    }
+
+    public Response updateBalance(final String _balanceOid, final BalanceDto _balanceDto)
+        throws EFapsException
+    {
+        final Response ret;
+        if (_balanceDto.getOid() == null && _balanceDto.getOid().equals(_balanceOid)
+                        && _balanceDto.getEndAt() != null && _balanceDto.getStatus().equals(BalanceStatus.CLOSED)) {
+            final Update update = new Update(Instance.get(_balanceOid));
+            update.add(CIPOS.Balance.Status, Status.find(CIPOS.BalanceStatus.Closed));
+            update.add(CIPOS.Balance.EndAt, _balanceDto.getEndAt());
+            update.execute();
+
+            ret = Response.ok()
+                            .build();
+        } else {
+            ret = Response.status(Response.Status.NOT_FOUND)
+                            .build();
+        }
         return ret;
     }
 }
