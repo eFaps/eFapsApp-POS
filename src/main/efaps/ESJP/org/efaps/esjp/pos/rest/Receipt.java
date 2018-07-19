@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,13 +40,13 @@ public class Receipt
 {
 
     @Override
-    @Path("receipts")
+    @Path("/{identifier}/receipts")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addReceipt(final ReceiptDto _receipt)
+    public Response addReceipt(@PathParam("identifier") final String _identifier, final ReceiptDto _receipt)
         throws EFapsException
     {
-        return super.addReceipt(_receipt);
+        return super.addReceipt(_identifier, _receipt);
     }
 }

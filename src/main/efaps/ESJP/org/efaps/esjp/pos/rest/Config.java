@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,11 +36,11 @@ public class Config
 
     @Override
     @GET
-    @Path("/config")
+    @Path("/{identifier}/config")
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getConfig()
+    public Response getConfig(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
-        return super.getConfig();
+        return super.getConfig(_identifier);
     }
 }

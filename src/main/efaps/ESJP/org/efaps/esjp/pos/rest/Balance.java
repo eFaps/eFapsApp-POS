@@ -38,24 +38,25 @@ public class Balance
     extends Balance_Base
 {
     @Override
-    @Path("balance")
+    @Path("/{identifier}/balance")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addBalance(final BalanceDto _balanceDto)
+    public Response addBalance(@PathParam("identifier") final String _identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
-        return super.addBalance(_balanceDto);
+        return super.addBalance(_identifier, _balanceDto);
     }
 
     @Override
-    @Path("balance/{oid}")
+    @Path("/{identifier}/balance/{oid}")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateBalance(@PathParam("oid") final String _balanceOid, final BalanceDto _balanceDto)
+    public Response updateBalance(@PathParam("identifier") final String _identifier,
+                                  @PathParam("oid") final String _balanceOid, final BalanceDto _balanceDto)
         throws EFapsException
     {
-        return super.updateBalance(_balanceOid, _balanceDto);
+        return super.updateBalance(_identifier, _balanceOid, _balanceDto);
     }
 }

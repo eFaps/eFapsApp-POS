@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,12 +42,12 @@ public class User
     extends User_Base
 {
     @Override
-    @Path("users")
+    @Path("/{identifier}/users")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getUsers()
+    public Response getUsers(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
-        return super.getUsers();
+        return super.getUsers(_identifier);
     }
 }

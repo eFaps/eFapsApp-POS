@@ -39,11 +39,12 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("d74ba98c-e90c-4704-8d59-0e78d58a9bdb")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Contact_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Contact.class);
 
-    public Response getContacts()
+    public Response getContacts(final String _identifier)
         throws EFapsException
     {
         final List<ContactDto> sequences = new ArrayList<>();
@@ -69,7 +70,7 @@ public abstract class Contact_Base
         return ret;
     }
 
-    public Response addContact(final ContactDto _contactDto)
+    public Response addContact(final String _identifier, final ContactDto _contactDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _contactDto);

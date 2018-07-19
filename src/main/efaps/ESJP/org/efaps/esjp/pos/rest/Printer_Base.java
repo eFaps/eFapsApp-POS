@@ -40,6 +40,7 @@ import org.efaps.util.EFapsException;
 @EFapsUUID("eb597164-1d07-4d43-8f81-006c3035cd58")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Printer_Base
+    extends AbstractRest
 {
     /**
      * Gets the categories.
@@ -47,7 +48,7 @@ public abstract class Printer_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response getPrinters()
+    public Response getPrinters(final String _identifier)
         throws EFapsException
     {
         final List<PrinterDto> printers = new ArrayList<>();

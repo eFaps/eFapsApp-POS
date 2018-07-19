@@ -33,6 +33,7 @@ import org.efaps.util.EFapsException;
 @EFapsUUID("5304130a-0f0b-4320-84c6-25a3d63f6a6e")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Warehouse_Base
+    extends AbstractRest
 {
 
     /**
@@ -41,7 +42,7 @@ public abstract class Warehouse_Base
      * @return the warehouses
      * @throws EFapsException the eFaps exception
      */
-    public Response getWarehouses()
+    public Response getWarehouses(final String _identifier)
         throws EFapsException
     {
         final List<WarehouseDto> warehouses = new ArrayList<>();

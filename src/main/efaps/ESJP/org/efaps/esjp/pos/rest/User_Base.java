@@ -46,6 +46,7 @@ import org.efaps.util.EFapsException;
 @EFapsUUID("ab1163cd-632f-4054-8ef0-e6d7cb39be91")
 @EFapsApplication("eFapsApp-POS")
 public abstract class User_Base
+    extends AbstractRest
 {
     /**
      * Gets the categories.
@@ -54,7 +55,7 @@ public abstract class User_Base
      * @throws EFapsException the eFaps exception
      */
     @SuppressWarnings("unchecked")
-    public Response getUsers()
+    public Response getUsers(final String _identifier)
         throws EFapsException
     {
         final List<UserDto> users = new ArrayList<>();

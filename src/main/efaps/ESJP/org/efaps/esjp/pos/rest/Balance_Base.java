@@ -36,12 +36,13 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("61004751-c8c1-44ba-baa6-05f7604ec549")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Balance_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Balance.class);
 
 
-    public Response addBalance(final BalanceDto _balanceDto)
+    public Response addBalance(final String _identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _balanceDto);
@@ -67,7 +68,7 @@ public abstract class Balance_Base
         return ret;
     }
 
-    public Response updateBalance(final String _balanceOid, final BalanceDto _balanceDto)
+    public Response updateBalance(final String _identifier, final String _balanceOid, final BalanceDto _balanceDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {} - {}", _balanceOid, _balanceDto);

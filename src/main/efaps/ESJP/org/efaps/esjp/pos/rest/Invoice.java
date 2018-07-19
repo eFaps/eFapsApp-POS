@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,13 +36,13 @@ public class Invoice
     extends Invoice_Base
 {
     @Override
-    @Path("invoices")
+    @Path("/{identifier}/invoices")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addInvoice(final InvoiceDto _receipt)
+    public Response addInvoice(@PathParam("identifier") final String _identifier, final InvoiceDto _receipt)
         throws EFapsException
     {
-        return super.addInvoice(_receipt);
+        return super.addInvoice(_identifier, _receipt);
     }
 }

@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -34,12 +35,12 @@ public class Inventory
     extends Inventory_Base
 {
     @Override
-    @Path("inventory")
+    @Path("/{identifier}/inventory")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getInventory()
+    public Response getInventory(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
-        return super.getInventory();
+        return super.getInventory(_identifier);
     }
 }

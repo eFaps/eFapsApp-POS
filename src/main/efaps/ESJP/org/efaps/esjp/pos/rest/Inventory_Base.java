@@ -42,6 +42,7 @@ import org.efaps.util.EFapsException;
 @EFapsUUID("1d543515-3b7a-4c1e-8202-aadbb4869958")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Inventory_Base
+    extends AbstractRest
 {
 
     /**
@@ -50,7 +51,7 @@ public abstract class Inventory_Base
      * @return the inventory
      * @throws EFapsException the e faps exception
      */
-    public Response getInventory()
+    public Response getInventory(final String _identifier)
         throws EFapsException
     {
         final List<InventoryEntryDto> entries = new ArrayList<>();

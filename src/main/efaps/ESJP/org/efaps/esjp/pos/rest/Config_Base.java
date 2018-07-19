@@ -31,11 +31,12 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("7f5c44d3-ea2e-4d49-a1ba-b69715db111d")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Config_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
 
-    public Response getConfig()
+    public Response getConfig(final String _identifier)
         throws EFapsException
     {
         final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()

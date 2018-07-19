@@ -32,9 +32,10 @@ import org.efaps.util.EFapsException;
 @EFapsUUID("9c5ece77-9940-4bfd-9514-24f6e3e771c9")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Sequence_Base
+    extends AbstractRest
 {
 
-    public Response getSequences()
+    public Response getSequences(final String _identifier)
         throws EFapsException
     {
         final List<SequenceDto> sequences = new ArrayList<>();

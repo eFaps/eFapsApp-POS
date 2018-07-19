@@ -41,7 +41,7 @@ public abstract class Ticket_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addTicket(final TicketDto _ticketDto)
+    public Response addTicket(final String _identifier, final TicketDto _ticketDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _ticketDto);

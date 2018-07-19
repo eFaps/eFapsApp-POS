@@ -45,7 +45,7 @@ public abstract class Invoice_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addInvoice(final InvoiceDto _invoiceDto)
+    public Response addInvoice(final String _identifier, final InvoiceDto _invoiceDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _invoiceDto);

@@ -50,7 +50,7 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final ReceiptDto _receiptDto)
+    public Response addReceipt(final String _identifier, final ReceiptDto _receiptDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _receiptDto);

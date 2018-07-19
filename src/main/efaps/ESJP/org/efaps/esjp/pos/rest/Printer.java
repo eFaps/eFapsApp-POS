@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,12 +42,12 @@ public class Printer
     extends Printer_Base
 {
     @Override
-    @Path("printers")
+    @Path("/{identifier}/printers")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getPrinters()
+    public Response getPrinters(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
-        return super.getPrinters();
+        return super.getPrinters(_identifier);
     }
 }
