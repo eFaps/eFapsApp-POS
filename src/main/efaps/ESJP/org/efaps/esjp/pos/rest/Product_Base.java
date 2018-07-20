@@ -19,8 +19,12 @@ package org.efaps.esjp.pos.rest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
@@ -38,9 +42,12 @@ import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.common.properties.PropertiesUtil;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.pos.dto.ProductDto;
+import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -72,6 +79,18 @@ public abstract class Product_Base
     {
         LOG.debug("Received request for product sync from {}", _identifier);
         final List<ProductDto> products = new ArrayList<>();
+
+        final Map<Integer, String> relSelects;
+        final Map<Integer, String> relLabels;
+        if (Pos.PRODREL.exists()) {
+            final Properties properties = Pos.PRODREL.get();
+            relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+            relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
+        } else {
+            relSelects = new HashMap<>();
+            relLabels = new HashMap<>();
+        }
+
         final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
         attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
 
@@ -92,6 +111,10 @@ public abstract class Product_Base
                         .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
                         .oid();
         multi.addSelect(selCat, selImageOid);
+
+        for (final Entry<Integer, String> entry: relSelects.entrySet()) {
+            multi.addSelect(entry.getValue());
+        }
         multi.addAttribute(CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description,
                         CIProducts.ProductAbstract.DefaultUoM);
@@ -132,6 +155,27 @@ public abstract class Product_Base
                     LOG.error("Catched", e);
                 }
             });
+
+            final Set<ProductRelationDto> relations = new HashSet<>();
+            for (final Entry<Integer, String> entry: relSelects.entrySet()) {
+                final String label = relLabels.get(entry.getKey());
+                final Object relation = multi.getSelect(entry.getValue());
+                if (relation instanceof List) {
+                     ((Collection<? extends String>) relation).forEach(oid -> {
+                         relations.add(ProductRelationDto.builder()
+                                                    .withLabel(label)
+                                                    .withProductOid(oid)
+                                                    .build());
+                     });
+
+                } else if (relation instanceof String) {
+                    relations.add(ProductRelationDto.builder()
+                                    .withLabel(label)
+                                    .withProductOid((String) relation)
+                                    .build());
+                }
+            }
+
             final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
             final ProductDto dto = ProductDto.builder()
@@ -145,6 +189,7 @@ public abstract class Product_Base
                 .withImageOid(imageOid)
                 .withUoM(uoM.getSymbol())
                 .withUoMCode(uoM.getCommonCode())
+                .withRelations(relations)
                 .build();
             products.add(dto);
         }

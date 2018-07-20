@@ -72,6 +72,17 @@ public class Pos
                     .key(BASE + "Configurations")
                     .description("Configurations that will be forwarded to the offline POS.");
 
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute PRODREL = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "ProductRelations")
+                    .addDefaultValue("Select", "linkfrom[Products_AlternativeBOM#From].linkto[To].oid")
+                    .addDefaultValue("Label", "Puede ser replacado por")
+                    .addDefaultValue("Select01", "linkfrom[Products_AlternativeBOM#To].linkto[From].oid")
+                    .addDefaultValue("Label01", "Puede replacadar")
+                    .description("Configurations of product relations to be included.");
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;
