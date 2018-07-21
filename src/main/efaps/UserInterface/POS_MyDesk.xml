@@ -24,6 +24,12 @@
         <version-expression>(version==latest)</version-expression>
         <name>POS_MyDesk</name>
         <icon>POS_MyDeskImg</icon>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+            <role>POS_Modifier</role>
+            <role>POS_Reader</role>
+        </access>
         <childs>
             <child>POS_CategoryMyDesk</child>
             <child>POS_POSMyDesk</child>
