@@ -25,5 +25,12 @@
         <name>POS_BE</name>
         <status>true</status>
         <global>true</global>
+        <access>
+            <datamodel>
+                <accessset>Products_Reader</accessset>
+                <accessset>POS_BE-Read</accessset>
+                <accessset>POS_BE-Modify</accessset>
+            </datamodel>
+        </access>
     </definition>
 </user-role>
