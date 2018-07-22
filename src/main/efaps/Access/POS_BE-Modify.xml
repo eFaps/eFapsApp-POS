@@ -19,7 +19,7 @@
 <access-set xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>4b0a382c-2403-4763-9abb-70386818d2d5</uuid>
-    <file-application>eFapsApp-Contacts</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BE-Modify</name>
@@ -29,7 +29,7 @@
         <access-type>checkout</access-type>
         <access-type>checkin</access-type>
         <access-type>create</access-type>
-        
+
         <type>Contacts_Contact</type>
         <type>Contacts_Class</type>
         <type>Contacts_ClassOrganisation</type>
@@ -37,21 +37,21 @@
         <status group="Contacts_ContactStatus">
             <key>Active</key>
         </status>
-        
+
         <type>Sales_Receipt</type>
         <status group="Sales_ReceiptStatus">
             <key>Draft</key>
             <key>Open</key>
             <key>Paid</key>
         </status>
-        
+
         <type>Sales_Invoice</type>
         <status group="Sales_InvoiceStatus">
             <key>Draft</key>
             <key>Open</key>
             <key>Paid</key>
         </status>
-        
+
         <role>POS_BE</role>
     </definition>
 </access-set>
