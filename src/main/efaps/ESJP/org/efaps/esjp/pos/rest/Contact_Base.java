@@ -47,6 +47,7 @@ public abstract class Contact_Base
     public Response getContacts(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         final List<ContactDto> sequences = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());

@@ -54,6 +54,7 @@ public abstract class Inventory_Base
     public Response getInventory(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         final List<InventoryEntryDto> entries = new ArrayList<>();
         final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
         attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));

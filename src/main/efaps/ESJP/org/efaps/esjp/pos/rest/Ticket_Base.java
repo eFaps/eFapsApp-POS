@@ -44,6 +44,7 @@ public abstract class Ticket_Base
     public Response addTicket(final String _identifier, final TicketDto _ticketDto)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Recieved: {}", _ticketDto);
         final ReceiptDto dto = ReceiptDto.builder()
                         .withId(_ticketDto.getId())

@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("f1c816e2-1543-4975-b69a-799b4809802b")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Category_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Category.class);
@@ -54,6 +55,7 @@ public abstract class Category_Base
     public Response getCategories(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Responding to request for Categories for {}", _identifier);
         final List<CategoryDto> categories = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);

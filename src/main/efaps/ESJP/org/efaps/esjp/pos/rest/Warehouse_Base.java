@@ -45,6 +45,7 @@ public abstract class Warehouse_Base
     public Response getWarehouses(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         final List<WarehouseDto> warehouses = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.Warehouse);
         queryBldr.addWhereAttrEqValue(CIProducts.Warehouse.Status, Status.find(

@@ -41,10 +41,10 @@ public abstract class Balance_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Balance.class);
 
-
     public Response addBalance(final String _identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Recieved: {}", _balanceDto);
         final BalanceDto dto;
         if (_balanceDto.getOid() == null) {

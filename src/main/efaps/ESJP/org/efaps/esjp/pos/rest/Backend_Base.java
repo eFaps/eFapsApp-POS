@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("bed0d26f-3dd6-40dc-a75c-dbf0a075e353")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Backend_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Backend.class);
@@ -39,6 +40,7 @@ public abstract class Backend_Base
     public Response getIdentifier()
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Recieved request for Identifier");
         final String ident;
         if (Pos.ALLOWAUTOIDENT.get()) {

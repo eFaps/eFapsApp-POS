@@ -14,28 +14,28 @@
  * limitations under the License.
  *
  */
-
 package org.efaps.esjp.pos.rest;
 
-import java.util.UUID;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.user.Role;
-import org.efaps.db.Context;
-import org.efaps.util.EFapsException;
 
-@EFapsUUID("4f3f9a28-2cb4-440c-bbe0-98dac596c3b8")
+@EFapsUUID("e0f2c0cc-f479-4345-b750-b433e7b1f51f")
 @EFapsApplication("eFapsApp-POS")
-public abstract class AbstractRest_Base
+public abstract class ForbiddenException_Base
+    extends WebApplicationException
 {
 
-    protected void checkAccess() throws EFapsException
-    {
-        // POS_BE
-        if (!Context.getThreadContext().getPerson().isAssigned(Role.get(UUID.fromString(
-                        "b1fcb12e-b4e0-4c84-8382-c557d61fdb51")))) {
-            throw new ForbiddenException("User does not have correct Roles assigned");
-        }
+    /** */
+    private static final long serialVersionUID = 1L;
+
+    public ForbiddenException_Base(final String _message) {
+        super(Response.status(Response.Status.FORBIDDEN)
+                    .entity(_message)
+                    .type(MediaType.TEXT_PLAIN)
+                    .build());
     }
 }

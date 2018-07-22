@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("b530eab3-497c-4bb6-bc7e-64a6041e9ebd")
 @EFapsApplication("eFapsApp-POS")
 public abstract class POS_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(POS.class);
@@ -58,6 +59,7 @@ public abstract class POS_Base
     public Response getPOSs(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Responding to request for POS for {}", _identifier);
         final List<PosDto> poss = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);

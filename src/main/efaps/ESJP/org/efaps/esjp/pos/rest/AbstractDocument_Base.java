@@ -61,6 +61,7 @@ import org.joda.time.DateTime;
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractDocument_Base
+    extends AbstractRest
 {
 
     protected Instance createDocument(final CIType _ciType, final Status _status, final AbstractPayableDocumentDto _dto)

@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("73f3c5a8-0cf7-40c1-a926-d54c0ffe7744")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Workspace_Base
+    extends AbstractRest
 {
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Workspace.class);
@@ -70,6 +71,7 @@ public abstract class Workspace_Base
     public Response getWorkspaces(final String _identifier)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Responding to request for Workspaces for {}", _identifier);
         final List<WorkspaceDto> workspaces = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Workspace);

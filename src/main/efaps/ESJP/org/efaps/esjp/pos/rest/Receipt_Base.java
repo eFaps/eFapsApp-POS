@@ -53,6 +53,7 @@ public abstract class Receipt_Base
     public Response addReceipt(final String _identifier, final ReceiptDto _receiptDto)
         throws EFapsException
     {
+        checkAccess();
         LOG.debug("Recieved: {}", _receiptDto);
         final ReceiptDto dto;
         if (_receiptDto.getOid() == null) {
