@@ -118,6 +118,7 @@ public abstract class Product_Base
         }
         multi.addAttribute(CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description,
+                        CIProducts.ProductAbstract.Note,
                         CIProducts.ProductAbstract.DefaultUoM);
         multi.execute();
         while (multi.next()) {
@@ -182,6 +183,7 @@ public abstract class Product_Base
             final ProductDto dto = ProductDto.builder()
                 .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
                 .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
+                .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
                 .withOID(multi.getCurrentInstance().getOid())
                 .withCategoryOids(catOids)
                 .withNetPrice(calculator.getNetUnitPrice())
