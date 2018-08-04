@@ -40,6 +40,17 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>Status</name>
+            <type>Status</type>
+            <typelink>POS_BackendStatus</typelink>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>STATUS</sqlcolumn>
+            <trigger program="org.efaps.esjp.admin.datamodel.StatusValue"
+                name="POS_Backend.Status.RANGE_VALUE"
+                event="RANGE_VALUE">
+            </trigger>
+        </attribute>
         <attribute>
             <name>Identifier</name>
             <type>String</type>

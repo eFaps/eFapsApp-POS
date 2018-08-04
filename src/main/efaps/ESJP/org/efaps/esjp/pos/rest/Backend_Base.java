@@ -19,6 +19,7 @@ package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
@@ -46,8 +47,9 @@ public abstract class Backend_Base
         if (Pos.ALLOWAUTOIDENT.get()) {
             ident = RandomUtil.randomAlphanumeric(16);
             final Insert insert = new Insert(CIPOS.Backend);
+            insert.add(CIPOS.Backend.Name, "New backend");
             insert.add(CIPOS.Backend.Identifier, ident);
-            insert.add(CIPOS.Balance.Name, "New backend");
+            insert.add(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
             insert.execute();
         } else {
             ident = "Auto ident is deactivated.";

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
   Copyright 2003 - 2018 The eFaps Team
 
@@ -36,6 +37,11 @@
             <property name="ModeEdit">EDITABLE</property>
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
+        </field>
+        <field name="status">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="Attribute">Status</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
