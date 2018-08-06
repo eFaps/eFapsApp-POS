@@ -39,7 +39,7 @@ public abstract class Config_Base
     public Response getConfig(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
         LOG.debug("Request for Configs: {}", config);

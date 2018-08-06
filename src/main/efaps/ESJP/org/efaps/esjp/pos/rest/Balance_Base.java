@@ -44,7 +44,7 @@ public abstract class Balance_Base
     public Response addBalance(final String _identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Recieved: {}", _balanceDto);
         final BalanceDto dto;
         if (_balanceDto.getOid() == null) {
@@ -71,6 +71,7 @@ public abstract class Balance_Base
     public Response updateBalance(final String _identifier, final String _balanceOid, final BalanceDto _balanceDto)
         throws EFapsException
     {
+        checkAccess(_identifier);
         LOG.debug("Recieved: {} - {}", _balanceOid, _balanceDto);
         final Response ret;
         final Instance balanceInst = Instance.get(_balanceOid);

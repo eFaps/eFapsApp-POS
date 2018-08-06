@@ -55,7 +55,7 @@ public abstract class Category_Base
     public Response getCategories(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Responding to request for Categories for {}", _identifier);
         final List<CategoryDto> categories = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);

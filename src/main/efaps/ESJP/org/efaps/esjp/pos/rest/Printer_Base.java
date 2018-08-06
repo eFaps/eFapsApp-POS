@@ -51,7 +51,7 @@ public abstract class Printer_Base
     public Response getPrinters(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         final List<PrinterDto> printers = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Printer);
         final MultiPrintQuery multi = queryBldr.getPrint();

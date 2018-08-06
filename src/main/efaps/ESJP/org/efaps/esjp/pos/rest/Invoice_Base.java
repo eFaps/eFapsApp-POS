@@ -48,7 +48,7 @@ public abstract class Invoice_Base
     public Response addInvoice(final String _identifier, final InvoiceDto _invoiceDto)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Recieved: {}", _invoiceDto);
         final ReceiptDto dto;
         if (_invoiceDto.getOid() == null) {

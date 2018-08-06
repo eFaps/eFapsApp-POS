@@ -71,7 +71,7 @@ public abstract class Workspace_Base
     public Response getWorkspaces(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Responding to request for Workspaces for {}", _identifier);
         final List<WorkspaceDto> workspaces = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Workspace);

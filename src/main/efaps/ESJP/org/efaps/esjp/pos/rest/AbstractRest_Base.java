@@ -19,23 +19,51 @@ package org.efaps.esjp.pos.rest;
 
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Role;
 import org.efaps.db.Context;
+import org.efaps.db.InstanceQuery;
+import org.efaps.db.QueryBuilder;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("4f3f9a28-2cb4-440c-bbe0-98dac596c3b8")
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractRest_Base
 {
-
-    protected void checkAccess() throws EFapsException
+    /**
+     * Check access on Assigned Role.
+     *
+     * @throws EFapsException the eFaps exception
+     */
+    protected void checkAccess()
+        throws EFapsException
     {
         // POS_BE
         if (!Context.getThreadContext().getPerson().isAssigned(Role.get(UUID.fromString(
                         "b1fcb12e-b4e0-4c84-8382-c557d61fdb51")))) {
             throw new ForbiddenException("User does not have correct Roles assigned");
+        }
+    }
+
+    /**
+     * Check access on Role and Backend Identifier.
+     *
+     * @param _identifier the identifier
+     * @throws EFapsException the eFaps exception
+     */
+    protected void checkAccess(final String _identifier)
+        throws EFapsException
+    {
+        checkAccess();
+        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
+        queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
+        final InstanceQuery query = queryBldr.getQuery();
+        if (CollectionUtils.isEmpty(query.execute())) {
+            throw new ForbiddenException("No valid Backend registered.");
         }
     }
 }

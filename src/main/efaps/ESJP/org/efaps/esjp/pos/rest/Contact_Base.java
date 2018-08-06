@@ -47,7 +47,7 @@ public abstract class Contact_Base
     public Response getContacts(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         final List<ContactDto> sequences = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
@@ -75,6 +75,7 @@ public abstract class Contact_Base
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _contactDto);
+        checkAccess(_identifier);
         final ContactDto dto;
         if (_contactDto.getOid() == null) {
             final Insert insert = new Insert(CIContacts.Contact);

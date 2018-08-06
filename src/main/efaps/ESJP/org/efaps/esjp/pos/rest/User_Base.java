@@ -58,7 +58,7 @@ public abstract class User_Base
     public Response getUsers(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         final List<UserDto> users = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.User);
         final MultiPrintQuery multi = queryBldr.getPrint();

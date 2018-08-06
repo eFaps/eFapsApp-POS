@@ -38,7 +38,7 @@ public abstract class Sequence_Base
     public Response getSequences(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         final List<SequenceDto> sequences = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Sequence);
         final MultiPrintQuery multi = queryBldr.getPrint();

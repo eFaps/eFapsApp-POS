@@ -59,7 +59,7 @@ public abstract class POS_Base
     public Response getPOSs(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Responding to request for POS for {}", _identifier);
         final List<PosDto> poss = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.POS);

@@ -77,7 +77,7 @@ public abstract class Product_Base
     public Response getProducts(final String _identifier)
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(_identifier);
         LOG.debug("Received request for product sync from {}", _identifier);
         final List<ProductDto> products = new ArrayList<>();
 
