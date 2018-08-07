@@ -29,6 +29,10 @@
             <property name="Label">POS_Balance/Name.Label</property>
             <property name="HRef">TREE</property>
         </field>
+        <field name="backendLink">
+            <property name="Select">linkto[BackendLink].attribute[Name]</property>
+            <property name="Label">POS_Balance/BackendLink.Label</property>
+        </field>
         <field name="user">
             <property name="Select">linkto[UserLink].attribute[Name]</property>
             <property name="Label">POS_BalanceTable.user.Label</property>

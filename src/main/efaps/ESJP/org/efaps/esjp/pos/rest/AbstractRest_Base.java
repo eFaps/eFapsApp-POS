@@ -61,6 +61,7 @@ public abstract class AbstractRest_Base
         checkAccess();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
         queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
+        queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
         final InstanceQuery query = queryBldr.getQuery();
         if (CollectionUtils.isEmpty(query.execute())) {
             throw new ForbiddenException("No valid Backend registered.");

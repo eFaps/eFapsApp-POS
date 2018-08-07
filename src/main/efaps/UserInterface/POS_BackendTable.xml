@@ -37,6 +37,10 @@
             <property name="Select">attribute[Description]</property>
             <property name="Label">POS_Backend/Description.Label</property>
         </field>
+        <field name="status">
+            <property name="Select">attribute[Status]</property>
+            <property name="Label">POS_Backend/Status.Label</property>
+        </field>
         <field name="creator">
             <property name="Select">attribute[Creator]</property>
             <property name="Label">POS_Backend/Creator.Label</property>
