@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -32,6 +33,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIContacts;
 import org.efaps.pos.dto.ContactDto;
+import org.efaps.pos.dto.IdentificationType;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,25 +50,59 @@ public abstract class Contact_Base
         throws EFapsException
     {
         checkAccess(_identifier);
-        final List<ContactDto> sequences = new ArrayList<>();
+        final List<ContactDto> contacts = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selTaxNumber = SelectBuilder.get()
                         .clazz(CIContacts.ClassOrganisation)
                         .attribute(CIContacts.ClassOrganisation.TaxNumber);
+        final SelectBuilder selIdentityCard = SelectBuilder.get()
+                        .clazz(CIContacts.ClassPerson)
+                        .attribute(CIContacts.ClassPerson.IdentityCard);
+        final SelectBuilder selDOIType = SelectBuilder.get()
+                        .clazz(CIContacts.ClassPerson)
+                        .linkto(CIContacts.ClassPerson.DOITypeLink)
+                        .attribute(CIContacts.AttributeDefinitionDOIType.Value);
         multi.addAttribute(CIContacts.Contact.Name);
-        multi.addSelect(selTaxNumber);
+        multi.addSelect(selTaxNumber, selIdentityCard, selDOIType);
         multi.execute();
         while(multi.next()) {
-            sequences.add(ContactDto.builder()
+            String idNumber = multi.getSelect(selTaxNumber);
+            IdentificationType idType;
+            if (StringUtils.isNotBlank(idNumber)) {
+                idType = IdentificationType.RUC;
+            } else {
+                idNumber = multi.getSelect(selIdentityCard);
+                final String doiType = multi.getSelect(selDOIType);
+                if (StringUtils.isBlank(doiType)) {
+                    idType = IdentificationType.OTHER;
+                } else {
+                    switch (doiType) {
+                        case "01":
+                            idType = IdentificationType.DNI;
+                            break;
+                        case "02":
+                            idType = IdentificationType.PASSPORT;
+                            break;
+                        case "04":
+                            idType = IdentificationType.CE;
+                            break;
+                        default:
+                            idType = IdentificationType.OTHER;
+                            break;
+                    }
+                }
+            }
+            contacts.add(ContactDto.builder()
                             .withOID(multi.getCurrentInstance().getOid())
                             .withName(multi.getAttribute(CIContacts.Contact.Name))
-                            .withTaxNumber(multi.getSelect(selTaxNumber))
+                            .withIdType(idType)
+                            .withIdNumber(idNumber)
                             .build());
         }
         final Response ret = Response.ok()
-                        .entity(sequences)
+                        .entity(contacts)
                         .build();
         return ret;
     }
@@ -85,17 +121,52 @@ public abstract class Contact_Base
 
             final Instance contactInst = insert.getInstance();
 
-            final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
-            final Insert relInsert = new Insert(classification.getClassifyRelationType());
-            relInsert.add(classification.getRelLinkAttributeName(), contactInst);
-            relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
-            relInsert.execute();
+            if (IdentificationType.RUC.equals(_contactDto.getIdType())) {
+                final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
+                final Insert relInsert = new Insert(classification.getClassifyRelationType());
+                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+                relInsert.execute();
 
-            final Insert classInsert = new Insert(classification);
-            classInsert.add(classification.getLinkAttributeName(), contactInst);
-            classInsert.add(CIContacts.ClassOrganisation.TaxNumber, _contactDto.getTaxNumber());
-            classInsert.execute();
+                final Insert classInsert = new Insert(classification);
+                classInsert.add(classification.getLinkAttributeName(), contactInst);
+                classInsert.add(CIContacts.ClassOrganisation.TaxNumber, _contactDto.getIdNumber());
+                classInsert.execute();
+            } else {
+                final Classification classification = (Classification) CIContacts.ClassPerson.getType();
+                final Insert relInsert = new Insert(classification.getClassifyRelationType());
+                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+                relInsert.execute();
 
+                final Insert classInsert = new Insert(classification);
+                classInsert.add(classification.getLinkAttributeName(), contactInst);
+                classInsert.add(CIContacts.ClassPerson.IdentityCard, _contactDto.getIdNumber());
+
+                String doiType;
+                switch (_contactDto.getIdType()) {
+                    case DNI:
+                        doiType = "01";
+                        break;
+                    case PASSPORT:
+                        doiType = "02";
+                        break;
+                    case CE:
+                        doiType = "04";
+                        break;
+                    default:
+                        doiType = null;
+                }
+                if (doiType != null) {
+                    final QueryBuilder queryBldr = new QueryBuilder(CIContacts.AttributeDefinitionDOIType);
+                    queryBldr.addWhereAttrEqValue(CIContacts.AttributeDefinitionDOIType.Value, doiType);
+                    final List<Instance> result = queryBldr.getQuery().execute();
+                    if (!result.isEmpty()) {
+                        classInsert.add(CIContacts.ClassPerson.DOITypeLink, result.get(0));
+                    }
+                }
+                classInsert.execute();
+            }
             final Classification clientClass = (Classification) CIContacts.ClassClient.getType();
             final Insert relClientInsert = new Insert(clientClass.getClassifyRelationType());
             relClientInsert.add(clientClass.getRelLinkAttributeName(), contactInst);
