@@ -30,6 +30,7 @@
         </target>
         <type>POS_User</type>
         <childs>
+            <child>POS_UserTree_Backend</child>
             <child>POS_UserTree_Workspace</child>
         </childs>
         <property name="Target">content</property>
