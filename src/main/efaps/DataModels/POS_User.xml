@@ -42,6 +42,17 @@
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Status</name>
+            <type>Status</type>
+            <typelink>POS_UserStatus</typelink>
+            <sqltable>POS_UserSQLTable</sqltable>
+            <sqlcolumn>STATUS</sqlcolumn>
+            <trigger program="org.efaps.esjp.admin.datamodel.StatusValue"
+                name="POS_User.Status.RANGE_VALUE"
+                event="RANGE_VALUE">
+            </trigger>
+        </attribute>
+        <attribute>
             <name>Name</name>
             <type>String</type>
             <sqltable>POS_UserSQLTable</sqltable>
@@ -66,6 +77,12 @@
             <className>org.efaps.esjp.pos.util.Pos$Role</className>
             <sqltable>POS_UserSQLTable</sqltable>
             <sqlcolumn>ROLES</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Visible</name>
+            <type>Boolean</type>
+            <sqltable>POS_UserSQLTable</sqltable>
+            <sqlcolumn>VISIBLE</sqlcolumn>
         </attribute>
         <attribute>
             <name>Creator</name>

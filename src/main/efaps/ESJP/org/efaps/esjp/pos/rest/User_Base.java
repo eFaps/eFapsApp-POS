@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
@@ -61,6 +62,7 @@ public abstract class User_Base
         checkAccess(_identifier);
         final List<UserDto> users = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.User);
+        queryBldr.addWhereAttrEqValue(CIPOS.User.Status, Status.find(CIPOS.UserStatus.Active));
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selEmployee = SelectBuilder.get()
                         .linkto(CIPOS.User.EmployeeLink);

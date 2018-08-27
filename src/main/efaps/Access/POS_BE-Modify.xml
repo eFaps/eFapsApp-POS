@@ -34,18 +34,17 @@
         <type>Contacts_Class</type>
         <type>Contacts_ClassOrganisation</type>
         <type>Contacts_ClassPerson</type>
+        <type>Sales_Receipt</type>
+        <type>Sales_Invoice</type>
+
         <status group="Contacts_ContactStatus">
             <key>Active</key>
         </status>
-
-        <type>Sales_Receipt</type>
         <status group="Sales_ReceiptStatus">
             <key>Draft</key>
             <key>Open</key>
             <key>Paid</key>
         </status>
-
-        <type>Sales_Invoice</type>
         <status group="Sales_InvoiceStatus">
             <key>Draft</key>
             <key>Open</key>

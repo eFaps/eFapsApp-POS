@@ -21,6 +21,7 @@
     <uuid>ff5fb41f-dc7d-4b82-8bd6-8791b2b206ce</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
+        <version-expression>(version==latest)</version-expression>
         <name>POS_PaymentTree</name>
         <access>
             <role>Sales_Admin</role>

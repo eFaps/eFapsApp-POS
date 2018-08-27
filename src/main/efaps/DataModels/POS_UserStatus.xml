@@ -16,26 +16,20 @@
  limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<datamodel-statusgroup xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>397f4bc7-8e58-46a4-b373-23cd1bead8fc</uuid>
+    <uuid>95f419f1-d0eb-43e9-bbaf-c273e956693e</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UserTable</name>
-        <field name="name">
-            <property name="Attribute">Name</property>
-            <property name="HRef">MenuTree</property>
-            <property name="Label">POS_User/Name.Label</property>
-            <property name="ModeSearch">READONLY</property>
-        </field>
-        <field name="status">
-            <property name="Select">attribute[Status]</property>
-            <property name="Label">POS_User/Status.Label</property>
-        </field>
-        <field name="visible">
-            <property name="Attribute">Visible</property>
-            <property name="Label">POS_User/Visible.Label</property>
-        </field>
+        <name>POS_UserStatus</name>
+        <parent>Admin_DataModel_StatusAbstract</parent>
+        <status key="Active">
+            <description>User is active.</description>
+        </status>
+        <status key="Inactive">
+            <description>User is inactive.</description>
+        </status>
     </definition>
-</ui-table>
+</datamodel-statusgroup>
