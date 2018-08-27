@@ -18,11 +18,11 @@
 -->
 <ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>961f25c5-8ceb-498d-93fa-095c1a40e0f4</uuid>
+    <uuid>4a8ccbe1-2701-4913-a491-6ebc094c8fde</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_WorkspaceUser2WorkspaceTable</name>
+        <name>POS_BackendUser2BackendTable</name>
         <field name="name">
             <property name="SelectAlternateOID">linkto[FromLink].oid</property>
             <property name="Select">linkto[FromLink].attribute[Name]</property>

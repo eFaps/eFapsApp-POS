@@ -28,6 +28,9 @@
             <form>POS_BackendForm</form>
         </target>
         <type>POS_Backend</type>
+        <childs>
+            <child>POS_BackendTree_User</child>
+        </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
     </definition>
