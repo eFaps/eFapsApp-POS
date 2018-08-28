@@ -82,7 +82,7 @@ public abstract class User_Base
                         .linkfrom(CIPOS.User2Workspace.FromLink)
                         .linkto(CIPOS.User2Workspace.ToLink).oid();
         multi.addSelect(selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids);
-        multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Roles);
+        multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Roles, CIPOS.User.Visible);
         multi.execute();
         while (multi.next()) {
             final Collection<Role> roles = multi.getAttribute(CIPOS.User.Roles);
@@ -101,6 +101,7 @@ public abstract class User_Base
                 .withOID(multi.getCurrentInstance().getOid())
                 .withUsername(multi.getAttribute(CIPOS.User.Name))
                 .withPassword(multi.getAttribute(CIPOS.User.Password))
+                .withVisible(multi.getAttribute(CIPOS.User.Visible))
                 .withFirstName(multi.getSelect(selEmployeeFirstName))
                 .withSurName(multi.getSelect(selEmployeeLastName))
                 .withRoles(dtoRoles)
