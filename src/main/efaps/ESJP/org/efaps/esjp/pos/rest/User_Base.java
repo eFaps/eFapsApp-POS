@@ -40,8 +40,6 @@ import org.efaps.pos.dto.UserDto;
 import org.efaps.util.EFapsException;
 
 /**
- * TODO comment!
- *
  * @author The eFaps Team
  */
 @EFapsUUID("ab1163cd-632f-4054-8ef0-e6d7cb39be91")
@@ -50,9 +48,9 @@ public abstract class User_Base
     extends AbstractRest
 {
     /**
-     * Gets the categories.
+     * Gets the users.
      *
-     * @return the categories
+     * @return the users
      * @throws EFapsException the eFaps exception
      */
     @SuppressWarnings("unchecked")
@@ -61,8 +59,18 @@ public abstract class User_Base
     {
         checkAccess(_identifier);
         final List<UserDto> users = new ArrayList<>();
+
+        final QueryBuilder beAttrQueryBldr = new QueryBuilder(CIPOS.Backend);
+        beAttrQueryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
+        beAttrQueryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
+
+        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.User2Backend);
+        attrQueryBldr.addWhereAttrInQuery(CIPOS.User2Backend.ToLink,
+                        beAttrQueryBldr.getAttributeQuery(CIPOS.Backend.ID));
+
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.User);
         queryBldr.addWhereAttrEqValue(CIPOS.User.Status, Status.find(CIPOS.UserStatus.Active));
+        queryBldr.addWhereAttrInQuery(CIPOS.User.ID, attrQueryBldr.getAttributeQuery(CIPOS.User2Backend.FromLink));
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selEmployee = SelectBuilder.get()
                         .linkto(CIPOS.User.EmployeeLink);
