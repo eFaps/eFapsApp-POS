@@ -45,10 +45,8 @@
             <property name="ModeEdit">EDITABLE</property>
             <property name="Required">true</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
-            <trigger program="org.efaps.esjp.humanresource.Employee"
-                method="autoComplete4Employee"
-                name="POS_UserForm.employeeLink.UI_FIELD_AUTOCOMPLETE"
-                event="UI_FIELD_AUTOCOMPLETE" >
+            <trigger program="org.efaps.esjp.humanresource.Employee" method="autoComplete4Employee"
+                name="POS_UserForm.employeeLink.UI_FIELD_AUTOCOMPLETE" event="UI_FIELD_AUTOCOMPLETE">
             </trigger>
         </field>
         <field name="roles">
@@ -89,6 +87,32 @@
         </field>
         <field name="modified">
             <property name="Attribute">Modified</property>
+        </field>
+        <field name="backendHeader" character="Heading">
+            <property name="Level">1</property>
+            <property name="Label">POS_UserTree_Backend.Label</property>
+            <property name="ModeEdit">NONE</property>
+        </field>
+        <field name="backendtable" character="Target">
+            <property name="ModeEdit">NONE</property>
+            <table>POS_User2BackendTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="LinkFrom">FromLink</property>
+                <property name="Type">POS_User2Backend</property>
+            </evaluate>
+        </field>
+        <field name="workspaceHeader" character="Heading">
+            <property name="Level">1</property>
+            <property name="Label">POS_UserTree_Workspace.Label</property>
+            <property name="ModeEdit">NONE</property>
+        </field>
+        <field name="workspaceTable" character="Target">
+            <property name="ModeEdit">NONE</property>
+            <table>POS_User2WorkspaceTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="LinkFrom">FromLink</property>
+                <property name="Type">POS_User2Workspace</property>
+            </evaluate>
         </field>
     </definition>
 </ui-form>
