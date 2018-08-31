@@ -142,7 +142,7 @@ public class Pos
     public enum PrintTarget implements IEnum
     {
         JOB,
-        PREVIEW,
+        PRELIMINARY,
         TICKET;
 
         @Override
