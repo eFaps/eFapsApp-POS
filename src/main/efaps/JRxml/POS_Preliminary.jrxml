@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="POS_Preliminary" pageWidth="226" pageHeight="283" columnWidth="226" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Empty" isIgnorePagination="true" uuid="62119c77-8c75-41bb-956a-5b8a922d81ac">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="POS_Preliminary" pageWidth="198" pageHeight="283" columnWidth="198" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Empty" isIgnorePagination="true" uuid="62119c77-8c75-41bb-956a-5b8a922d81ac">
 	<property name="org.efaps.admin.program.jasper.EFapsApplication" value="eFapsApp-POS"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Order-JSON"/>
-	<property name="com.jaspersoft.studio.unit." value="mm"/>
-	<property name="com.jaspersoft.studio.unit.pageHeight" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.pageWidth" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.topMargin" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.bottomMargin" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.leftMargin" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.rightMargin" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.columnWidth" value="mm"/>
-	<property name="com.jaspersoft.studio.unit.columnSpacing" value="mm"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<subDataset name="Dataset1" uuid="0c5eb528-4190-4e49-850a-a0ae95952b47">
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Order-JSON"/>
 		<parameter name="JSON_INPUT_STREAM" class="java.io.InputStream" isForPrompting="false"/>
@@ -100,39 +99,65 @@
 		<property name="net.sf.jasperreports.json.field.expression" value="crossTotal"/>
 		<fieldDescription><![CDATA[crossTotal]]></fieldDescription>
 	</field>
+	<pageHeader>
+		<band height="50">
+			<staticText>
+				<reportElement x="0" y="10" width="178" height="12" uuid="fc4ad9df-6f92-44fa-b501-0070ff3a30c7"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Restaurante]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="22" width="178" height="12" uuid="85ce6641-8bf4-4b88-9de4-706d80fd972f"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[El Orno Rojo S.A.C.]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
 	<columnHeader>
-		<band height="74" splitType="Stretch">
+		<band height="47" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="mm"/>
 			<textField pattern="dd.MM.yyyy">
-				<reportElement x="40" y="40" width="60" height="20" uuid="e0b0b0b8-a277-40ce-9524-c45687cafcd4"/>
+				<reportElement x="40" y="22" width="60" height="12" uuid="e0b0b0b8-a277-40ce-9524-c45687cafcd4"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="0" y="60" width="225" height="1" uuid="022f44ab-ea1d-4c19-9c52-72637bfb61e4">
+				<reportElement x="0" y="42" width="198" height="1" uuid="022f44ab-ea1d-4c19-9c52-72637bfb61e4">
 					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
 				</reportElement>
 			</line>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="0" y="0" width="226" height="20" uuid="2d5f5c74-07a1-4aa8-996b-1e0fe295beb0"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{PRINTER}]]></textFieldExpression>
-			</textField>
 			<staticText>
-				<reportElement x="0" y="40" width="40" height="20" uuid="ed885e23-effe-46ca-912b-a5cda4c4fa73"/>
+				<reportElement x="0" y="22" width="40" height="12" uuid="ed885e23-effe-46ca-912b-a5cda4c4fa73"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA[Fecha:]]></text>
 			</staticText>
 			<textField pattern="HH:mm:ss ">
-				<reportElement x="170" y="40" width="56" height="20" uuid="992aebc3-55db-49b5-b0eb-753cc76d9264"/>
+				<reportElement x="142" y="22" width="36" height="12" uuid="992aebc3-55db-49b5-b0eb-753cc76d9264"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="144" y="40" width="26" height="20" uuid="bb0811b5-56e2-43d3-97b2-ffec161487a6"/>
+				<reportElement x="114" y="22" width="28" height="12" uuid="bb0811b5-56e2-43d3-97b2-ffec161487a6"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA[Hora:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="20" width="100" height="20" uuid="e43ef271-8eae-4bb8-8568-77a0cee337d9"/>
+				<reportElement x="0" y="2" width="100" height="16" uuid="e43ef271-8eae-4bb8-8568-77a0cee337d9"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{number}]]></textFieldExpression>
 			</textField>
 		</band>
@@ -140,7 +165,7 @@
 	<detail>
 		<band height="20" splitType="Stretch">
 			<componentElement>
-				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="226" height="16" isPrintWhenDetailOverflows="true" uuid="f37f1bc7-118e-47c2-8d58-d66f2571f231">
+				<reportElement stretchType="ContainerHeight" x="0" y="0" width="180" height="16" isPrintWhenDetailOverflows="true" uuid="f37f1bc7-118e-47c2-8d58-d66f2571f231">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
@@ -148,33 +173,43 @@
 					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
 					<property name="com.jaspersoft.studio.unit.y" value="mm"/>
 					<property name="com.jaspersoft.studio.unit.width" value="mm"/>
+					<property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
 					<datasetRun subDataset="Dataset1" uuid="fd018720-9775-457b-b05f-d405a75991e0">
 						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("items")]]></dataSourceExpression>
 					</datasetRun>
-					<jr:column width="140" uuid="d86bc38a-f245-4329-9a75-e6fffc4aca43">
+					<jr:column width="110" uuid="d86bc38a-f245-4329-9a75-e6fffc4aca43">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
 						<jr:columnHeader height="2" rowSpan="1"/>
-						<jr:detailCell height="30">
+						<jr:detailCell height="24">
 							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-								<reportElement x="0" y="0" width="140" height="30" isPrintWhenDetailOverflows="true" uuid="6fc7e8d0-6ac8-423e-b90e-801f3591acb3"/>
+								<reportElement x="0" y="0" width="110" height="24" isPrintWhenDetailOverflows="true" uuid="6fc7e8d0-6ac8-423e-b90e-801f3591acb3"/>
+								<textElement>
+									<font size="8"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="80" uuid="24652295-91d1-40ae-a66e-c4459f521861">
+					<jr:column width="70" uuid="24652295-91d1-40ae-a66e-c4459f521861">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
 						<jr:columnHeader height="2" rowSpan="1"/>
-						<jr:detailCell height="30">
-							<textField>
-								<reportElement x="0" y="0" width="80" height="15" uuid="fe10f3a0-94ae-48d1-b8ca-8a3ea3991e61"/>
-								<textElement textAlignment="Right"/>
+						<jr:detailCell height="24">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="12" uuid="fe10f3a0-94ae-48d1-b8ca-8a3ea3991e61"/>
+								<box rightPadding="5"/>
+								<textElement textAlignment="Right">
+									<font size="8"/>
+								</textElement>
 								<textFieldExpression><![CDATA[String.format("%.0f x %.2f",$F{quantity}, $F{crossUnitPrice}.setScale(2, java.math.RoundingMode.HALF_UP) )]]></textFieldExpression>
 							</textField>
 							<textField pattern="S/ #,##0.00" isBlankWhenNull="true">
-								<reportElement x="0" y="15" width="80" height="15" uuid="95a6d9a8-f559-4a1c-8248-92ec47adb393"/>
-								<textElement textAlignment="Right"/>
+								<reportElement x="0" y="12" width="70" height="12" uuid="95a6d9a8-f559-4a1c-8248-92ec47adb393"/>
+								<box rightPadding="5"/>
+								<textElement textAlignment="Right">
+									<font size="8"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{crossPrice}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -182,37 +217,47 @@
 				</jr:table>
 			</componentElement>
 		</band>
-		<band height="17">
+		<band height="19">
 			<line>
-				<reportElement x="0" y="0" width="225" height="1" uuid="edafad4a-b577-40fa-a9bb-5b210cc2e131">
+				<reportElement x="0" y="0" width="198" height="1" uuid="edafad4a-b577-40fa-a9bb-5b210cc2e131">
 					<property name="com.jaspersoft.studio.unit.height" value="mm"/>
 				</reportElement>
 			</line>
 			<textField pattern="S/ #,##0.00" isBlankWhenNull="true">
-				<reportElement x="131" y="1" width="90" height="15" uuid="2c8c1855-0b03-497b-a499-f823817a8e79"/>
-				<textElement textAlignment="Right"/>
+				<reportElement x="114" y="4" width="64" height="15" uuid="2c8c1855-0b03-497b-a499-f823817a8e79"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{netTotal}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="1" width="100" height="15" uuid="a763d065-9324-462c-b30b-0f149af9a361"/>
+				<reportElement x="0" y="4" width="100" height="15" uuid="a763d065-9324-462c-b30b-0f149af9a361"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA[Op. Gravada:]]></text>
 			</staticText>
 		</band>
 		<band height="17">
 			<componentElement>
-				<reportElement x="0" y="0" width="221" height="15" isPrintWhenDetailOverflows="true" uuid="9de3671d-ed7f-4df8-ab52-73ab5dbf9741"/>
+				<reportElement x="0" y="0" width="178" height="12" isPrintWhenDetailOverflows="true" uuid="9de3671d-ed7f-4df8-ab52-73ab5dbf9741"/>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical" ignoreWidth="false">
 					<datasetRun subDataset="TaxesDataset" uuid="ee9605d5-0da8-4bc2-a88d-fd496a03b438">
 						<dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("taxes")]]></dataSourceExpression>
 					</datasetRun>
-					<jr:listContents height="15" width="221">
+					<jr:listContents height="12" width="178">
 						<textField isStretchWithOverflow="true" pattern="S/ #,##0.00" isBlankWhenNull="true">
-							<reportElement x="151" y="0" width="70" height="15" uuid="6897c768-f469-48c1-bb1f-5fbacdd346c0"/>
-							<textElement textAlignment="Right"/>
+							<reportElement x="108" y="0" width="70" height="12" uuid="6897c768-f469-48c1-bb1f-5fbacdd346c0"/>
+							<textElement textAlignment="Right">
+								<font size="8"/>
+							</textElement>
 							<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
 						</textField>
 						<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-							<reportElement x="0" y="0" width="50" height="15" uuid="ff7c9b5e-e089-4505-98c5-dd5fb618e774"/>
+							<reportElement x="0" y="0" width="50" height="12" uuid="ff7c9b5e-e089-4505-98c5-dd5fb618e774"/>
+							<textElement>
+								<font size="8"/>
+							</textElement>
 							<textFieldExpression><![CDATA[$F{tax}]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
@@ -221,15 +266,27 @@
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="62">
+		<band height="129">
 			<textField isStretchWithOverflow="true" pattern="S/ #,##0.00" isBlankWhenNull="true">
-				<reportElement x="131" y="1" width="90" height="15" uuid="df588647-9bcf-4914-b145-3cd8f7e2b459"/>
-				<textElement textAlignment="Right"/>
+				<reportElement x="125" y="0" width="53" height="15" uuid="df588647-9bcf-4914-b145-3cd8f7e2b459"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
 				<textFieldExpression><![CDATA[$F{crossTotal}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="0" y="0" width="100" height="15" uuid="f23a07f0-8caf-47bc-a757-fda59d796618"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
 				<text><![CDATA[Total:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="37" width="178" height="12" uuid="b0e304ea-2f9c-4b82-8b20-b56a2ae0550c"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gracias por su preferencia!]]></text>
 			</staticText>
 		</band>
 	</columnFooter>
