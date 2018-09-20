@@ -142,6 +142,8 @@ public abstract class Contact_Base
                 final Insert classInsert = new Insert(classification);
                 classInsert.add(classification.getLinkAttributeName(), contactInst);
                 classInsert.add(CIContacts.ClassPerson.IdentityCard, _contactDto.getIdNumber());
+                classInsert.add(CIContacts.ClassPerson.Forename, " ");
+                classInsert.add(CIContacts.ClassPerson.FirstLastName, " ");
 
                 String doiType;
                 switch (_contactDto.getIdType()) {
