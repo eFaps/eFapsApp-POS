@@ -11,6 +11,7 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="net.sf.jasperreports.default.locale" value="es_MX"/>
 	<subDataset name="Dataset1" uuid="0c5eb528-4190-4e49-850a-a0ae95952b47">
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Order-JSON"/>
 		<parameter name="JSON_INPUT_STREAM" class="java.io.InputStream" isForPrompting="false"/>
@@ -202,7 +203,7 @@
 								<textElement textAlignment="Right">
 									<font size="8"/>
 								</textElement>
-								<textFieldExpression><![CDATA[String.format("%.0f x %.2f",$F{quantity}, $F{crossUnitPrice}.setScale(2, java.math.RoundingMode.HALF_UP) )]]></textFieldExpression>
+								<textFieldExpression><![CDATA[String.format(new java.util.Locale("es_MX"), "%.0f x %.2f",$F{quantity}, $F{crossUnitPrice}.setScale(2, java.math.RoundingMode.HALF_UP) )]]></textFieldExpression>
 							</textField>
 							<textField pattern="S/ #,##0.00" isBlankWhenNull="true">
 								<reportElement x="0" y="12" width="70" height="12" uuid="95a6d9a8-f559-4a1c-8248-92ec47adb393"/>
