@@ -34,7 +34,7 @@ public class Backend
     extends Backend_Base
 {
     @Override
-    @Path("identifier")
+    @Path("/identifier")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response getIdentifier()
