@@ -92,16 +92,21 @@ public abstract class Product_Base
             relLabels = new HashMap<>();
         }
 
-        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
-        attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
-
-        final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
-        relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
-                        attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
-
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
-        queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                        relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
+        if (Pos.CATEGORY_ACIVATE.get()) {
+            final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
+            attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
+
+            final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
+            relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
+                            attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
+
+            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                            relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
+        } else {
+            queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
+        }
+
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selCat = SelectBuilder.get()
                         .linkfrom(CIPOS.Category2Product.ToLink)
