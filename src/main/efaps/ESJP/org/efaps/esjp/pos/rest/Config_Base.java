@@ -45,6 +45,8 @@ public abstract class Config_Base
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
         LOG.debug("Request for Configs: {}", config);
 
+        config.put(ERP.COMPANY_NAME.getKey(), ERP.COMPANY_NAME.get());
+        config.put(ERP.COMPANY_TAX.getKey(), ERP.COMPANY_TAX.get());
         config.put(ERP.COMPANY_ACTIVITY.getKey(), ERP.COMPANY_ACTIVITY.get());
         config.put(ERP.COMPANY_CITY.getKey(), ERP.COMPANY_CITY.get());
         config.put(ERP.COMPANY_COUNTRY.getKey(), ERP.COMPANY_COUNTRY.get());
