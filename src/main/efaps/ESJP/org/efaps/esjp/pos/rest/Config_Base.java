@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -43,6 +44,17 @@ public abstract class Config_Base
         final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
         LOG.debug("Request for Configs: {}", config);
+
+        config.put(ERP.COMPANY_ACTIVITY.getKey(), ERP.COMPANY_ACTIVITY.get());
+        config.put(ERP.COMPANY_CITY.getKey(), ERP.COMPANY_CITY.get());
+        config.put(ERP.COMPANY_COUNTRY.getKey(), ERP.COMPANY_COUNTRY.get());
+        config.put(ERP.COMPANY_UBIGEO.getKey(), ERP.COMPANY_UBIGEO.get());
+        config.put(ERP.COMPANY_STREET.getKey(), ERP.COMPANY_STREET.get());
+        config.put(ERP.COMPANY_REGION.getKey(), ERP.COMPANY_REGION.get());
+        config.put(ERP.COMPANY_CITY.getKey(), ERP.COMPANY_CITY.get());
+        config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
+        config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
+
         final Response ret = Response.ok()
                         .entity(config)
                         .build();

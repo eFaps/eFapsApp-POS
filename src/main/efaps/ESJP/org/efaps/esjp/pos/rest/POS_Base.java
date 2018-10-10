@@ -30,8 +30,6 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
-import org.efaps.esjp.erp.util.ERP;
-import org.efaps.pos.dto.CompanyDto;
 import org.efaps.pos.dto.PosDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -92,10 +90,6 @@ public abstract class POS_Base
                 .withReceiptSeqOid(multi.getSelect(selReceiptSeqOid))
                 .withInvoiceSeqOid(multi.getSelect(selInvoiceSeqOid))
                 .withTicketSeqOid(multi.getSelect(selTicketSeqOid))
-                .withCompany(CompanyDto.builder()
-                                .withName(ERP.COMPANY_NAME.get())
-                                .withTaxNumber(ERP.COMPANY_TAX.get())
-                                .build())
                 .build());
         }
         final Response ret = Response.ok()
