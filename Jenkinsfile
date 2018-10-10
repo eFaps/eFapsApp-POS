@@ -1,5 +1,6 @@
 properties([
   [$class: 'jenkins.model.BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '25']],
+  [$class: 'JobPropertyImpl', throttle: [count: 1, durationName: 'hour', userBoost: true]],
   pipelineTriggers([[$class:"SCMTrigger", scmpoll_spec:"H/30 * * * *"], snapshotDependencies()]),
 ])
 
