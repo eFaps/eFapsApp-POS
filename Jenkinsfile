@@ -9,14 +9,14 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}") {
+        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${EXECUTER_NUMBER}/${env.BRANCH_NAME}") {
           sh 'mvn clean install -DskipTests'
         }
       }
     }
     stage('Test') {
       steps {
-        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}",
+        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${EXECUTER_NUMBER}/${env.BRANCH_NAME}",
             options: [openTasksPublisher(disabled: true)]) {
           sh 'mvn test'
         }
@@ -32,7 +32,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}",
+        withMaven(maven: 'M3.6', mavenSettingsConfig: 'fb57b2b9-c2e4-4e05-955e-8688bc067515', mavenLocalRepo: "$WORKSPACE/../../.m2/${EXECUTER_NUMBER}/${env.BRANCH_NAME}",
             options: [openTasksPublisher(disabled: true)]) {
           sh 'mvn deploy -DskipTests'
         }
