@@ -61,12 +61,13 @@ public abstract class Category_Base
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);
         queryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
         final MultiPrintQuery multi = queryBldr.getPrint();
-        multi.addAttribute(CIPOS.Category.Name);
+        multi.addAttribute(CIPOS.Category.Name, CIPOS.Category.Weight);
         multi.execute();
         while (multi.next()) {
             categories.add(CategoryDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Category.Name))
+                .withWeight(multi.getAttribute(CIPOS.Category.Weight))
                 .build());
         }
         final Response ret = Response.ok()

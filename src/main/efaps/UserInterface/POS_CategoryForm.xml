@@ -34,6 +34,11 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
+        <field name="weight">
+            <property name="Attribute">Weight</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+        </field>
         <field name="status">
             <property name="Attribute">Status</property>
             <property name="ModeEdit">EDITABLE</property>

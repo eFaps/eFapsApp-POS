@@ -63,6 +63,13 @@
             <sqlcolumn>DESCR</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Weight</name>
+            <type>Integer</type>
+            <defaultvalue>0</defaultvalue>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>WEIGHT</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_CategorySQLTable</sqltable>
