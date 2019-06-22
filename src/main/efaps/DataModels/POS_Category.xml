@@ -35,10 +35,10 @@
             <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>Company</name>
-            <type>CompanyLink</type>
+            <name>Association</name>
+            <type>AssociationLink</type>
             <sqltable>POS_CategorySQLTable</sqltable>
-            <sqlcolumn>COMPANYID</sqlcolumn>
+            <sqlcolumn>ASSOCID</sqlcolumn>
         </attribute>
         <attribute>
             <name>Status</name>

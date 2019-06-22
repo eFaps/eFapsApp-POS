@@ -25,7 +25,7 @@
         <name>POS_CategorySQLTable</name>
         <database>
             <table-name>T_POSCAT</table-name>
-            <column name="COMPANYID"  type="INTEGER"      not-null="true"/>
+            <column name="ASSOCID"    type="INTEGER"      not-null="true"/>
             <column name="STATUS"     type="INTEGER"      not-null="true" />
             <column name="NAME"       type="STRING_SHORT" not-null="true"     length="255"/>
             <column name="DESCR"      type="STRING_SHORT"                     length="255"/>
@@ -34,7 +34,7 @@
             <column name="CREATED"    type="DATETIME"     not-null="true"/>
             <column name="MODIFIER"   type="INTEGER"      not-null="true"/>
             <column name="MODIFIED"   type="DATETIME"     not-null="true"/>
-            <foreign name="T_POSCAT_FK_COMPANYID" key="COMPANYID"       reference="T_USERABSTRACT(ID)"/>
+            <foreign name="T_POSCAT_FK_ASSOCID"   key="ASSOCID"         reference="T_CMASSOC(ID)"/>
             <foreign name="T_POSCAT_FK_CRTR"      key="CREATOR"         reference="T_USERPERSON(ID)"/>
             <foreign name="T_POSCAT_FK_MDFR"      key="MODIFIER"        reference="T_USERPERSON(ID)"/>
         </database>
