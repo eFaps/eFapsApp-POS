@@ -155,6 +155,7 @@ public abstract class Product_Base
                     taxes.add(TaxDto.builder()
                                     .withOID(tax.getInstance().getOid())
                                     .withKey(tax.getUUID().toString())
+                                    .withCatKey(tax.getTaxCat().getUuid().toString())
                                     .withName(tax.getName())
                                     .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
                                     .build());

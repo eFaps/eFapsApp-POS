@@ -45,6 +45,8 @@ import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
 import org.efaps.esjp.sales.tax.Tax;
+import org.efaps.esjp.sales.tax.TaxCat;
+import org.efaps.esjp.sales.tax.TaxCat_Base;
 import org.efaps.esjp.sales.tax.Tax_Base;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
@@ -88,7 +90,9 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.DocumentSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
         insert.add(CISales.DocumentSumAbstract.RateCurrencyId, ERP.CURRENCYBASE.get());
         insert.add(CISales.DocumentSumAbstract.Rate, new Object[] { 1, 1 });
-        insert.add(CISales.DocumentSumAbstract.Taxes, getTaxes(_dto.getDate(), _dto.getTaxes()));
+        final Taxes taxes = getTaxes(_dto.getDate(), _dto.getTaxes());
+        insert.add(CISales.DocumentSumAbstract.Taxes, taxes);
+        insert.add(CISales.DocumentSumAbstract.RateTaxes, taxes);
         insert.execute();
 
         final Instance ret = insert.getInstance();
@@ -146,7 +150,7 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, _dto.getCrossUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateNetPrice, _dto.getNetPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossPrice, _dto.getCrossPrice());
-        insert.add(CISales.PositionSumAbstract.Tax, getTax(_dto.getTaxes()).getInstance());
+        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
         insert.execute();
         return insert.getInstance();
     }
@@ -158,8 +162,8 @@ public abstract class AbstractDocument_Base
         for (final TaxEntryDto dto : _taxes) {
             final TaxEntry taxentry = new TaxEntry();
             taxentry.setAmount(dto.getAmount());
-            taxentry.setUUID(getTax(_taxes).getUUID());
-            taxentry.setCatUUID(getTax(_taxes).getTaxCat().getUuid());
+            taxentry.setUUID(getTax(dto).getUUID());
+            taxentry.setCatUUID(getTax(dto).getTaxCat().getUuid());
             taxentry.setCurrencyUUID(CurrencyInst.get(ERP.CURRENCYBASE.get()).getUUID());
             taxentry.setDate(new org.joda.time.LocalDate(_date.getYear(), _date.getMonthValue(), _date.getDayOfMonth())
                             .toDateTimeAtCurrentTime().withTimeAtStartOfDay());
@@ -168,11 +172,16 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Tax getTax(final Set<TaxEntryDto> _set)
+    protected Tax getTax(final TaxEntryDto _taxEntry)
         throws EFapsException
     {
-        return Tax_Base.get(UUID.fromString("ed28d3c0-e55d-45e5-8025-e48fc989c9dd"), UUID.fromString(
-                        "06e40be6-40d8-44f4-9d8f-585f2f97ce63"));
+        return Tax_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()), UUID.fromString(_taxEntry.getTax().getKey()));
+    }
+
+    protected TaxCat getTaxCat(final TaxEntryDto _taxEntry)
+        throws EFapsException
+    {
+        return TaxCat_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()));
     }
 
     protected void addPayments(final Instance _docInst, final AbstractPayableDocumentDto _dto)
@@ -304,14 +313,14 @@ public abstract class AbstractDocument_Base
 
         public PosPayment(final CIType _docType)
         {
-            this.docType = _docType;
+            docType = _docType;
         }
 
         @Override
         protected Type getType4DocCreate(final Parameter _parameter)
             throws EFapsException
         {
-            return this.docType.getType();
+            return docType.getType();
         }
 
         @Override
