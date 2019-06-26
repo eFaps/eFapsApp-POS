@@ -17,6 +17,7 @@
 
 package org.efaps.esjp.pos.rest;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,10 +38,13 @@ import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.pos.util.Pos.DiscountType;
 import org.efaps.esjp.pos.util.Pos.DocType;
 import org.efaps.esjp.pos.util.Pos.PosLayout;
 import org.efaps.esjp.pos.util.Pos.PrintTarget;
 import org.efaps.esjp.pos.util.Pos.SpotConfig;
+import org.efaps.pos.dto.DiscountDto;
 import org.efaps.pos.dto.PrintCmdDto;
 import org.efaps.pos.dto.WorkspaceDto;
 import org.efaps.util.EFapsException;
@@ -84,7 +88,7 @@ public abstract class Workspace_Base
                         .oid();
         multi.addSelect(selPosOID, selWarehouseOID);
         multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig,
-                        CIPOS.Workspace.SpotCount, CIPOS.Workspace.PosLayout);
+                        CIPOS.Workspace.SpotCount, CIPOS.Workspace.PosLayout, CIPOS.Workspace.PosLayout);
         multi.execute();
         while (multi.next()) {
             final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
@@ -118,6 +122,29 @@ public abstract class Workspace_Base
                             .build());
                 }
             }
+            final Set<DiscountDto> discountDtos = new HashSet<>();
+            final PrintQuery print2 = new PrintQuery(multi.getCurrentInstance());
+            print2.addAttributeSet(CIPOS.Workspace.DiscountSet.name);
+            print2.executeWithoutAccessCheck();
+            final Map<String, Object> discounts = print2.getAttributeSet(CIPOS.Workspace.DiscountSet.name);
+            if (discounts != null) {
+                LOG.trace("Discounts: {} for {}", discounts, multi.getCurrentInstance());
+                final Iterator<DiscountType> discountTypeIter = ((ArrayList<DiscountType>) discounts.get("DiscountType")).iterator();
+                final Iterator<BigDecimal> valueIter = ((ArrayList<BigDecimal>) discounts.get("Value")).iterator();
+                final Iterator<String> labelIter = ((ArrayList<String>) discounts.get("Label")).iterator();
+                final Iterator<Long> productLinkIter = ((ArrayList<Long>) discounts.get("ProductLink")).iterator();
+
+                while (discountTypeIter.hasNext()) {
+                    discountDtos.add(DiscountDto.builder()
+                        .withType(EnumUtils.getEnum(org.efaps.pos.dto.DiscountType.class,
+                                        discountTypeIter.next().name()))
+                        .withValue(valueIter.next())
+                        .withLabel(labelIter.next())
+                        .withProductOid(Instance.get(CIProducts.ProductTextPosition.getType(), productLinkIter.next()).getOid())
+                        .build());
+                }
+            }
+
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
             final PosLayout posLayout = multi.getAttribute(CIPOS.Workspace.PosLayout);
@@ -132,6 +159,7 @@ public abstract class Workspace_Base
                 .withSpotCount(spotCount == null ? -1 : spotCount)
                 .withPrintCmds(printCmdDtos)
                 .withPosLayout(EnumUtils.getEnum(org.efaps.pos.dto.PosLayout.class, posLayout.name()))
+                .withDiscounts(discountDtos)
                 .build());
         }
         LOG.debug("Workspaces: {}", workspaces);
