@@ -172,6 +172,17 @@ public class Pos
         }
     }
 
+    public enum DiscountType implements IEnum
+    {
+        PERCENT,
+        AMOUNT;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
 
     /**
      * @return the SystemConfigruation for Payroll

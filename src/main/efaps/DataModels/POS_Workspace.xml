@@ -144,7 +144,7 @@
                 <sqlcolumn>INT4</sqlcolumn>
                 <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.ReportLink.RANGE_VALUE"
                         program="org.efaps.esjp.admin.datamodel.RangesValue">
-                    <property name="Value">Name</property>
+                    <property name="Value">$&lt;attribute[Name]&gt;</property>
                     <property name="Type">Admin_Program_JasperReportCompiled</property>
                 </trigger>
             </attribute>
@@ -156,6 +156,45 @@
             <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>POSLAYOUT</sqlcolumn>
         </attribute>
+        <attributeset>
+            <name>DiscountSet</name>
+            <type>MultiLineArray</type>
+            <parent>POS_AttributeSetAbstract</parent>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>RELID</sqlcolumn>
+            <uuid>91c384ef-fe13-4f0e-88fc-68dbaeaffa99</uuid>
+            <attribute>
+                <name>DiscountType</name>
+                <type>Enum</type>
+                <className>org.efaps.esjp.pos.util.Pos$DiscountType</className>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT1</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>Value</name>
+                <type>Decimal</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>DEC1</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>Label</name>
+                <type>String</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>STR1</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>ProductLink</name>
+                <type>LinkWithRanges</type>
+                <typelink>Products_ProductTextPosition</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT2</sqlcolumn>
+                <trigger event="RANGE_VALUE" name="POS_Workspace.DiscountSet.ProductLink.RANGE_VALUE"
+                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    <property name="Value">$&lt;attribute[Name]&gt;-$&lt;Description&gt;</property>
+                    <property name="Type">Products_ProductTextPosition</property>
+                </trigger>
+            </attribute>
+        </attributeset>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
