@@ -94,6 +94,7 @@ public abstract class Product_Base
 
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
         if (Pos.CATEGORY_ACIVATE.get()) {
+            queryBldr.setOr(true);
             final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
             attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
 
@@ -103,6 +104,11 @@ public abstract class Product_Base
 
             queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
                             relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
+            // we need the textpositions
+            final QueryBuilder attrQueryBldr2 = new QueryBuilder(CIProducts.ProductTextPosition);
+            attrQueryBldr2.addWhereAttrEqValue(CIProducts.ProductTextPosition.Active, true);
+            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                            attrQueryBldr2.getAttributeQuery(CIProducts.ProductTextPosition.ID));
         } else {
             queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
         }
