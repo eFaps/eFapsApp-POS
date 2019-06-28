@@ -52,6 +52,14 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
+    public static final StringSysConfAttribute VERSION = new StringSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Version")
+                    .defaultValue("0.0.0")
+                    .description("Definition of the Version to be used local.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute ALLOWAUTOIDENT = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "AllowBackendAutoIdent")
