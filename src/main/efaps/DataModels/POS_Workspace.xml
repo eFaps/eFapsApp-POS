@@ -1,18 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
- Copyright 2003 - 2018 The eFaps Team
+    Copyright 2003 - 2019 The eFaps Team
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -111,7 +112,7 @@
                 <sqltable>POS_AttributeSetSQLTable</sqltable>
                 <sqlcolumn>INT1</sqlcolumn>
                 <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.PrinterLink.RANGE_VALUE"
-                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    program="org.efaps.esjp.admin.datamodel.RangesValue">
                     <property name="Value">Name</property>
                     <property name="Type">POS_Printer</property>
                 </trigger>
@@ -130,20 +131,20 @@
                 <sqltable>POS_AttributeSetSQLTable</sqltable>
                 <sqlcolumn>INT3</sqlcolumn>
                 <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.TargetLink.RANGE_VALUE"
-                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    program="org.efaps.esjp.admin.datamodel.RangesValue">
                     <property name="Value">Name</property>
                     <property name="Type">POS_Category</property>
                     <property name="EmptyValue">true</property>
                 </trigger>
             </attribute>
-             <attribute>
+            <attribute>
                 <name>ReportLink</name>
                 <type>LinkWithRanges</type>
                 <typelink>Admin_Program_JasperReportCompiled</typelink>
                 <sqltable>POS_AttributeSetSQLTable</sqltable>
                 <sqlcolumn>INT4</sqlcolumn>
                 <trigger event="RANGE_VALUE" name="POS_Workspace.PrintCmdSet.ReportLink.RANGE_VALUE"
-                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    program="org.efaps.esjp.admin.datamodel.RangesValue">
                     <property name="Value">$&lt;attribute[Name]&gt;</property>
                     <property name="Type">Admin_Program_JasperReportCompiled</property>
                 </trigger>
@@ -189,9 +190,36 @@
                 <sqltable>POS_AttributeSetSQLTable</sqltable>
                 <sqlcolumn>INT2</sqlcolumn>
                 <trigger event="RANGE_VALUE" name="POS_Workspace.DiscountSet.ProductLink.RANGE_VALUE"
-                        program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    program="org.efaps.esjp.admin.datamodel.RangesValue">
                     <property name="Value">$&lt;attribute[Name]&gt;-$&lt;Description&gt;</property>
                     <property name="Type">Products_ProductTextPosition</property>
+                </trigger>
+            </attribute>
+        </attributeset>
+        <attributeset>
+            <name>CardSet</name>
+            <type>MultiLineArray</type>
+            <parent>POS_AttributeSetAbstract</parent>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>RELID</sqlcolumn>
+            <uuid>fac487dd-b67a-4f20-b9c6-e9b52346a917</uuid>
+            <attribute>
+                <name>Label</name>
+                <type>String</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>STR1</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>CardType</name>
+                <type>LinkWithRanges</type>
+                <typelink>Sales_AttributeDefinitionPaymentCardType</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT1</sqlcolumn>
+                <trigger program="org.efaps.esjp.admin.datamodel.RangesValue"
+                     name="POS_Workspace.CardSet.CardType.RANGE_VALUE"
+                     event="RANGE_VALUE">
+                    <property name="Value">$&lt;attribute[Value]&gt; - $&lt;attribute[Description]&gt;</property>
+                    <property name="Type">Sales_AttributeDefinitionPaymentCardType</property>
                 </trigger>
             </attribute>
         </attributeset>
