@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAdminProgram;
@@ -39,11 +40,13 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.pos.util.Pos.DiscountType;
 import org.efaps.esjp.pos.util.Pos.DocType;
 import org.efaps.esjp.pos.util.Pos.PosLayout;
 import org.efaps.esjp.pos.util.Pos.PrintTarget;
 import org.efaps.esjp.pos.util.Pos.SpotConfig;
+import org.efaps.pos.dto.CardDto;
 import org.efaps.pos.dto.DiscountDto;
 import org.efaps.pos.dto.PrintCmdDto;
 import org.efaps.pos.dto.WorkspaceDto;
@@ -145,6 +148,31 @@ public abstract class Workspace_Base
                 }
             }
 
+            final Set<CardDto> cardDtos = new HashSet<>();
+            final PrintQuery print3 = new PrintQuery(multi.getCurrentInstance());
+            print3.addAttributeSet(CIPOS.Workspace.DiscountSet.name);
+            print3.executeWithoutAccessCheck();
+            final Map<String, Object> cards = print3.getAttributeSet(CIPOS.Workspace.CardSet.name);
+            if (cards != null) {
+                LOG.trace("Cards: {} for {}", cards, multi.getCurrentInstance());
+                final Iterator<Long> cardTypeIter = ((ArrayList<Long>) cards.get("CardType")).iterator();
+                final Iterator<String> labelIter = ((ArrayList<String>) cards.get("Label")).iterator();
+                while (cardTypeIter.hasNext()) {
+                    final Long cartTypeId = cardTypeIter.next();
+                    String label = labelIter.next();
+                    if (StringUtils.isEmpty(label)) {
+                        final PrintQuery labelPrint = new PrintQuery(CISales.AttributeDefinitionPaymentCardType.getType(), cartTypeId);
+                        labelPrint.addAttribute(CISales.AttributeDefinitionPaymentCardType.Value);
+                        labelPrint.executeWithoutAccessCheck();
+                        label = labelPrint.getAttribute(CISales.AttributeDefinitionPaymentCardType.Value);
+                    }
+                    cardDtos.add(CardDto.builder()
+                                    .withLabel(label)
+                                    .withCardTypeId(cartTypeId)
+                                    .build());
+                }
+            }
+
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
             final PosLayout posLayout = multi.getAttribute(CIPOS.Workspace.PosLayout);
@@ -160,6 +188,7 @@ public abstract class Workspace_Base
                 .withPrintCmds(printCmdDtos)
                 .withPosLayout(EnumUtils.getEnum(org.efaps.pos.dto.PosLayout.class, posLayout.name()))
                 .withDiscounts(discountDtos)
+                .withCards(cardDtos)
                 .build());
         }
         LOG.debug("Workspaces: {}", workspaces);

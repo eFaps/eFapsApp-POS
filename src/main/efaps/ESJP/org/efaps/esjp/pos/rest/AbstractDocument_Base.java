@@ -195,6 +195,9 @@ public abstract class AbstractDocument_Base
                 final PosPayment posPayment = new PosPayment(docType);
                 insert.add(CISales.PaymentDocumentAbstract.Name,
                                 NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
+                if (PaymentType.CARD.equals(paymentDto.getType())) {
+                    insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
+                }
 
                 final String code = posPayment.getCode4CreateDoc(parameter);
                 if (code != null) {
@@ -262,11 +265,8 @@ public abstract class AbstractDocument_Base
     {
         Status ret;
         switch (_paymentType) {
-            case CREDITCARD:
-                ret = Status.find(CISales.PaymentCreditCardAbstractStatus.Closed);
-                break;
-            case DEBITCARD:
-                ret = Status.find(CISales.PaymentDebitCardAbstractStatus.Canceled);
+            case CARD:
+                ret = Status.find(CISales.PaymentCardStatus.Closed);
                 break;
             case CASH:
                 ret = Status.find(CISales.PaymentCashStatus.Closed);
@@ -285,11 +285,8 @@ public abstract class AbstractDocument_Base
     protected CIType getPaymentDocType(final PaymentType _paymentType) {
         CIType ret;
         switch (_paymentType) {
-            case CREDITCARD:
-                ret = CISales.PaymentCreditCardVisa;
-                break;
-            case DEBITCARD:
-                ret = CISales.PaymentDebitCardVisa;
+            case CARD:
+                ret = CISales.PaymentCard;
                 break;
             case CASH:
                 ret = CISales.PaymentCash;
