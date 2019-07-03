@@ -204,7 +204,7 @@
             <sqlcolumn>RELID</sqlcolumn>
             <uuid>fac487dd-b67a-4f20-b9c6-e9b52346a917</uuid>
             <attribute>
-                <name>Label</name>
+                <name>CardLabel</name>
                 <type>String</type>
                 <sqltable>POS_AttributeSetSQLTable</sqltable>
                 <sqlcolumn>STR1</sqlcolumn>

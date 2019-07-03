@@ -150,13 +150,13 @@ public abstract class Workspace_Base
 
             final Set<CardDto> cardDtos = new HashSet<>();
             final PrintQuery print3 = new PrintQuery(multi.getCurrentInstance());
-            print3.addAttributeSet(CIPOS.Workspace.DiscountSet.name);
+            print3.addAttributeSet(CIPOS.Workspace.CardSet.name);
             print3.executeWithoutAccessCheck();
             final Map<String, Object> cards = print3.getAttributeSet(CIPOS.Workspace.CardSet.name);
             if (cards != null) {
                 LOG.trace("Cards: {} for {}", cards, multi.getCurrentInstance());
                 final Iterator<Long> cardTypeIter = ((ArrayList<Long>) cards.get("CardType")).iterator();
-                final Iterator<String> labelIter = ((ArrayList<String>) cards.get("Label")).iterator();
+                final Iterator<String> labelIter = ((ArrayList<String>) cards.get("CardLabel")).iterator();
                 while (cardTypeIter.hasNext()) {
                     final Long cartTypeId = cardTypeIter.next();
                     String label = labelIter.next();
