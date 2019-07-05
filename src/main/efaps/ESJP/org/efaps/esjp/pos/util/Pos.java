@@ -158,7 +158,8 @@ public class Pos
     {
         JOB,
         PRELIMINARY,
-        TICKET;
+        TICKET,
+        COPY;
 
         @Override
         public int getInt()
