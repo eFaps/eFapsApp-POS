@@ -181,6 +181,20 @@ public class Pos
         }
     }
 
+    public enum GridSize implements IEnum
+    {
+        SMALL,
+        MEDIUM,
+        LARGE;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
+
+
     public enum DiscountType implements IEnum
     {
         PERCENT,

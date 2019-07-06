@@ -157,6 +157,19 @@
             <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>POSLAYOUT</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>GridSize</name>
+            <type>Enum</type>
+            <className>org.efaps.esjp.pos.util.Pos$GridSize</className>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>GRIDSIZE</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>GridShowPrice</name>
+            <type>Boolean</type>
+            <sqltable>POS_WorkspaceSQLTable</sqltable>
+            <sqlcolumn>GRIDSHOWPRICE</sqlcolumn>
+        </attribute>
         <attributeset>
             <name>DiscountSet</name>
             <type>MultiLineArray</type>
