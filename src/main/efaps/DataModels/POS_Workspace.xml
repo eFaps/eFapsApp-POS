@@ -75,6 +75,7 @@
         <attribute>
             <name>SpotConfig</name>
             <type>Enum</type>
+            <defaultvalue>0</defaultvalue>
             <className>org.efaps.esjp.pos.util.Pos$SpotConfig</className>
             <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>SPOTCONF</sqlcolumn>

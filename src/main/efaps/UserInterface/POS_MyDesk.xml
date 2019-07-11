@@ -49,6 +49,7 @@
             <child>POS_UserMyDesk</child>
             <child>POS_SequenceMyDesk</child>
             <child>POS_PrinterMyDesk</child>
+            <child>POS_FloorMyDesk</child>
         </childs>
     </definition>
 </ui-menu>
