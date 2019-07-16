@@ -15,17 +15,22 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
+
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>51bc72f2-52dd-4d32-93cd-5c5f8a86c36e</uuid>
+    <uuid>4976b522-689a-4861-983e-88ab41d6295a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_FloorTree_Menu_Action</name>
-        <childs>
-            <child>POS_FloorTree_Menu_Action_Edit</child>
-            <child>POS_FloorTree_Menu_Action_Checkin</child>
-        </childs>
+        <name>POS_Floor_FileCheckinForm</name>
+        <field name="file">
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="UIType">SNIPPLET</property>
+            <property name="Label">Admin_UI_File/File.Label</property>
+            <trigger event="UI_FIELD_VALUE" method="getFieldValueUI"
+                name="POS_Floor_FileCheckinForm.file.UI_FIELD_VALUE"
+                program="org.efaps.esjp.common.file.FileField" />
+        </field>
     </definition>
-</ui-menu>
+</ui-form>
