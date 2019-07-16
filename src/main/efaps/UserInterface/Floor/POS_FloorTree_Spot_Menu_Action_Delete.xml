@@ -16,22 +16,17 @@
     limitations under the License.
 
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>83eec59d-d583-4100-b0f6-c7840eff2249</uuid>
+    <uuid>f5dbf058-3e57-45ac-a026-1326292f72bc</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_FloorTree</name>
+        <name>POS_FloorTree_Spot_Menu_Action_Delete</name>
         <target>
-            <menu>POS_FloorTree_Menu</menu>
-            <form>POS_FloorForm</form>
+            <execute program="org.efaps.esjp.common.uitable.CommonDelete" />
         </target>
-        <type>POS_Floor</type>
-        <childs>
-            <child>POS_FloorTree_Spot</child>
-        </childs>
-        <property name="Target">content</property>
-        <property name="TargetMode">view</property>
+        <property name="AskUser">true</property>
+        <property name="Submit">true</property>
     </definition>
-</ui-menu>
+</ui-command>

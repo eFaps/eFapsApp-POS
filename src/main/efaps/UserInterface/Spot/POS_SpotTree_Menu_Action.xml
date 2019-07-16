@@ -18,20 +18,13 @@
 -->
 <ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>83eec59d-d583-4100-b0f6-c7840eff2249</uuid>
+    <uuid>bd14a635-f14f-40c2-84df-36aa3f2b2241</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_FloorTree</name>
-        <target>
-            <menu>POS_FloorTree_Menu</menu>
-            <form>POS_FloorForm</form>
-        </target>
-        <type>POS_Floor</type>
+        <name>POS_SpotTree_Menu_Action</name>
         <childs>
-            <child>POS_FloorTree_Spot</child>
+            <child>POS_SpotTree_Menu_Action_Edit</child>
         </childs>
-        <property name="Target">content</property>
-        <property name="TargetMode">view</property>
     </definition>
 </ui-menu>
