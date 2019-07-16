@@ -42,6 +42,12 @@
             <sqlcolumn>ID</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Association</name>
+            <type>AssociationLink</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>ASSOCID</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Name</name>
             <type>String</type>
             <sqltable>POS_ObjectSQLTable</sqltable>

@@ -27,7 +27,7 @@
         <field name="file">
             <property name="ModeEdit">EDITABLE</property>
             <property name="UIType">SNIPPLET</property>
-            <property name="Label">Admin_UI_File/File.Label</property>
+            <property name="HideLabel">true</property>
             <trigger event="UI_FIELD_VALUE" method="getFieldValueUI"
                 name="POS_Floor_FileCheckinForm.file.UI_FIELD_VALUE"
                 program="org.efaps.esjp.common.file.FileField" />

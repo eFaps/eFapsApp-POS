@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAdminProgram;
+import org.efaps.db.Checkout;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.PrintQuery;
@@ -49,7 +50,9 @@ import org.efaps.esjp.pos.util.Pos.PrintTarget;
 import org.efaps.esjp.pos.util.Pos.SpotConfig;
 import org.efaps.pos.dto.CardDto;
 import org.efaps.pos.dto.DiscountDto;
+import org.efaps.pos.dto.FloorDto;
 import org.efaps.pos.dto.PrintCmdDto;
+import org.efaps.pos.dto.SpotDto;
 import org.efaps.pos.dto.WorkspaceDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -175,6 +178,37 @@ public abstract class Workspace_Base
                 }
             }
 
+            final QueryBuilder floorAttrQueryBldr = new QueryBuilder(CIPOS.Workspace2Floor);
+            floorAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Floor.FromLink, multi.getCurrentInstance());
+
+            final QueryBuilder floorQueryBldr = new QueryBuilder(CIPOS.Floor);
+            floorQueryBldr.addWhereAttrInQuery(CIPOS.Floor.ID, floorAttrQueryBldr.getAttributeQuery(CIPOS.Workspace2Floor.ToLink));
+            final MultiPrintQuery floorMulti = floorQueryBldr.getPrint();
+            floorMulti.addAttribute(CIPOS.Floor.Name);
+            floorMulti.execute();
+            final List<FloorDto> floors = new ArrayList<>();
+            while (floorMulti.next()) {
+                final Checkout checkout = new Checkout(floorMulti.getCurrentInstance());
+                checkout.execute();
+
+                final QueryBuilder spotQueryBldr = new QueryBuilder(CIPOS.Spot);
+                spotQueryBldr.addWhereAttrEqValue(CIPOS.Spot.FloorLink, floorMulti.getCurrentInstance());
+                final MultiPrintQuery spotMulti = spotQueryBldr.getPrint();
+                spotMulti.addAttribute(CIPOS.Spot.Label);
+                spotMulti.execute();
+                final List<SpotDto> spots = new ArrayList<>();
+                while (spotMulti.next()) {
+                    spots.add(SpotDto.builder()
+                        .withLabel(spotMulti.getAttribute(CIPOS.Spot.Label))
+                        .build());
+                }
+                floors.add(FloorDto.builder()
+                    .withName(floorMulti.getAttribute(CIPOS.Floor.Name))
+                    .withSpots(spots)
+                    .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid() : null)
+                    .build());
+            }
+
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
             final PosLayout posLayout = multi.getAttribute(CIPOS.Workspace.PosLayout);
@@ -195,6 +229,7 @@ public abstract class Workspace_Base
                 .withCards(cardDtos)
                 .withGridShowPrice(gridShowPrice)
                 .withGridSize(EnumUtils.getEnum(org.efaps.pos.dto.PosGridSize.class, gridSize.name()))
+                .withFloors(floors)
                 .build());
         }
         LOG.debug("Workspaces: {}", workspaces);
