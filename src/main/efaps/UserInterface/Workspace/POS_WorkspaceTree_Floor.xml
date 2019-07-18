@@ -27,7 +27,7 @@
             <menu>POS_WorkspaceTree_Floor_Menu</menu>
             <table>POS_Workspace2FloorTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="LinkFrom">ToLink</property>
+                <property name="LinkFrom">FromLink</property>
                 <property name="Type">POS_Workspace2Floor</property>
             </evaluate>
             <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI" method="configCheck"

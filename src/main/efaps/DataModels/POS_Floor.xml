@@ -83,5 +83,6 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
+        <store name="ERP_DocumentVFSStore"/>
     </definition>
 </datamodel-type>

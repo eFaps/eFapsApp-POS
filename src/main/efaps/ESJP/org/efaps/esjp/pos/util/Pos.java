@@ -141,7 +141,7 @@ public class Pos
 
     public enum SpotConfig implements IEnum
     {
-        NONE, BASIC;
+        NONE, BASIC, EXTENDED;
 
         @Override
         public int getInt()

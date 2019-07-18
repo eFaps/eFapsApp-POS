@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2019 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,8 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO comment!
- *
  * @author The eFaps Team
  */
 @EFapsUUID("73f3c5a8-0cf7-40c1-a926-d54c0ffe7744")
@@ -199,10 +197,12 @@ public abstract class Workspace_Base
                 final List<SpotDto> spots = new ArrayList<>();
                 while (spotMulti.next()) {
                     spots.add(SpotDto.builder()
+                        .withOID(spotMulti.getCurrentInstance().getOid())
                         .withLabel(spotMulti.getAttribute(CIPOS.Spot.Label))
                         .build());
                 }
                 floors.add(FloorDto.builder()
+                    .withOID(floorMulti.getCurrentInstance().getOid())
                     .withName(floorMulti.getAttribute(CIPOS.Floor.Name))
                     .withSpots(spots)
                     .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid() : null)
