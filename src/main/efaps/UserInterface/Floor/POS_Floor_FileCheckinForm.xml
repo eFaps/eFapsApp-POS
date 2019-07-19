@@ -25,12 +25,11 @@
         <version-expression>(version==latest)</version-expression>
         <name>POS_Floor_FileCheckinForm</name>
         <field name="file">
+            <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
-            <property name="UIType">SNIPPLET</property>
+            <property name="Required">true</property>
             <property name="HideLabel">true</property>
-            <trigger event="UI_FIELD_VALUE" method="getFieldValueUI"
-                name="POS_Floor_FileCheckinForm.file.UI_FIELD_VALUE"
-                program="org.efaps.esjp.common.file.FileField" />
+            <property name="UIType">UPLOAD</property>
         </field>
     </definition>
 </ui-form>
