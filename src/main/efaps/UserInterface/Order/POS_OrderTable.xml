@@ -25,7 +25,7 @@
         <name>POS_OrderTable</name>
         <field name="name">
             <property name="Attribute">Name</property>
-            <property name="Label">Sales_Receipt/Name.Label</property>
+            <property name="Label">POS_Order/Name.Label</property>
         </field>
         <field name="date">
             <property name="FilterType">FREETEXT</property>
@@ -33,13 +33,13 @@
             <property name="FilterBase">DATABASE</property>
             <property name="FilterDefault">WEEK</property>
             <property name="Attribute">Date</property>
-            <property name="Label">Sales_Receipt/Date.Label</property>
+            <property name="Label">POS_Order/Date.Label</property>
         </field>
         <field name="rateCrosstotal">
             <property name="Phrase">$&lt;attribute[RateCrossTotal].format[#,##0.00]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
             <property name="SortSelect">attribute[RateCrossTotal]</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
-            <property name="Label">Sales_Receipt/RateCrossTotal.Label</property>
+            <property name="Label">POS_Order/RateCrossTotal.Label</property>
             <property name="Align">right</property>
             <property name="SortSelect">attribute[RateCrossTotal]</property>
         </field>
@@ -47,13 +47,13 @@
             <property name="Phrase">$&lt;attribute[RateNetTotal].format[#,##0.00]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
             <property name="SortSelect">attribute[RateNetTotal]</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
-            <property name="Label">Sales_Receipt/RateNetTotal.Label</property>
+            <property name="Label">POS_Order/RateNetTotal.Label</property>
             <property name="Align">right</property>
             <property name="SortSelect">attribute[RateNetTotal]</property>
         </field>
         <field name="rateCurrencyId4Print">
             <property name="Select">linkto[RateCurrencyId].attribute[Symbol]</property>
-            <property name="Label">Sales_Receipt/RateCurrencyId.Label</property>
+            <property name="Label">POS_Order/RateCurrencyId.Label</property>
             <property name="ModePrint">READONLY</property>
             <property name="ModeView">NONE</property>
         </field>
@@ -61,7 +61,7 @@
             <property name="Phrase">$&lt;attribute[CrossTotal].format[#,##0.00]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
             <property name="SortSelect">attribute[CrossTotal]</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
-            <property name="Label">Sales_Receipt/CrossTotal.Label</property>
+            <property name="Label">POS_Order/CrossTotal.Label</property>
             <property name="Align">right</property>
             <property name="SortSelect">attribute[CrossTotal]</property>
         </field>
@@ -69,20 +69,20 @@
             <property name="Phrase">$&lt;attribute[NetTotal].format[#,##0.00]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
             <property name="SortSelect">attribute[NetTotal]</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
-            <property name="Label">Sales_Receipt/NetTotal.Label</property>
+            <property name="Label">POS_Order/NetTotal.Label</property>
             <property name="Align">right</property>
             <property name="SortSelect">attribute[NetTotal]</property>
         </field>
         <field name="currencyId4Print">
             <property name="Select">linkto[CurrencyId].attribute[Symbol]</property>
-            <property name="Label">Sales_Receipt/CurrencyId.Label</property>
+            <property name="Label">POS_Order/CurrencyId.Label</property>
             <property name="ModePrint">READONLY</property>
             <property name="ModeView">NONE</property>
         </field>
         <field name="status">
             <property name="FilterType">PICKLIST</property>
             <property name="Attribute">StatusAbstract</property>
-            <property name="Label">Sales_Receipt/Status.Label</property>
+            <property name="Label">POS_Order/Status.Label</property>
         </field>
         <field name="payable">
             <property name="Select">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].attribute[Name]</property>
