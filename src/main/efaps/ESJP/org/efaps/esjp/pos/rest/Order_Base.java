@@ -21,8 +21,12 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Insert;
 import org.efaps.db.Instance;
+import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.OrderDto;
@@ -62,6 +66,22 @@ public abstract class Order_Base
             final Instance docInst = createDocument(CIPOS.Order, status, _orderDto);
             for (final AbstractDocItemDto item : _orderDto.getItems()) {
                 createPosition(docInst, CIPOS.OrderPosition, item);
+            }
+            if (_orderDto.getPayableOid() != null) {
+                final Instance payableInst = Instance.get(_orderDto.getPayableOid());
+                Insert insert = null;
+                if (InstanceUtils.isType(payableInst, CISales.Invoice)) {
+                    insert = new Insert(CIPOS.Order2Invoice);
+                } else if (InstanceUtils.isType(payableInst, CISales.Receipt)) {
+                    insert = new Insert(CIPOS.Order2Invoice);
+                } else if (InstanceUtils.isType(payableInst, CIPOS.Ticket)) {
+                    insert = new Insert(CIPOS.Order2Invoice);
+                }
+                if (insert != null) {
+                    insert.add(CIERP.Document2DocumentAbstract.FromAbstractLink, docInst);
+                    insert.add(CIERP.Document2DocumentAbstract.ToAbstractLink, payableInst);
+                    insert.execute();
+                }
             }
             dto = OrderDto.builder()
                             .withId(_orderDto.getId())

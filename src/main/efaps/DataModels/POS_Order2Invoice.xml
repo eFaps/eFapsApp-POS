@@ -23,7 +23,7 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Order2Invoice</name>
-        <parent>Sales_Document2DocumentAbstract</parent>
+        <parent>POS_Order2Document</parent>
         <attribute>
             <name>FromLink</name>
             <type>Link</type>

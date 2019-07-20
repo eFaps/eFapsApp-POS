@@ -18,25 +18,12 @@
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>7e9ac6cb-b0f0-45d6-8779-5420f20ee755</uuid>
+    <uuid>1667a181-2a83-4a55-a972-eafa5375f796</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Order2Receipt</name>
-        <parent>POS_Order2Document</parent>
-        <attribute>
-            <name>FromLink</name>
-            <type>Link</type>
-            <typelink>POS_Order</typelink>
-            <sqltable>ERP_Document2DocumentAbstractSQLTable</sqltable>
-            <sqlcolumn>FROMID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>ToLink</name>
-            <type>Link</type>
-            <typelink>Sales_Receipt</typelink>
-            <sqltable>ERP_Document2DocumentAbstractSQLTable</sqltable>
-            <sqlcolumn>TOID</sqlcolumn>
-        </attribute>
+        <name>POS_Order2Document</name>
+        <parent>Sales_Document2DocumentAbstract</parent>
+        <purpose abstract="true" />
     </definition>
 </datamodel-type>

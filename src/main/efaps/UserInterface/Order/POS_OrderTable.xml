@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2003 - 2019 The eFaps Team
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>0803c26b-16fe-475f-a284-d3f0ba64ee4f</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_OrderTable</name>
+        <field name="name">
+            <property name="Attribute">Name</property>
+            <property name="Label">Sales_Receipt/Name.Label</property>
+        </field>
+        <field name="date">
+            <property name="FilterType">FREETEXT</property>
+            <property name="FilterRequired">TRUE</property>
+            <property name="FilterBase">DATABASE</property>
+            <property name="FilterDefault">WEEK</property>
+            <property name="Attribute">Date</property>
+            <property name="Label">Sales_Receipt/Date.Label</property>
+        </field>
+        <field name="rateCrosstotal">
+            <property name="Phrase">$&lt;attribute[RateCrossTotal].format[#,##0.00]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
+            <property name="SortSelect">attribute[RateCrossTotal]</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="Label">Sales_Receipt/RateCrossTotal.Label</property>
+            <property name="Align">right</property>
+            <property name="SortSelect">attribute[RateCrossTotal]</property>
+        </field>
+        <field name="rateNettotal">
+            <property name="Phrase">$&lt;attribute[RateNetTotal].format[#,##0.00]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
+            <property name="SortSelect">attribute[RateNetTotal]</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="Label">Sales_Receipt/RateNetTotal.Label</property>
+            <property name="Align">right</property>
+            <property name="SortSelect">attribute[RateNetTotal]</property>
+        </field>
+        <field name="rateCurrencyId4Print">
+            <property name="Select">linkto[RateCurrencyId].attribute[Symbol]</property>
+            <property name="Label">Sales_Receipt/RateCurrencyId.Label</property>
+            <property name="ModePrint">READONLY</property>
+            <property name="ModeView">NONE</property>
+        </field>
+        <field name="crosstotal">
+            <property name="Phrase">$&lt;attribute[CrossTotal].format[#,##0.00]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
+            <property name="SortSelect">attribute[CrossTotal]</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="Label">Sales_Receipt/CrossTotal.Label</property>
+            <property name="Align">right</property>
+            <property name="SortSelect">attribute[CrossTotal]</property>
+        </field>
+        <field name="nettotal">
+            <property name="Phrase">$&lt;attribute[NetTotal].format[#,##0.00]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
+            <property name="SortSelect">attribute[NetTotal]</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="Label">Sales_Receipt/NetTotal.Label</property>
+            <property name="Align">right</property>
+            <property name="SortSelect">attribute[NetTotal]</property>
+        </field>
+        <field name="currencyId4Print">
+            <property name="Select">linkto[CurrencyId].attribute[Symbol]</property>
+            <property name="Label">Sales_Receipt/CurrencyId.Label</property>
+            <property name="ModePrint">READONLY</property>
+            <property name="ModeView">NONE</property>
+        </field>
+        <field name="status">
+            <property name="FilterType">PICKLIST</property>
+            <property name="Attribute">StatusAbstract</property>
+            <property name="Label">Sales_Receipt/Status.Label</property>
+        </field>
+        <field name="payable">
+            <property name="Select">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].attribute[Name]</property>
+            <property name="SelectAlternateOID">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].oid</property>
+            <property name="HRef">TREE</property>
+            <property name="Label">POS_OrderTable.payable.Label</property>
+        </field>
+    </definition>
+</ui-table>

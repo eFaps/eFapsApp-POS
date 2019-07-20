@@ -45,6 +45,7 @@
             <child>POS_CategoryMyDesk</child>
             <child>POS_POSMyDesk</child>
             <child>POS_BalanceMyDesk</child>
+            <child>POS_OrderMyDesk</child>
             <child>POS_WorkspaceMyDesk</child>
             <child>POS_UserMyDesk</child>
             <child>POS_SequenceMyDesk</child>
