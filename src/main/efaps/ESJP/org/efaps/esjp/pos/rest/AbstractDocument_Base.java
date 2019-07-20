@@ -66,7 +66,7 @@ public abstract class AbstractDocument_Base
     extends AbstractRest
 {
 
-    protected Instance createDocument(final CIType _ciType, final Status _status, final AbstractPayableDocumentDto _dto)
+    protected Instance createDocument(final CIType _ciType, final Status _status, final AbstractDocumentDto _dto)
         throws EFapsException
     {
         final Insert insert = new Insert(_ciType);
@@ -109,12 +109,14 @@ public abstract class AbstractDocument_Base
             relInsert.execute();
         }
 
-        final Instance balanceInst = Instance.get(_dto.getBalanceOid());
-        if (InstanceUtils.isKindOf(balanceInst, CIPOS.Balance)) {
-            final Insert relInsert = new Insert(CIPOS.Balance2Document);
-            relInsert.add(CIPOS.Balance2Document.FromLink, balanceInst);
-            relInsert.add(CIPOS.Balance2Document.ToLink, ret);
-            relInsert.execute();
+        if (_dto instanceof AbstractPayableDocumentDto) {
+            final Instance balanceInst = Instance.get(((AbstractPayableDocumentDto) _dto).getBalanceOid());
+            if (InstanceUtils.isKindOf(balanceInst, CIPOS.Balance)) {
+                final Insert relInsert = new Insert(CIPOS.Balance2Document);
+                relInsert.add(CIPOS.Balance2Document.FromLink, balanceInst);
+                relInsert.add(CIPOS.Balance2Document.ToLink, ret);
+                relInsert.execute();
+            }
         }
         return ret;
     }
