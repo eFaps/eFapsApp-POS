@@ -34,5 +34,12 @@
                 program="org.efaps.esjp.admin.datamodel.StatusValue">
             </trigger>
         </attribute>
+        <attribute>
+            <name>BackendLink</name>
+            <type>Link</type>
+            <typelink>POS_Backend</typelink>
+            <sqltable>Sales_DocumentExtendSQLTable</sqltable>
+            <sqlcolumn>INTEGER1</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>

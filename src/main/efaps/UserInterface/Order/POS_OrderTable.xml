@@ -27,6 +27,10 @@
             <property name="Attribute">Name</property>
             <property name="Label">POS_Order/Name.Label</property>
         </field>
+        <field name="backendLink">
+            <property name="Select">linkto[BackendLink].attribute[Name]</property>
+            <property name="Label">POS_Order/BackendLink.Label</property>
+        </field>
         <field name="date">
             <property name="FilterType">FREETEXT</property>
             <property name="FilterRequired">TRUE</property>

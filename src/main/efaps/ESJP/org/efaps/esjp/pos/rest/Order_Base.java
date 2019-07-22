@@ -23,6 +23,9 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
+import org.efaps.db.InstanceQuery;
+import org.efaps.db.QueryBuilder;
+import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
@@ -67,6 +70,16 @@ public abstract class Order_Base
             for (final AbstractDocItemDto item : _orderDto.getItems()) {
                 createPosition(docInst, CIPOS.OrderPosition, item);
             }
+            final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
+            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
+            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
+            final InstanceQuery query = queryBldr.getQuery();
+            final Instance backendInst = query.execute().get(0);
+
+            final Update update = new Update(docInst);
+            update.add(CIPOS.Order.BackendLink, backendInst);
+            update.execute();
+
             if (_orderDto.getPayableOid() != null) {
                 final Instance payableInst = Instance.get(_orderDto.getPayableOid());
                 Insert insert = null;
