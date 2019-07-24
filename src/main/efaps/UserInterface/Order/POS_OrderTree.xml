@@ -16,20 +16,21 @@
     limitations under the License.
 
 -->
-<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>ec37b3b1-5d14-49d3-b203-5248931abb80</uuid>
+    <uuid>26804fe4-56df-4d24-bb2f-3356ec54eab9</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_OrderMyDesk</name>
+        <name>POS_OrderTree</name>
         <target>
-            <table>POS_OrderTable</table>
-            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Type">POS_Order</property>
-            </evaluate>
+            <form>POS_OrderForm</form>
         </target>
+        <type>POS_Order</type>
+        <childs>
+            <child>POS_OrderTree_Doc</child>
+        </childs>
         <property name="Target">content</property>
-        <property name="TargetShowCheckBoxes">true</property>
+        <property name="TargetMode">view</property>
     </definition>
-</ui-command>
+</ui-menu>

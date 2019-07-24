@@ -86,9 +86,9 @@ public abstract class Order_Base
                 if (InstanceUtils.isType(payableInst, CISales.Invoice)) {
                     insert = new Insert(CIPOS.Order2Invoice);
                 } else if (InstanceUtils.isType(payableInst, CISales.Receipt)) {
-                    insert = new Insert(CIPOS.Order2Invoice);
+                    insert = new Insert(CIPOS.Order2Receipt);
                 } else if (InstanceUtils.isType(payableInst, CIPOS.Ticket)) {
-                    insert = new Insert(CIPOS.Order2Invoice);
+                    insert = new Insert(CIPOS.Order2Ticket);
                 }
                 if (insert != null) {
                     insert.add(CIERP.Document2DocumentAbstract.FromAbstractLink, docInst);

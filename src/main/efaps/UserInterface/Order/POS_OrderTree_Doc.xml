@@ -15,21 +15,27 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
+
 -->
 <ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>ec37b3b1-5d14-49d3-b203-5248931abb80</uuid>
+    <uuid>0440652d-370c-440e-b6f2-debaa8bce267</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_OrderMyDesk</name>
+        <name>POS_OrderTree_Doc</name>
         <target>
-            <table>POS_OrderTable</table>
+            <table>Sales_Document2DocumentTable</table>
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Type">POS_Order</property>
+                <property name="Type01">ERP_Document2DocumentAbstract</property>
+                <property name="LinkFrom01">FromAbstractLink</property>
+                <property name="Type02">ERP_Document2DocumentAbstract</property>
+                <property name="LinkFrom02">ToAbstractLink</property>
             </evaluate>
         </target>
         <property name="Target">content</property>
         <property name="TargetShowCheckBoxes">true</property>
+        <property name="Label">Sales_DocumentAbstractTree_Doc.Label</property>
+        <property name="TargetMode">view</property>
     </definition>
 </ui-command>

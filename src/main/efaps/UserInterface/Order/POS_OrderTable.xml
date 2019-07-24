@@ -26,6 +26,11 @@
         <field name="name">
             <property name="Attribute">Name</property>
             <property name="Label">POS_Order/Name.Label</property>
+            <property name="HRef">TREE</property>
+        </field>
+        <field name="created">
+            <property name="Attribute">Created</property>
+            <property name="Label">POS_Order/Created.Label</property>
         </field>
         <field name="backendLink">
             <property name="Select">linkto[BackendLink].attribute[Name]</property>

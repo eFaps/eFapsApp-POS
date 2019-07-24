@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2003 - 2019 The eFaps Team
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>4cbf6186-c433-4d7d-aee9-41b3c131b70b</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_OrderForm</name>
+        <field character="Group" name="dateGroup">
+            <property name="GroupCount">2</property>
+            <property name="ModeCreate">READONLY</property>
+        </field>
+        <field name="date">
+            <property name="Columns">12</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Date</property>
+            <property name="Required">true</property>
+        </field>
+        <field character="Group" name="createGroup">
+            <property name="GroupCount">2</property>
+        </field>
+        <field name="creator">
+            <property name="SelectAlternateOID">linkto[Creator].oid</property>
+            <property name="Attribute">Creator</property>
+            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="ShowTypeIcon">true</property>
+        </field>
+        <field name="created">
+            <property name="Attribute">Created</property>
+            <property name="ModeSearch">EDITABLE</property>
+        </field>
+        <field character="Group" name="modifyGroup">
+            <property name="GroupCount">2</property>
+        </field>
+        <field name="modifier">
+            <property name="SelectAlternateOID">linkto[Modifier].oid</property>
+            <property name="Attribute">Modifier</property>
+            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="ShowTypeIcon">true</property>
+        </field>
+        <field name="modified">
+            <property name="Attribute">Modified</property>
+            <property name="ModeSearch">EDITABLE</property>
+        </field>
+        <field name="status">
+            <property name="Attribute">Status</property>
+        </field>
+        <field name="name">
+            <property name="Attribute">Name</property>
+            <property name="Width">15</property>
+            <property name="Required">true</property>
+            <property name="ModeEdit">NONE</property>
+        </field>
+        <field character="Heading" name="headingPositon">
+            <property name="Level">2</property>
+            <property name="Label">POS_OrderForm.headingPositon.Heading</property>
+            <property name="ModeCreate">READONLY</property>
+        </field>
+        <field character="Group" name="currencyGroup">
+            <property name="GroupCount">3</property>
+            <property name="ModeCreate">READONLY</property>
+            <property name="ModeEdit">READONLY</property>
+            <property name="ModeView">NONE</property>
+        </field>
+        <field character="Target" name="positionTable">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <table>POS_OrderPositionTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="Type">POS_OrderPosition</property>
+                <property name="LinkFrom">OrderLink</property>
+            </evaluate>
+        </field>
+        <field name="note">
+            <property name="Attribute">Note</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="RowSpan">4</property>
+            <property name="Rows">5</property>
+            <property name="Columns">50</property>
+        </field>
+        <field name="netTotal">
+            <property name="ModeCreate">READONLY</property>
+            <property name="ModeEdit">READONLY</property>
+            <property name="ModeView">NONE</property>
+            <property name="Attribute">NetTotal</property>
+        </field>
+        <field name="taxes">
+            <property name="ModeCreate">READONLY</property>
+            <property name="ModeEdit">READONLY</property>
+            <property name="ModeView">NONE</property>
+            <property name="Attribute">Taxes</property>
+            <property name="Label">POS_Order/Taxes.Label</property>
+        </field>
+        <field name="crossTotal">
+            <property name="ModeEdit">READONLY</property>
+            <property name="ModeCreate">READONLY</property>
+            <property name="ModeView">NONE</property>
+            <property name="Attribute">CrossTotal</property>
+        </field>
+        <field name="netTotal4Read">
+            <property name="ModeEdit">NONE</property>
+            <property name="Phrase">$&lt;attribute[NetTotal]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
+            <property name="Label">POS_Order/NetTotal.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+        </field>
+        <field name="taxes4Read">
+            <property name="Attribute">Taxes</property>
+            <property name="ModeEdit">NONE</property>
+        </field>
+        <field name="crossTotal4Read">
+            <property name="ModeEdit">NONE</property>
+            <property name="Phrase">$&lt;attribute[CrossTotal]&gt; $&lt;linkto[CurrencyId].attribute[Symbol]&gt;</property>
+            <property name="Label">POS_Order/NetTotal.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+        </field>
+        <field character="Heading" name="rate4ReadHeading">
+            <property name="Level">1</property>
+            <property name="Label">POS_OrderForm.rate4ReadHeading.Heading</property>
+            <property name="ModeCreate">NONE</property>
+            <property name="ModeEdit">NONE</property>
+            <property name="ModeView">READONLY</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rate4ReadHeading.UI_ACCESSCHECK" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field character="Group" name="rateGroup">
+            <property name="GroupCount">2</property>
+            <property name="ModeCreate">NONE</property>
+            <property name="ModeEdit">NONE</property>
+            <property name="ModeView">READONLY</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateGroup.UI_ACCESSCHECK" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field name="rateCurrencyId4Read">
+            <property name="Attribute">RateCurrencyId</property>
+            <property name="ModeCreate">NONE</property>
+            <property name="ModeEdit">NONE</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateGroup.UI_ACCESSCHECK" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field name="rate">
+            <property name="Attribute">Rate</property>
+            <property name="ModeCreate">HIDDEN</property>
+            <property name="ModeEdit">HIDDEN</property>
+            <property name="ModeView">NONE</property>
+            <trigger event="UI_FIELD_VALUE" method="rateFieldValueUI"
+                name="POS_OrderForm.rate.UI_FIELD_VALUE" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field name="rate4view">
+            <property name="Attribute">Rate</property>
+            <property name="ModeEdit">NONE</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rate4view.UI_ACCESSCHECK" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field character="Heading" name="rateHeadingPosition">
+            <property name="Level">3</property>
+            <property name="Label">POS_OrderForm.rateHeadingPosition.Label</property>
+            <property name="ModeEdit">NONE</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateHeadingPositon.UI_ACCESSCHECK"
+                program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field character="Target" name="ratePositionTable">
+            <property name="ModeEdit">NONE</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.ratePositionTable.UI_ACCESSCHECK"
+                program="org.efaps.esjp.sales.document.Receipt" />
+            <table>POS_OrderRatePositionTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="Type">POS_OrderPosition</property>
+                <property name="LinkFrom">OrderLink</property>
+            </evaluate>
+        </field>
+        <field name="rateNetTotal4Read">
+            <property name="ModeEdit">NONE</property>
+            <property name="Phrase">$&lt;attribute[RateNetTotal]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
+            <property name="Label">POS_Order/RateNetTotal.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateNetTotal4Read.UI_ACCESSCHECK"
+                program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field name="rateTaxes">
+            <property name="Attribute">RateTaxes</property>
+            <property name="ModeEdit">NONE</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateTaxes.UI_ACCESSCHECK" program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+        <field name="rateCrossTotal4Read">
+            <property name="ModeEdit">NONE</property>
+            <property name="Phrase">$&lt;attribute[RateCrossTotal]&gt; $&lt;linkto[RateCurrencyId].attribute[Symbol]&gt;</property>
+            <property name="Label">POS_Order/RateCrossTotal.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <trigger event="UI_ACCESSCHECK" method="accessCheck4Rate"
+                name="POS_OrderForm.rateCrossTotal4Read.UI_ACCESSCHECK"
+                program="org.efaps.esjp.sales.document.Receipt" />
+        </field>
+    </definition>
+</ui-form>
