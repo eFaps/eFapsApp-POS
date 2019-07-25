@@ -163,6 +163,7 @@ public abstract class AbstractDocument_Base
         final Taxes ret = new Taxes();
         for (final TaxEntryDto dto : _taxes) {
             final TaxEntry taxentry = new TaxEntry();
+            taxentry.setBase(dto.getBase());
             taxentry.setAmount(dto.getAmount());
             taxentry.setUUID(getTax(dto).getUUID());
             taxentry.setCatUUID(getTax(dto).getTaxCat().getUuid());
