@@ -166,7 +166,8 @@ public class Pos
         JOB,
         PRELIMINARY,
         TICKET,
-        COPY;
+        COPY,
+        BALANCE;
 
         @Override
         public int getInt()
