@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2019 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
 import org.efaps.admin.datamodel.Status;
@@ -163,6 +164,8 @@ public abstract class Product_Base
                                     .withKey(tax.getUUID().toString())
                                     .withCatKey(tax.getTaxCat().getUuid().toString())
                                     .withName(tax.getName())
+                                    .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class, tax.getTaxType().name()))
+                                    .withAmount(tax.getAmount())
                                     .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
                                     .build());
                 } catch (final EFapsException e) {
