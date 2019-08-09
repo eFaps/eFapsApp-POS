@@ -41,5 +41,6 @@
             <sqltable>Sales_DocumentExtendSQLTable</sqltable>
             <sqlcolumn>INTEGER1</sqlcolumn>
         </attribute>
+        <trigger program="org.efaps.esjp.pos.Order" name="POS_Order.DELETE_PRE" event="DELETE_PRE" method="preDeleteTrigger"/>
     </definition>
 </datamodel-type>
