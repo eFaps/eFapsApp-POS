@@ -31,6 +31,7 @@ import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
 import org.efaps.esjp.ci.CINumGenPOS;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("77a6fc1e-a406-419f-a1aa-8207255a2522")
@@ -104,6 +105,14 @@ public class Pos
                     .addDefaultValue("Select01", "linkfrom[Products_AlternativeBOM#To].linkto[From].oid")
                     .addDefaultValue("Label01", "Puede replacadar")
                     .description("Configurations of product relations to be included.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute BALANCE_REPORT = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "BalanceReport")
+                    .addDefaultValue("Type", CIPOS.Balance.getType().getName())
+                    .description("Configurations for Balance Report");
 
     public enum Role implements IBitEnum
     {

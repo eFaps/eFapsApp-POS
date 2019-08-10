@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2003 - 2019 The eFaps Team
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>7a89cf9d-3239-42fa-a2d5-e28e0c4fe327</uuid>
+    <file-application>eFapsApp-Sales</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_BalanceReportForm</name>
+        <field name="filter">
+            <property name="HideLabel">true</property>
+            <property name="UIType">SNIPPLET</property>
+            <trigger event="UI_FIELD_VALUE" index="1" method="setDefaultFilter"
+                name="POS_BalanceReportForm.filter.UI_FIELD_VALUE.1"
+                program="org.efaps.esjp.pos.report.BalanceReport">
+                <property name="FilterKey">org.efaps.esjp.pos.report.BalanceReport.FilterKey</property>
+                <property name="Field01">date</property>
+                <property name="FilterType01">DateTime</property>
+                <property name="FilterDefault01">TODAY</property>
+            </trigger>
+            <trigger event="UI_FIELD_VALUE" index="2" method="getFilterFieldValue"
+                name="POS_BalanceReportForm.filter.UI_FIELD_VALUE.2"
+                program="org.efaps.esjp.pos.report.BalanceReport">
+                <property name="FilterKey">org.efaps.esjp.pos.report.BalanceReport.FilterKey</property>
+                <property name="Field01">date</property>
+                <property name="DBProperty01">org.efaps.esjp.pos.report.BalanceReport.date</property>
+            </trigger>
+        </field>
+        <field name="salesReport">
+            <property name="HideLabel">true</property>
+            <property name="UIType">SNIPPLET</property>
+            <trigger event="UI_FIELD_VALUE" method="generateReport"
+                name="POS_BalanceReportForm.salesReport.UI_FIELD_VALUE"
+                program="org.efaps.esjp.pos.report.BalanceReport">
+                <property name="FilterKey">org.efaps.esjp.pos.report.BalanceReport.FilterKey</property>
+            </trigger>
+        </field>
+    </definition>
+</ui-form>

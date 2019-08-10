@@ -18,31 +18,15 @@
 -->
 <ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>73aa0da8-fb47-4136-b19c-5c5c8dd5309e</uuid>
-    <file-application>eFapsApp-POS</file-application>
+    <uuid>5b83d941-4ddc-45d0-83c4-3850cb7b4542</uuid>
+    <file-application>eFapsApp-Sales</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MyDesk</name>
-        <access>
-            <role>Administration</role>
-            <role>POS_Admin</role>
-            <role>POS_Modifier</role>
-            <role>POS_Reader</role>
-        </access>
-        <target>
-            <trigger event="UI_ACCESSCHECK" method="configCheck" name="POS_MyDesk.UI_ACCESSCHECK"
-                program="org.efaps.esjp.admin.access.AccessCheck4UI">
-                <!-- POS-Configuration -->
-                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
-                <property name="Attribute">org.efaps.pos.Activate</property>
-            </trigger>
-        </target>
+        <name>POS_BalanceReportMyDesk_Menu</name>
         <childs>
-            <child>POS_ConfigMyDesk</child>
-            <child>POS_ReportMyDesk</child>
-            <child>POS_CategoryMyDesk</child>
-            <child>POS_BalanceMyDesk</child>
-            <child>POS_OrderMyDesk</child>
+            <child>POS_BalanceReportMyDesk_Menu_DownloadExcel</child>
+            <child>POS_BalanceReportMyDesk_Menu_DownloadPdf</child>
+            <child>POS_BalanceReportMyDesk_Menu_Filter</child>
         </childs>
     </definition>
 </ui-menu>
