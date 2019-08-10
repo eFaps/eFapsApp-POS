@@ -121,7 +121,7 @@ public abstract class Workspace_Base
                     printCmdDtos.add(PrintCmdDto.builder()
                             .withPrinterOid(Instance.get(CIPOS.Printer.getType(), printerLinkIter.next()).getOid())
                             .withTarget(EnumUtils.getEnum(org.efaps.pos.dto.PrintTarget.class,
-                                            printTargetIter.next().name()))
+                                            printTargetIter.hasNext() ? printTargetIter.next().name() : PrintTarget.JOB.name()))
                             .withTargetOid(Instance.get(CIPOS.Category.getType(), targetLinkIter.next()).getOid())
                             .withReportOid(Instance.get(CIAdminProgram.JasperReportCompiled.getType(),
                                             reportLinkIter.next()).getOid())
