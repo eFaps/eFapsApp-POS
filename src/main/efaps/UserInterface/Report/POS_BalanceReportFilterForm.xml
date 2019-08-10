@@ -32,5 +32,14 @@
                 name="POS_BalanceReportFilterForm.date.UI_FIELD_VALUE"
                 program="org.efaps.esjp.erp.FilteredReport" />
         </field>
+        <field name="groupBy">
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="UIType">SNIPPLET</property>
+            <property name="Label">org.efaps.esjp.pos.report.BalanceReport.groupBy</property>
+            <trigger event="UI_FIELD_VALUE" method="getGroupByFieldValue"
+                name="POS_BalanceReportFilterForm.groupBy.UI_FIELD_VALUE"
+                program="org.efaps.esjp.pos.report.BalanceReport">
+            </trigger>
+        </field>
     </definition>
 </ui-form>
