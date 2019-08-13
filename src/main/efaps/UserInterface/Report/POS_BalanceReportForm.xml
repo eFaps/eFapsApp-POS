@@ -19,7 +19,7 @@
 <ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>7a89cf9d-3239-42fa-a2d5-e28e0c4fe327</uuid>
-    <file-application>eFapsApp-Sales</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BalanceReportForm</name>

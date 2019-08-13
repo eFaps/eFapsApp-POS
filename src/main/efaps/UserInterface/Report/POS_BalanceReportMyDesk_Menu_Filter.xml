@@ -19,7 +19,7 @@
 <ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>3e9c2e77-0177-49f1-99a2-626cbc6c5188</uuid>
-    <file-application>eFapsApp-Sales</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BalanceReportMyDesk_Menu_Filter</name>
