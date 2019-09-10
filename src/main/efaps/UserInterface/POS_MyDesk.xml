@@ -23,6 +23,7 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_MyDesk</name>
+        <icon>POS_MyDeskImg</icon>
         <access>
             <role>Administration</role>
             <role>POS_Admin</role>
