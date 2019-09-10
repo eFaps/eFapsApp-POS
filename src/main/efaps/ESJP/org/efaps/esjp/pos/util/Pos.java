@@ -26,10 +26,12 @@ import org.efaps.admin.datamodel.attributetype.BitEnumType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.api.annotation.EFapsSysConfAttribute;
+import org.efaps.api.annotation.EFapsSysConfLink;
 import org.efaps.api.annotation.EFapsSystemConfiguration;
 import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
+import org.efaps.esjp.admin.common.systemconfiguration.SysConfLink;
 import org.efaps.esjp.ci.CINumGenPOS;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.util.cache.CacheReloadException;
@@ -113,6 +115,12 @@ public class Pos
                     .key(BASE + "BalanceReport")
                     .addDefaultValue("Type", CIPOS.Balance.getType().getName())
                     .description("Configurations for Balance Report");
+
+    @EFapsSysConfLink
+    public static final SysConfLink PRODDOCTYPE4DOC = new SysConfLink()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "ProductDocumentType4TransactionDocumentShadow")
+                    .description("ProductDocumentType to be used for registration of TransactionDocumentShadow");
 
     public enum Role implements IBitEnum
     {

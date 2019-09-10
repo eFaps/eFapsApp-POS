@@ -56,6 +56,9 @@ public abstract class Ticket_Base
             for (final AbstractDocItemDto item : _ticketDto.getItems()) {
                 createPosition(docInst, CIPOS.TicketPosition, item);
             }
+            addPayments(docInst, _ticketDto);
+            createTransactionDocument(_ticketDto, docInst);
+
             dto = TicketDto.builder()
                             .withId(_ticketDto.getId())
                             .withOID(docInst.getOid())

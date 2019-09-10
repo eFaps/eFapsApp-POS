@@ -34,15 +34,19 @@ import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.db.SelectBuilder;
+import org.efaps.db.stmt.selection.Evaluator;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.document.TransactionDocument;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
 import org.efaps.esjp.sales.tax.Tax;
 import org.efaps.esjp.sales.tax.TaxCat;
@@ -53,9 +57,12 @@ import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
+import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.PaymentDto;
 import org.efaps.pos.dto.PaymentType;
+import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
+import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
@@ -119,6 +126,79 @@ public abstract class AbstractDocument_Base
             }
         }
         return ret;
+    }
+
+    protected void createTransactionDocument(final AbstractDocumentDto _dto,
+                                             final Instance _docInstance)
+        throws EFapsException
+    {
+        Instance warehouseInst = null;
+        final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
+        if (InstanceUtils.isValid(workspaceInst)) {
+            final Evaluator evaluator = EQL.builder()
+                .print(workspaceInst)
+                .linkto(CIPOS.Workspace.WarehouseLink).instance()
+                .evaluate();
+            if (evaluator.next()) {
+                warehouseInst = evaluator.get(1);
+            }
+        }
+        if (InstanceUtils.isKindOf(warehouseInst, CIProducts.Warehouse)) {
+            final TransactionDocument transactionDocument = new TransactionDocument()
+            {
+                @Override
+                protected Type getType4DocCreate(final Parameter _parameter)
+                    throws EFapsException
+                {
+                    return CISales.TransactionDocumentShadowOut.getType();
+                }
+
+                @Override
+                protected void addStatus2DocCreate(final Parameter _parameter,
+                                                   final Insert _insert,
+                                                   final CreatedDoc _createdDoc)
+                    throws EFapsException
+                {
+                    _insert.add(CISales.DocumentAbstract.StatusAbstract, Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
+                }
+
+                @Override
+                protected void connect2ProductDocumentType(final Parameter _parameter,
+                                                           final CreatedDoc _createdDoc)
+                    throws EFapsException
+                {
+                    final Instance instDocType = Pos.PRODDOCTYPE4DOC.get();
+                    if (instDocType.isValid() && _createdDoc.getInstance().isValid()) {
+                        insert2DocumentTypeAbstract(CISales.Document2ProductDocumentType, _createdDoc, instDocType);
+                    }
+                }
+
+                @Override
+                protected Type getType4PositionCreate(final Parameter _parameter)
+                                throws EFapsException
+                {
+                    return CISales.TransactionDocumentShadowOutPosition.getType();
+                }
+            };
+            final Parameter parameter = ParameterUtil.instance();
+            ParameterUtil.setParameterValues(parameter, "storage", warehouseInst.getOid());
+            final CreatedDoc createdDoc = transactionDocument.createDocumentShadow(parameter, _docInstance);
+
+            CIType relType = null;
+            if (_dto instanceof InvoiceDto) {
+                relType = CISales.Invoice2TransactionDocumentShadowOut;
+            } else if (_dto instanceof ReceiptDto) {
+                relType = CISales.Receipt2TransactionDocumentShadowOut;
+            } else if (_dto instanceof TicketDto) {
+                relType = CIPOS.Ticket2TransactionDocumentShadowOut;
+            }
+            if (relType != null) {
+                final Insert insert = new Insert(relType);
+                insert.add(CISales.Document2TransactionDocumentShadowAbstract.FromAbstractLink, _docInstance);
+                insert.add(CISales.Document2TransactionDocumentShadowAbstract.ToAbstractLink, createdDoc.getInstance());
+                insert.execute();
+            }
+        }
     }
 
     protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto)

@@ -58,6 +58,7 @@ public abstract class Invoice_Base
                 createPosition(docInst, CISales.InvoicePosition, item);
             }
             addPayments(docInst, _invoiceDto);
+            createTransactionDocument(_invoiceDto, docInst);
             dto = ReceiptDto.builder()
                             .withId(_invoiceDto.getId())
                             .withOID(docInst.getOid())
