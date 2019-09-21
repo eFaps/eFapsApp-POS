@@ -233,6 +233,7 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.RateNetPrice, _dto.getNetPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossPrice, _dto.getCrossPrice());
         insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
+        insert.add(CISales.PositionSumAbstract.Remark, _dto.getRemark());
         insert.execute();
         return insert.getInstance();
     }
