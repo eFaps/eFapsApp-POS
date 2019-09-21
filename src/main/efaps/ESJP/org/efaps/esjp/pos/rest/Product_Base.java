@@ -49,6 +49,7 @@ import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.pos.dto.IndicationDto;
+import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.TaxDto;
@@ -218,7 +219,7 @@ public abstract class Product_Base
                 .withUoM(uoM.getSymbol())
                 .withUoMCode(uoM.getCommonCode())
                 .withRelations(relations)
-                .withIndications(getIndications(multi, selIndication))
+                .withIndicationSets(getIndicationSets(multi, selIndication))
                 .build();
             products.add(dto);
         }
@@ -229,11 +230,11 @@ public abstract class Product_Base
         return ret;
     }
 
-    protected Set<IndicationDto> getIndications(final MultiPrintQuery _multi,
-                                                final SelectBuilder _selIndication)
+    protected Set<IndicationSetDto> getIndicationSets(final MultiPrintQuery _multi,
+                                                      final SelectBuilder _selIndication)
         throws EFapsException
     {
-        final Set<IndicationDto> ret = new HashSet<>();
+        final Set<IndicationSetDto> ret = new HashSet<>();
         if (Pos.INDICATIONSET_ACIVATE.get()) {
             final Object indicationSets = _multi.getSelect(_selIndication);
             final List<Instance> indSetInsts = new ArrayList<>();
@@ -245,16 +246,28 @@ public abstract class Product_Base
                 indSetInsts.add((Instance) indicationSets);
             }
             if (!indSetInsts.isEmpty()) {
-                final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
-                queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink, indSetInsts.toArray());
-                final MultiPrintQuery multi = queryBldr.getPrint();
-                multi.addAttribute(CIPOS.Indication.Value);
-                multi.execute();
-                while (multi.next()) {
-                    ret.add(IndicationDto.builder()
-                        .withOID(multi.getCurrentInstance().getOid())
-                        .withValue(multi.getAttribute(CIPOS.Indication.Value))
-                        .build());
+                final MultiPrintQuery setMulti = new MultiPrintQuery(indSetInsts);
+                setMulti.addAttribute(CIPOS.IndicationSet.Name, CIPOS.IndicationSet.Required);
+                setMulti.execute();
+                while (setMulti.next()) {
+                    final Set<IndicationDto> indications = new HashSet<>();
+                    final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
+                    queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink, setMulti.getCurrentInstance());
+                    final MultiPrintQuery multi = queryBldr.getPrint();
+                    multi.addAttribute(CIPOS.Indication.Value);
+                    multi.execute();
+                    while (multi.next()) {
+                        indications.add(IndicationDto.builder()
+                            .withOID(multi.getCurrentInstance().getOid())
+                            .withValue(multi.getAttribute(CIPOS.Indication.Value))
+                            .build());
+                    }
+                    ret.add(IndicationSetDto.builder()
+                                    .withOID(setMulti.getCurrentInstance().getOid())
+                                    .withName(setMulti.getAttribute(CIPOS.IndicationSet.Name))
+                                    .withRequired(setMulti.getAttribute(CIPOS.IndicationSet.Required))
+                                    .withIndications(indications)
+                                    .build());
                 }
             }
         }

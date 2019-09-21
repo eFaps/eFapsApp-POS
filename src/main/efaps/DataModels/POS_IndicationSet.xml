@@ -60,6 +60,12 @@
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Required</name>
+            <type>Boolean</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>BOL1</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_ObjectSQLTable</sqltable>

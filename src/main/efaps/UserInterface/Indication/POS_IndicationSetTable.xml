@@ -34,5 +34,9 @@
             <property name="Label">POS_IndicationSet/Description.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+        <field name="required">
+            <property name="Attribute">Required</property>
+            <property name="Label">POS_IndicationSet/Required.Label</property>
+        </field>
     </definition>
 </ui-table>

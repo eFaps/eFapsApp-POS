@@ -36,6 +36,12 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
         </field>
+        <field name="required">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Required</property>
+        </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
         </field>
