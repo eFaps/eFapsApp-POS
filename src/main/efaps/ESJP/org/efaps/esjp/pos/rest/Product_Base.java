@@ -36,6 +36,7 @@ import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
@@ -47,6 +48,7 @@ import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
+import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.TaxDto;
@@ -124,6 +126,14 @@ public abstract class Product_Base
                         .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
                         .oid();
         multi.addSelect(selCat, selImageOid);
+        SelectBuilder selIndication = null;
+        if (Pos.INDICATIONSET_ACIVATE.get()) {
+            selIndication = SelectBuilder.get()
+                            .linkfrom(CIPOS.IndicationSet2Product.ToLink)
+                            .linkto(CIPOS.IndicationSet2Product.FromLink)
+                            .instance();
+            multi.addSelect(selIndication);
+        }
 
         for (final Entry<Integer, String> entry: relSelects.entrySet()) {
             multi.addSelect(entry.getValue());
@@ -208,6 +218,7 @@ public abstract class Product_Base
                 .withUoM(uoM.getSymbol())
                 .withUoMCode(uoM.getCommonCode())
                 .withRelations(relations)
+                .withIndications(getIndications(multi, selIndication))
                 .build();
             products.add(dto);
         }
@@ -215,6 +226,38 @@ public abstract class Product_Base
         final Response ret = Response.ok()
                         .entity(products)
                         .build();
+        return ret;
+    }
+
+    protected Set<IndicationDto> getIndications(final MultiPrintQuery _multi,
+                                                final SelectBuilder _selIndication)
+        throws EFapsException
+    {
+        final Set<IndicationDto> ret = new HashSet<>();
+        if (Pos.INDICATIONSET_ACIVATE.get()) {
+            final Object indicationSets = _multi.getSelect(_selIndication);
+            final List<Instance> indSetInsts = new ArrayList<>();
+            if (indicationSets instanceof List) {
+                ((Collection<? extends Instance>) indSetInsts).forEach(instance -> {
+                    indSetInsts.add(instance);
+                });
+            } else if (indicationSets instanceof Instance) {
+                indSetInsts.add((Instance) indicationSets);
+            }
+            if (!indSetInsts.isEmpty()) {
+                final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
+                queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink, indSetInsts.toArray());
+                final MultiPrintQuery multi = queryBldr.getPrint();
+                multi.addAttribute(CIPOS.Indication.Value);
+                multi.execute();
+                while (multi.next()) {
+                    ret.add(IndicationDto.builder()
+                        .withOID(multi.getCurrentInstance().getOid())
+                        .withValue(multi.getAttribute(CIPOS.Indication.Value))
+                        .build());
+                }
+            }
+        }
         return ret;
     }
 

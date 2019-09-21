@@ -84,7 +84,7 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute IndicationSet_ACIVATE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute INDICATIONSET_ACIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "IndicationSet.Activate")
                     .description("Activate the handling for spots.");
