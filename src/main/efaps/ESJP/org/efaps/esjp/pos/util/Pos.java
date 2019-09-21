@@ -84,6 +84,13 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute IndicationSet_ACIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "IndicationSet.Activate")
+                    .description("Activate the handling for spots.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
     public static final StringSysConfAttribute PAYMENTDOCUMENT_SEQ = new StringSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "PaymentDocument.Sequence")

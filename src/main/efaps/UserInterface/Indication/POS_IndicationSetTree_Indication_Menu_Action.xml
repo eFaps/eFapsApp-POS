@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
     Copyright 2003 - 2019 The eFaps Team
 
@@ -16,22 +15,17 @@
     limitations under the License.
 
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-menu xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>f1859bdf-b3c6-42c5-8aa4-7cc2766fc493</uuid>
+    <uuid>5e977b0d-77c7-4359-aa78-667c428fec10</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_ConfigMyDesk</name>
+        <name>POS_IndicationSetTree_Indication_Menu_Action</name>
         <childs>
-            <child>POS_BackendMyDesk</child>
-            <child>POS_POSMyDesk</child>
-            <child>POS_WorkspaceMyDesk</child>
-            <child>POS_UserMyDesk</child>
-            <child>POS_SequenceMyDesk</child>
-            <child>POS_PrinterMyDesk</child>
-            <child>POS_FloorMyDesk</child>
-            <child>POS_IndicationSetMyDesk</child>
+            <child>POS_IndicationSetTree_Indication_Menu_Action_Create</child>
+            <child>POS_IndicationSetTree_Indication_Menu_Action_Delete</child>
         </childs>
     </definition>
 </ui-menu>
