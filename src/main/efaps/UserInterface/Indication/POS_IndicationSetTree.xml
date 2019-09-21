@@ -30,6 +30,7 @@
         <type>POS_IndicationSet</type>
         <childs>
             <child>POS_IndicationSetTree_Indication</child>
+            <child>POS_IndicationSetTree_Product</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
