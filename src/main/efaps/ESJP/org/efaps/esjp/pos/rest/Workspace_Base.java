@@ -144,8 +144,8 @@ public abstract class Workspace_Base
                     discountDtos.add(DiscountDto.builder()
                         .withType(EnumUtils.getEnum(org.efaps.pos.dto.DiscountType.class,
                                         discountTypeIter.next().name()))
-                        .withValue(valueIter.next())
-                        .withLabel(labelIter.next())
+                        .withValue(valueIter.hasNext() ? valueIter.next() : BigDecimal.ZERO)
+                        .withLabel(labelIter.hasNext() ? labelIter.next() : "No Label")
                         .withProductOid(Instance.get(CIProducts.ProductTextPosition.getType(), productLinkIter.next()).getOid())
                         .build());
                 }

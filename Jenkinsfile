@@ -6,20 +6,17 @@ properties([
 
 pipeline {
   agent any
-  tools {
-    jdk 'jdk8'
-  }
   stages {
     stage('Build') {
       steps {
-        withMaven(maven: 'M3.6', mavenSettingsConfig: 'efaps8', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}") {
+        withMaven(maven: 'M3.6', mavenSettingsConfig: 'efaps11', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}") {
           sh 'mvn clean install -DskipTests'
         }
       }
     }
     stage('Test') {
       steps {
-        withMaven(maven: 'M3.6', mavenSettingsConfig: 'efaps8', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}",
+        withMaven(maven: 'M3.6', mavenSettingsConfig: 'efaps11', mavenLocalRepo: "$WORKSPACE/../../.m2/${env.BRANCH_NAME}",
             options: [openTasksPublisher(disabled: true)]) {
           sh 'mvn test'
         }

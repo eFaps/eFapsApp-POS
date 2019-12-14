@@ -5,7 +5,7 @@ cache:
     - $HOME/.m2
 
 jdk:
-  - openjdk8
+  - openjdk11
 
 install:
   - wget https://raw.githubusercontent.com/eFaps/Utils/master/settings/settings.xml -O mySettings.xml
@@ -15,5 +15,5 @@ script:
   - mvn test -s mySettings.xml -B
 
 after_success:
-  - "[[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn deploy -DskipTests -s mySettings.xml"
+  - "[[ $TRAVIS_BRANCH == \"master\" || $TRAVIS_BRANCH == \"java-11\" ]] && [[ ${TRAVIS_PULL_REQUEST} == 'false' ]] && [[ ${TRAVIS_TAG} == '' ]] && mvn deploy -DskipTests -s mySettings.xml"
 
