@@ -45,6 +45,7 @@ import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.common.properties.PropertiesUtil;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
@@ -52,6 +53,7 @@ import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
+import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -208,6 +210,7 @@ public abstract class Product_Base
 
             final ProductDto dto = ProductDto.builder()
                 .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
+                .withType(getProductType(multi.getCurrentInstance()))
                 .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
                 .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
                 .withOID(multi.getCurrentInstance().getOid())
@@ -227,6 +230,21 @@ public abstract class Product_Base
         final Response ret = Response.ok()
                         .entity(products)
                         .build();
+        return ret;
+    }
+
+    protected ProductType getProductType(final Instance _instance)
+    {
+        ProductType ret;
+        if (InstanceUtils.isType(_instance, CIProducts.ProductStandart)) {
+            ret = ProductType.STANDART;
+        } else if (InstanceUtils.isType(_instance, CIProducts.ProductService)) {
+            ret = ProductType.SERVICE;
+        } else if (InstanceUtils.isType(_instance, CIProducts.ProductTextPosition)) {
+            ret = ProductType.TEXT;
+        } else {
+            ret = ProductType.OTHER;
+        }
         return ret;
     }
 
