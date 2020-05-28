@@ -57,6 +57,7 @@ public abstract class Config_Base
         config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
         config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
         config.put(Pos.VERSION.getKey(), Pos.VERSION.get());
+        config.put(Pos.CONTACT_ACIVATEEMAIL.getKey(), Pos.CONTACT_ACIVATEEMAIL.get().toString());
 
         final Response ret = Response.ok()
                         .entity(config)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2020 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -32,6 +33,7 @@ import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIContacts;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.pos.dto.IdentificationType;
 import org.efaps.util.EFapsException;
@@ -46,6 +48,7 @@ public abstract class Contact_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Contact.class);
 
+    @SuppressWarnings("unchecked")
     public Response getContacts(final String _identifier)
         throws EFapsException
     {
@@ -64,6 +67,13 @@ public abstract class Contact_Base
                         .clazz(CIContacts.ClassPerson)
                         .linkto(CIContacts.ClassPerson.DOITypeLink)
                         .attribute(CIContacts.AttributeDefinitionDOIType.Value);
+
+        final SelectBuilder selEmails = SelectBuilder.get().clazz(CIContacts.Class)
+                        .attributeset(CIContacts.Class.EmailSet, "attribute[ElectronicBilling]==true")
+                        .attribute("Email");
+        if (Pos.CONTACT_ACIVATEEMAIL.get()) {
+            multi.addSelect(selEmails);
+        }
         multi.addAttribute(CIContacts.Contact.Name);
         multi.addSelect(selTaxNumber, selIdentityCard, selDOIType);
         multi.execute();
@@ -94,11 +104,22 @@ public abstract class Contact_Base
                     }
                 }
             }
+            String email = null;
+            if (Pos.CONTACT_ACIVATEEMAIL.get()) {
+                final Object obj = multi.getSelect(selEmails);
+                if (obj instanceof List) {
+                    email = ((List<String>) obj).get(0);
+                } else if (obj != null) {
+                    email = (String) obj;
+                }
+            }
+
             contacts.add(ContactDto.builder()
                             .withOID(multi.getCurrentInstance().getOid())
                             .withName(multi.getAttribute(CIContacts.Contact.Name))
                             .withIdType(idType)
                             .withIdNumber(idNumber)
+                            .withEmail(email)
                             .build());
         }
         final Response ret = Response.ok()
@@ -178,6 +199,26 @@ public abstract class Contact_Base
             final Insert clientClassInsert = new Insert(clientClass);
             clientClassInsert.add(clientClass.getLinkAttributeName(), contactInst);
             clientClassInsert.execute();
+
+            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(_contactDto.getEmail())) {
+                final Classification classification = (Classification) CIContacts.Class.getType();
+                final Insert relInsert = new Insert(classification.getClassifyRelationType());
+                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+                relInsert.execute();
+
+                final Insert classInsert = new Insert(classification);
+                classInsert.add(classification.getLinkAttributeName(), contactInst);
+                classInsert.execute();
+
+                final var attrSet = AttributeSet.find(CIContacts.Class.getType().getName(),
+                                CIContacts.Class.EmailSet.name);
+                final Insert attrSetInsert = new Insert(attrSet);
+                attrSetInsert.add(attrSet.getAttribute(CIContacts.Class.EmailSet.name), classInsert.getId());
+                attrSetInsert.add(attrSet.getAttribute("Email"), _contactDto.getEmail());
+                attrSetInsert.add(attrSet.getAttribute("ElectronicBilling"), true);
+                attrSetInsert.execute();
+            }
 
             dto = ContactDto.builder()
                             .withOID(insert.getInstance().getOid())

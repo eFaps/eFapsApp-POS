@@ -129,6 +129,14 @@ public class Pos
                     .key(BASE + "ProductDocumentType4TransactionDocumentShadow")
                     .description("ProductDocumentType to be used for registration of TransactionDocumentShadow");
 
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute CONTACT_ACIVATEEMAIL = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Contact.ActivateEmail")
+                    .description("Activate the handling of categories.");
+
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;
