@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
-  Copyright 2003 - 2018 The eFaps Team
+  Copyright 2003 - 2020 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -43,6 +43,23 @@
             <property name="Attribute">Status</property>
             <property name="ModeEdit">EDITABLE</property>
             <property name="ModeCreate">EDITABLE</property>
+        </field>
+        <field name="image">
+            <property name="Label">Products_ProductForm.image.Label</property>
+            <property name="ModeEdit">NONE</property>
+            <property name="UIType">SNIPPLET</property>
+            <trigger event="UI_FIELD_VALUE" method="getViewFieldValueUI"
+                name="POS_CategoryForm.image.UI_FIELD_VALUE"
+                program="org.efaps.esjp.common.file.ImageField">
+                <property name="max-width">200px</property>
+                <property name="max-height">200px</property>
+            </trigger>
+            <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI" method="configCheck"
+                name="POS_CategoryForm.image.UI_ACCESSCHECK" event="UI_ACCESSCHECK">
+                <!-- POS-Configuration -->
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Category.ActivateImage</property>
+            </trigger>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
