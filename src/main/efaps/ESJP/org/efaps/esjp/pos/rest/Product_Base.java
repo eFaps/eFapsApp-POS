@@ -99,7 +99,7 @@ public abstract class Product_Base
         }
 
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
-        if (Pos.CATEGORY_ACIVATE.get()) {
+        if (Pos.CATEGORY_ACTIVATE.get()) {
             queryBldr.setOr(true);
             final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
             attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));

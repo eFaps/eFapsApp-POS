@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2019 The eFaps Team
+ * Copyright 2003 - 2020 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAdminProgram;
 import org.efaps.db.Checkout;
 import org.efaps.db.Instance;
+import org.efaps.db.InstanceQuery;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.PrintQuery;
 import org.efaps.db.QueryBuilder;
@@ -42,6 +43,7 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.pos.util.Pos.DiscountType;
 import org.efaps.esjp.pos.util.Pos.DocType;
 import org.efaps.esjp.pos.util.Pos.GridSize;
@@ -208,6 +210,20 @@ public abstract class Workspace_Base
                     .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid() : null)
                     .build());
             }
+            final List<String> categoryOids = new ArrayList<>();
+            if (Pos.CATEGORY_ACTIVATE.get()) {
+                final QueryBuilder categoryAttrQueryBldr = new QueryBuilder(CIPOS.Workspace2Category);
+                categoryAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Category.FromLink, multi.getCurrentInstance());
+
+                final QueryBuilder categoryQueryBldr = new QueryBuilder(CIPOS.Workspace);
+                categoryQueryBldr.addWhereAttrInQuery(CIPOS.Workspace.ID, floorAttrQueryBldr.getAttributeQuery(
+                                CIPOS.Workspace2Category.ToLink));
+                final InstanceQuery categoryQuery = categoryQueryBldr.getQuery();
+                categoryQuery.execute();
+                while (categoryQuery.next()) {
+                    categoryOids.add(categoryQuery.getCurrentValue().getOid());
+                }
+            }
 
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
@@ -230,6 +246,7 @@ public abstract class Workspace_Base
                 .withGridShowPrice(gridShowPrice)
                 .withGridSize(EnumUtils.getEnum(org.efaps.pos.dto.PosGridSize.class, gridSize.name()))
                 .withFloors(floors)
+                .withCategoryOids(categoryOids)
                 .build());
         }
         LOG.debug("Workspaces: {}", workspaces);

@@ -70,7 +70,7 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute CATEGORY_IMAGE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute CATEGORY_ACTIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Category.Activate")
                     .description("Activate the handling of categories.");

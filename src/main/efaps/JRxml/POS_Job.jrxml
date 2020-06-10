@@ -103,7 +103,7 @@
                     <property name="com.jaspersoft.studio.unit.height" value="mm"/>
                 </reportElement>
             </line>
-            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
                 <reportElement x="0" y="0" width="226" height="20" uuid="2d5f5c74-07a1-4aa8-996b-1e0fe295beb0"/>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font isBold="true"/>

@@ -193,7 +193,7 @@
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
                         <jr:columnHeader height="2" rowSpan="1"/>
                         <jr:detailCell height="24">
-                            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
                                 <reportElement x="0" y="0" width="110" height="24" isPrintWhenDetailOverflows="true" uuid="6fc7e8d0-6ac8-423e-b90e-801f3591acb3"/>
                                 <textElement>
                                     <font size="8"/>
@@ -206,7 +206,7 @@
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
                         <jr:columnHeader height="2" rowSpan="1"/>
                         <jr:detailCell height="24">
-                            <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
                                 <reportElement x="0" y="0" width="70" height="12" uuid="fe10f3a0-94ae-48d1-b8ca-8a3ea3991e61"/>
                                 <box rightPadding="5"/>
                                 <textElement textAlignment="Right">
@@ -256,14 +256,14 @@
                         <dataSourceExpression><![CDATA[((net.sf.jasperreports.engine.data.JsonQLDataSource)$P{REPORT_DATA_SOURCE}).subDataSource("taxes")]]></dataSourceExpression>
                     </datasetRun>
                     <jr:listContents height="12" width="178">
-                        <textField isStretchWithOverflow="true" pattern="S/ #,##0.00" isBlankWhenNull="true">
+                        <textField textAdjust="StretchHeight" pattern="S/ #,##0.00" isBlankWhenNull="true">
                             <reportElement x="108" y="0" width="70" height="12" uuid="6897c768-f469-48c1-bb1f-5fbacdd346c0"/>
                             <textElement textAlignment="Right">
                                 <font size="8"/>
                             </textElement>
                             <textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
                         </textField>
-                        <textField isStretchWithOverflow="true" isBlankWhenNull="true">
+                        <textField textAdjust="StretchHeight" isBlankWhenNull="true">
                             <reportElement x="0" y="0" width="50" height="12" uuid="ff7c9b5e-e089-4505-98c5-dd5fb618e774"/>
                             <textElement>
                                 <font size="8"/>
@@ -277,7 +277,7 @@
     </detail>
     <columnFooter>
         <band height="129">
-            <textField isStretchWithOverflow="true" pattern="S/ #,##0.00" isBlankWhenNull="true">
+            <textField textAdjust="StretchHeight" pattern="S/ #,##0.00" isBlankWhenNull="true">
                 <reportElement x="125" y="0" width="53" height="15" uuid="df588647-9bcf-4914-b145-3cd8f7e2b459"/>
                 <textElement textAlignment="Right">
                     <font size="8"/>

@@ -45,7 +45,7 @@
             <property name="ModeCreate">EDITABLE</property>
         </field>
         <field name="image">
-            <property name="Label">Products_ProductForm.image.Label</property>
+            <property name="Label">POS_CategoryForm.image.Label</property>
             <property name="ModeEdit">NONE</property>
             <property name="UIType">SNIPPLET</property>
             <trigger event="UI_FIELD_VALUE" method="getViewFieldValueUI"
