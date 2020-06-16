@@ -215,8 +215,8 @@ public abstract class Workspace_Base
                 final QueryBuilder categoryAttrQueryBldr = new QueryBuilder(CIPOS.Workspace2Category);
                 categoryAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Category.FromLink, multi.getCurrentInstance());
 
-                final QueryBuilder categoryQueryBldr = new QueryBuilder(CIPOS.Workspace);
-                categoryQueryBldr.addWhereAttrInQuery(CIPOS.Workspace.ID, floorAttrQueryBldr.getAttributeQuery(
+                final QueryBuilder categoryQueryBldr = new QueryBuilder(CIPOS.Category);
+                categoryQueryBldr.addWhereAttrInQuery(CIPOS.Category.ID, categoryAttrQueryBldr.getAttributeQuery(
                                 CIPOS.Workspace2Category.ToLink));
                 final InstanceQuery categoryQuery = categoryQueryBldr.getQuery();
                 categoryQuery.execute();
