@@ -27,7 +27,10 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.store.Resource;
+import org.efaps.db.store.Store;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.CategoryDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -64,10 +67,20 @@ public abstract class Category_Base
         multi.addAttribute(CIPOS.Category.Name, CIPOS.Category.Weight);
         multi.execute();
         while (multi.next()) {
+            String imageOid = null;
+            if (Pos.CATEGORY_ACIVATEIMAGE.get()) {
+                final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
+                                .getResource(multi.getCurrentInstance());
+                if (resource.exists()) {
+                    imageOid = multi.getCurrentInstance().getOid();
+                }
+            }
+
             categories.add(CategoryDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Category.Name))
                 .withWeight(multi.getAttribute(CIPOS.Category.Weight))
+                .withImageOid(imageOid)
                 .build());
         }
         final Response ret = Response.ok()
