@@ -31,5 +31,14 @@
             <property name="Label">POS_Workspace/Name.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+        <field name="description">
+            <property name="Select">linkto[ToLink].attribute[Description]</property>
+            <property name="Label">POS_Category/Description.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="status">
+            <property name="Select">linkto[ToLink].attribute[Status]</property>
+            <property name="Label">POS_Category/Status.Label</property>
+        </field>
     </definition>
 </ui-table>
