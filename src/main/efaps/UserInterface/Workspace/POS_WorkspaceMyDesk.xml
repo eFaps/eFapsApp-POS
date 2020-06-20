@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
- Copyright 2003 - 2018 The eFaps Team
+ Copyright 2003 - 2020 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,6 +23,11 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_WorkspaceMyDesk</name>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+            <role>POS_Modifier</role>
+        </access>
         <target>
             <menu>POS_WorkspaceMyDesk_Menu</menu>
             <table>POS_WorkspaceTable</table>

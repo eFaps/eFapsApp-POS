@@ -23,6 +23,10 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_FloorMyDesk</name>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+        </access>
         <target>
             <menu>POS_FloorMyDesk_Menu</menu>
             <table>POS_FloorTable</table>

@@ -15,13 +15,18 @@
  limitations under the License.
 
 -->
-<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>e9d3e34d-473d-4822-b8f0-a0e59658045a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_WorkspaceTree_Menu_Action_Edit</name>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+        </access>
         <target>
             <form>POS_WorkspaceForm</form>
             <execute program="org.efaps.esjp.common.uiform.Edit" />
