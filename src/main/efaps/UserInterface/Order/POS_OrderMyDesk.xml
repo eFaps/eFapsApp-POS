@@ -16,16 +16,24 @@
     limitations under the License.
 
 -->
-<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>ec37b3b1-5d14-49d3-b203-5248931abb80</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_OrderMyDesk</name>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+            <role>POS_Modifier</role>
+            <role>POS_Reader</role>
+        </access>
         <target>
             <table>POS_OrderTable</table>
-            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+            <evaluate
+                program="org.efaps.esjp.common.uitable.MultiPrint">
                 <property name="Type">POS_Order</property>
             </evaluate>
         </target>
