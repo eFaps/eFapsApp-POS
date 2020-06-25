@@ -32,7 +32,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
+import org.efaps.db.InstanceQuery;
 import org.efaps.db.PrintQuery;
+import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
@@ -159,7 +161,8 @@ public abstract class AbstractDocument_Base
                                                    final CreatedDoc _createdDoc)
                     throws EFapsException
                 {
-                    _insert.add(CISales.DocumentAbstract.StatusAbstract, Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
+                    _insert.add(CISales.DocumentAbstract.StatusAbstract,
+                                    Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
                 }
 
                 @Override
@@ -283,6 +286,13 @@ public abstract class AbstractDocument_Base
                     insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
                 }
 
+                if (PaymentType.ELECTRONIC.equals(paymentDto.getType())) {
+                    final Instance epayInst = evalEletronicPaymentType(paymentDto.getMappingKey());
+                    if (InstanceUtils.isValid(epayInst)) {
+                        insert.add(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
+                    }
+                }
+
                 final String code = posPayment.getCode4CreateDoc(parameter);
                 if (code != null) {
                     insert.add(CISales.PaymentDocumentAbstract.Code, code);
@@ -302,7 +312,6 @@ public abstract class AbstractDocument_Base
                 insert.add(CISales.PaymentDocumentAbstract.Rate, new Object[] { 1, 1 });
                 insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType()));
                 insert.execute();
-
 
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
@@ -331,6 +340,20 @@ public abstract class AbstractDocument_Base
         }
     }
 
+    protected Instance evalEletronicPaymentType(final String _mappingKey)
+        throws EFapsException
+    {
+        Instance ret = null;
+        final QueryBuilder queryBldr = new QueryBuilder(CISales.AttributeDefinitionPaymentElectronicType);
+        queryBldr.addWhereAttrEqValue(CISales.AttributeDefinitionPaymentElectronicType.MappingKey, _mappingKey);
+        final InstanceQuery query = queryBldr.getQuery();
+        query.executeWithoutAccessCheck();
+        if (query.next()) {
+            ret = query.getCurrentValue();
+        }
+        return ret;
+    }
+
     protected Instance getAccountInst(final AbstractDocumentDto _documentDto)
         throws EFapsException
     {
@@ -349,6 +372,9 @@ public abstract class AbstractDocument_Base
     {
         Status ret;
         switch (_paymentType) {
+            case ELECTRONIC:
+                ret = Status.find(CISales.PaymentElectronicStatus.Closed);
+                break;
             case CARD:
                 ret = Status.find(CISales.PaymentCardStatus.Closed);
                 break;
@@ -369,6 +395,9 @@ public abstract class AbstractDocument_Base
     protected CIType getPaymentDocType(final PaymentType _paymentType) {
         CIType ret;
         switch (_paymentType) {
+            case ELECTRONIC:
+                ret = CISales.PaymentElectronic;
+                break;
             case CARD:
                 ret = CISales.PaymentCard;
                 break;

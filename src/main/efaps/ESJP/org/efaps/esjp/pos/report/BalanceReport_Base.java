@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2019 The eFaps Team
+ * Copyright 2003 - 2020 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import net.sf.dynamicreports.report.builder.DynamicReports;
-import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
-import net.sf.dynamicreports.report.builder.group.ColumnGroupBuilder;
-import net.sf.dynamicreports.report.builder.subtotal.AggregationSubtotalBuilder;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRRewindableDataSource;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-
 import org.apache.commons.collections4.comparators.ComparatorChain;
+import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -54,6 +45,16 @@ import org.efaps.esjp.erp.FilteredReport;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
+
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.dynamicreports.report.builder.DynamicReports;
+import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
+import net.sf.dynamicreports.report.builder.group.ColumnGroupBuilder;
+import net.sf.dynamicreports.report.builder.subtotal.AggregationSubtotalBuilder;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRRewindableDataSource;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 @EFapsUUID("8b2e901e-9b65-4670-b6cf-ecb23baec42f")
 @EFapsApplication("eFapsApp-POS")
@@ -151,7 +152,8 @@ public abstract class BalanceReport_Base
                 }
             } else {
                 final List<DataBean> values = new ArrayList<>();
-                final QueryBuilder balanceAttrQueryBldr = getQueryBldrFromProperties(_parameter, Pos.BALANCE_REPORT.get());
+                final QueryBuilder balanceAttrQueryBldr = getQueryBldrFromProperties(_parameter,
+                                Pos.BALANCE_REPORT.get());
                 add2QueryBldr(_parameter, balanceAttrQueryBldr);
 
                 final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Balance2Document);
@@ -198,16 +200,14 @@ public abstract class BalanceReport_Base
                                     CISales.PaymentDocumentIOAbstract.Amount);
 
                     final MultiPrintQuery paymentMulti = paymentQueryBldr.getPrint();
-                    paymentMulti.addSelect(selCreateDocInst, selTargetDocInst, selTargetDocName, selTargetDocCode, selTargetDocAmount);
+                    paymentMulti.addSelect(selCreateDocInst, selTargetDocInst, selTargetDocName, selTargetDocCode,
+                                    selTargetDocAmount);
                     paymentMulti.execute();
                     final Map<Instance, DataBean> cardPayments = new HashMap<>();
+                    final Map<Instance, DataBean> electronicPayments = new HashMap<>();
                     while (paymentMulti.next()) {
                         final Instance docInst = paymentMulti.getSelect(selCreateDocInst);
                         final Instance paymentInst = paymentMulti.getSelect(selTargetDocInst);
-                        String paymentType = null;
-                        if (!InstanceUtils.isType(paymentInst, CISales.PaymentCard)) {
-                            paymentType = paymentInst.getType().getLabel();
-                        }
                         BigDecimal amount = paymentMulti.getSelect(selTargetDocAmount);
                         if (InstanceUtils.isKindOf(paymentInst, CISales.PaymentDocumentOutAbstract)) {
                             amount = amount.negate();
@@ -220,27 +220,18 @@ public abstract class BalanceReport_Base
                                         .setDocName(docBean.getDocName())
                                         .setPaymentName(paymentMulti.getSelect(selTargetDocName))
                                         .setPaymentCode(paymentMulti.getSelect(selTargetDocCode))
-                                        .setPaymentType(paymentType)
+                                        .setPaymentType(paymentInst.getType().getLabel())
                                         .setAmount(amount);
-                        if (paymentType == null) {
+                        if (InstanceUtils.isType(paymentInst, CISales.PaymentCard)) {
                             cardPayments.put(paymentInst, bean);
+                        }
+                        if (InstanceUtils.isType(paymentInst, CISales.PaymentElectronic)) {
+                            electronicPayments.put(paymentInst, bean);
                         }
                         values.add(bean);
                     }
-
-                    if (!cardPayments.isEmpty()) {
-                        final MultiPrintQuery cardPaymentMulti = new MultiPrintQuery(new ArrayList<>(cardPayments.keySet()));
-                        final SelectBuilder selCardPayment = SelectBuilder.get().linkto(CISales.PaymentCard.CardType)
-                                        .attribute(CISales.AttributeDefinitionPaymentCardType.Value);
-                        cardPaymentMulti.addSelect(selCardPayment);
-                        cardPaymentMulti.executeWithoutAccessCheck();
-                        while (cardPaymentMulti.next()) {
-                            if (cardPayments.containsKey(cardPaymentMulti.getCurrentInstance())) {
-                                cardPayments.get(cardPaymentMulti.getCurrentInstance())
-                                    .setPaymentType(cardPaymentMulti.getSelect(selCardPayment));
-                            }
-                        }
-                    }
+                    cardPayments(cardPayments);
+                    electronicPayments(electronicPayments);
                 }
 
                 final ComparatorChain<DataBean> chain = new ComparatorChain<>();
@@ -251,13 +242,16 @@ public abstract class BalanceReport_Base
                     for (final Enum<?> sel : selected) {
                         switch ((Grouping) sel) {
                             case PAYMENTTYPE:
-                                chain.addComparator((_arg0, _arg1) -> _arg0.getPaymentType().compareTo(_arg1.getPaymentType()));
+                                chain.addComparator((_arg0, _arg1) -> _arg0.getPaymentType()
+                                                .compareTo(_arg1.getPaymentType()));
                                 break;
                             case USER:
-                                chain.addComparator((_arg0, _arg1) -> _arg0.getUserName().compareTo(_arg1.getUserName()));
+                                chain.addComparator(
+                                                (_arg0, _arg1) -> _arg0.getUserName().compareTo(_arg1.getUserName()));
                                 break;
                             case BALANCE:
-                                chain.addComparator((_arg0, _arg1) -> _arg0.getBalanceName().compareTo(_arg1.getBalanceName()));
+                                chain.addComparator((_arg0, _arg1) -> _arg0.getBalanceName()
+                                                .compareTo(_arg1.getBalanceName()));
                                 break;
                             default:
                                 break;
@@ -270,6 +264,49 @@ public abstract class BalanceReport_Base
                 getFilteredReport().cache(_parameter, ret);
             }
             return ret;
+        }
+
+        protected void cardPayments(final Map<Instance, DataBean> _cardPayments)
+            throws EFapsException
+        {
+            if (!_cardPayments.isEmpty()) {
+                final MultiPrintQuery paymentMulti = new MultiPrintQuery(new ArrayList<>(_cardPayments.keySet()));
+                final SelectBuilder selCardPayment = SelectBuilder.get().linkto(CISales.PaymentCard.CardType)
+                                .attribute(CISales.AttributeDefinitionPaymentCardType.Value);
+                paymentMulti.addSelect(selCardPayment);
+                paymentMulti.executeWithoutAccessCheck();
+                while (paymentMulti.next()) {
+                    if (_cardPayments.containsKey(paymentMulti.getCurrentInstance())) {
+                        final String paymentType = paymentMulti.getSelect(selCardPayment);
+                        if (StringUtils.isNotEmpty(paymentType)) {
+                            _cardPayments.get(paymentMulti.getCurrentInstance())
+                                            .setPaymentType(paymentType);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected void electronicPayments(final Map<Instance, DataBean> _electronicPayments)
+            throws EFapsException
+        {
+            if (!_electronicPayments.isEmpty()) {
+                final MultiPrintQuery paymentMulti = new MultiPrintQuery(new ArrayList<>(_electronicPayments.keySet()));
+                final SelectBuilder selCardPayment = SelectBuilder.get()
+                                .linkto(CISales.PaymentElectronic.ElectronicPaymentType)
+                                .attribute(CISales.AttributeDefinitionPaymentElectronicType.Value);
+                paymentMulti.addSelect(selCardPayment);
+                paymentMulti.executeWithoutAccessCheck();
+                while (paymentMulti.next()) {
+                    if (_electronicPayments.containsKey(paymentMulti.getCurrentInstance())) {
+                        final String paymentType = paymentMulti.getSelect(selCardPayment);
+                        if (StringUtils.isNotEmpty(paymentType)) {
+                            _electronicPayments.get(paymentMulti.getCurrentInstance())
+                                            .setPaymentType(paymentType);
+                        }
+                    }
+                }
+            }
         }
 
         protected void add2QueryBldr(final Parameter _parameter,
@@ -329,7 +366,8 @@ public abstract class BalanceReport_Base
                 for (final Enum<?> sel : selected) {
                     switch ((Grouping) sel) {
                         case PAYMENTTYPE:
-                            final ColumnGroupBuilder paymentTypeGroup = DynamicReports.grp.group(paymentType).groupByDataType();
+                            final ColumnGroupBuilder paymentTypeGroup = DynamicReports.grp.group(paymentType)
+                                            .groupByDataType();
                             final AggregationSubtotalBuilder<BigDecimal> groupSum = DynamicReports.sbt.sum(amount);
                             _builder.groupBy(paymentTypeGroup);
                             _builder.addSubtotalAtGroupFooter(paymentTypeGroup, groupSum);
@@ -341,8 +379,10 @@ public abstract class BalanceReport_Base
                             _builder.addSubtotalAtGroupFooter(userGroup, userGroupSum);
                             break;
                         case BALANCE:
-                            final ColumnGroupBuilder balanceGroup = DynamicReports.grp.group(balanceName).groupByDataType();
-                            final AggregationSubtotalBuilder<BigDecimal> balanceGroupSum = DynamicReports.sbt.sum(amount);
+                            final ColumnGroupBuilder balanceGroup = DynamicReports.grp.group(balanceName)
+                                            .groupByDataType();
+                            final AggregationSubtotalBuilder<BigDecimal> balanceGroupSum = DynamicReports.sbt
+                                            .sum(amount);
                             _builder.groupBy(balanceGroup);
                             _builder.addSubtotalAtGroupFooter(balanceGroup, balanceGroupSum);
                             break;
@@ -352,11 +392,12 @@ public abstract class BalanceReport_Base
                 }
             }
             _builder
-                .addColumn(balanceName, userName, docName, paymentName, paymentCode, paymentType, amount)
-                .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
+                            .addColumn(balanceName, userName, docName, paymentName, paymentCode, paymentType, amount)
+                            .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
         }
 
-        protected String label(final String _key) {
+        protected String label(final String _key)
+        {
             return getFilteredReport().getDBProperty("Column." + _key);
         }
     }
@@ -418,7 +459,8 @@ public abstract class BalanceReport_Base
             return this;
         }
 
-        public String getUserName() {
+        public String getUserName()
+        {
             return getUserFirstName() + " " + getUserLastName();
         }
 
