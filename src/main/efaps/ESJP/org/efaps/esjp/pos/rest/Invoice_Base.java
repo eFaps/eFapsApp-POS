@@ -55,7 +55,7 @@ public abstract class Invoice_Base
             final Instance docInst = createDocument(CISales.Invoice, Status.find(CISales.InvoiceStatus.Paid),
                             _invoiceDto);
             for (final AbstractDocItemDto item : _invoiceDto.getItems()) {
-                createPosition(docInst, CISales.InvoicePosition, item);
+                createPosition(docInst, CISales.InvoicePosition, item, _invoiceDto.getDate());
             }
             addPayments(docInst, _invoiceDto);
             createTransactionDocument(_invoiceDto, docInst);

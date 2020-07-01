@@ -60,7 +60,7 @@ public abstract class Receipt_Base
             final Instance docInst = createDocument(CISales.Receipt, Status.find(CISales.ReceiptStatus.Paid),
                             _receiptDto);
             for (final AbstractDocItemDto item : _receiptDto.getItems()) {
-                createPosition(docInst, CISales.ReceiptPosition, item);
+                createPosition(docInst, CISales.ReceiptPosition, item, _receiptDto.getDate());
             }
             addPayments(docInst, _receiptDto);
             createTransactionDocument(_receiptDto, docInst);

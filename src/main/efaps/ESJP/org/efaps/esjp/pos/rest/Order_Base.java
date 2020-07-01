@@ -68,7 +68,7 @@ public abstract class Order_Base
 
             final Instance docInst = createDocument(CIPOS.Order, status, _orderDto);
             for (final AbstractDocItemDto item : _orderDto.getItems()) {
-                createPosition(docInst, CIPOS.OrderPosition, item);
+                createPosition(docInst, CIPOS.OrderPosition, item, _orderDto.getDate());
             }
             final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
             queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));

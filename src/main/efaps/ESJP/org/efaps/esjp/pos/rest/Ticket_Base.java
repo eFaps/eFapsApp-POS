@@ -54,7 +54,7 @@ public abstract class Ticket_Base
         if (_ticketDto.getOid() == null) {
             final Instance docInst = createDocument(CIPOS.Ticket, Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
             for (final AbstractDocItemDto item : _ticketDto.getItems()) {
-                createPosition(docInst, CIPOS.TicketPosition, item);
+                createPosition(docInst, CIPOS.TicketPosition, item, _ticketDto.getDate());
             }
             addPayments(docInst, _ticketDto);
             createTransactionDocument(_ticketDto, docInst);

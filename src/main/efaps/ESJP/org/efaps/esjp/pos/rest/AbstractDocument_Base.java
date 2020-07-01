@@ -138,9 +138,9 @@ public abstract class AbstractDocument_Base
         final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
         if (InstanceUtils.isValid(workspaceInst)) {
             final Evaluator evaluator = EQL.builder()
-                .print(workspaceInst)
-                .linkto(CIPOS.Workspace.WarehouseLink).instance()
-                .evaluate();
+                            .print(workspaceInst)
+                            .linkto(CIPOS.Workspace.WarehouseLink).instance()
+                            .evaluate();
             if (evaluator.next()) {
                 warehouseInst = evaluator.get(1);
             }
@@ -148,6 +148,7 @@ public abstract class AbstractDocument_Base
         if (InstanceUtils.isKindOf(warehouseInst, CIProducts.Warehouse)) {
             final TransactionDocument transactionDocument = new TransactionDocument()
             {
+
                 @Override
                 protected Type getType4DocCreate(final Parameter _parameter)
                     throws EFapsException
@@ -178,7 +179,7 @@ public abstract class AbstractDocument_Base
 
                 @Override
                 protected Type getType4PositionCreate(final Parameter _parameter)
-                                throws EFapsException
+                    throws EFapsException
                 {
                     return CISales.TransactionDocumentShadowOutPosition.getType();
                 }
@@ -204,7 +205,8 @@ public abstract class AbstractDocument_Base
         }
     }
 
-    protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto)
+    protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto,
+                                      final LocalDate _date)
         throws EFapsException
     {
         final Insert insert = new Insert(_ciType);
@@ -235,8 +237,11 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, _dto.getCrossUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateNetPrice, _dto.getNetPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossPrice, _dto.getCrossPrice());
-        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
         insert.add(CISales.PositionSumAbstract.Remark, _dto.getRemark());
+        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
+        final Taxes taxes = getTaxes(_date, _dto.getTaxes());
+        insert.add(CISales.PositionSumAbstract.Taxes, taxes);
+        insert.add(CISales.PositionSumAbstract.RateTaxes, taxes);
         insert.execute();
         return insert.getInstance();
     }
@@ -262,7 +267,8 @@ public abstract class AbstractDocument_Base
     protected Tax getTax(final TaxEntryDto _taxEntry)
         throws EFapsException
     {
-        return Tax_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()), UUID.fromString(_taxEntry.getTax().getKey()));
+        return Tax_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()),
+                        UUID.fromString(_taxEntry.getTax().getKey()));
     }
 
     protected TaxCat getTaxCat(final TaxEntryDto _taxEntry)
@@ -392,7 +398,8 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected CIType getPaymentDocType(final PaymentType _paymentType) {
+    protected CIType getPaymentDocType(final PaymentType _paymentType)
+    {
         CIType ret;
         switch (_paymentType) {
             case ELECTRONIC:
