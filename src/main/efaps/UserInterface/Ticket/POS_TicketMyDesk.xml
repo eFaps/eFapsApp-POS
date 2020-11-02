@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+    Copyright 2003 - 2020 The eFaps Team
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-command xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>589f9fa9-074b-413f-af60-7a808e948480</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_TicketMyDesk</name>
+        <access>
+            <role>Administration</role>
+            <role>POS_Admin</role>
+            <role>POS_Modifier</role>
+            <role>POS_Reader</role>
+        </access>
+        <target>
+            <table>Sales_DocumentSumTable</table>
+            <evaluate
+                program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="Type">POS_Ticket</property>
+            </evaluate>
+            <trigger event="UI_ACCESSCHECK" method="configCheck"
+                name="POS_TicketMyDesk.UI_ACCESSCHECK"
+                program="org.efaps.esjp.admin.access.AccessCheck4UI">
+                <!-- POS-Configuration -->
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Activate</property>
+            </trigger>
+        </target>
+        <property name="Target">content</property>
+        <property name="TargetShowCheckBoxes">true</property>
+    </definition>
+</ui-command>
