@@ -20,7 +20,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>1abee8a5-301a-4d6b-abe6-47992e9c107a</uuid>
-    <file-application>eFapsApp-Sales</file-application>
+    <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_TicketTree_Menu_Action_Edit</name>
