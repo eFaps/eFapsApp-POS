@@ -82,6 +82,7 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.DocumentSumAbstract.Name, _dto.getNumber());
         insert.add(CISales.DocumentSumAbstract.Date, _dto.getDate());
         insert.add(CISales.DocumentSumAbstract.StatusAbstract, _status);
+        insert.add(CISales.DocumentSumAbstract.Note, _dto.getNote());
 
         final Instance contactInst = Instance.get(_dto.getContactOid());
         if (InstanceUtils.isValid(contactInst)) {
