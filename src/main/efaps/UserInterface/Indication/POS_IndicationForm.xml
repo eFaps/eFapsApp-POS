@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
-    Copyright 2003 - 2019 The eFaps Team
+    Copyright 2003 - 2021 The eFaps Team
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -29,6 +29,12 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Value</property>
             <property name="Required">true</property>
+        </field>
+        <field name="description">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Description</property>
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>

@@ -38,5 +38,9 @@
             <property name="Attribute">Required</property>
             <property name="Label">POS_IndicationSet/Required.Label</property>
         </field>
+        <field name="multiple">
+            <property name="Attribute">Multiple</property>
+            <property name="Label">POS_IndicationSet/Multiple.Label</property>
+        </field>
     </definition>
 </ui-table>

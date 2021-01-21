@@ -66,6 +66,12 @@
             <sqlcolumn>BOL1</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Multiple</name>
+            <type>Boolean</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>BOL2</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_ObjectSQLTable</sqltable>
@@ -89,5 +95,6 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
+        <store name="ERP_DocumentVFSStore"/>
     </definition>
 </datamodel-type>

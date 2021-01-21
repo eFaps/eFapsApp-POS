@@ -15,24 +15,20 @@
     limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd"
+<ui-menu xmlns="http://www.efaps.org/xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>410a7530-507a-4715-a5b4-89424cba9219</uuid>
+    <uuid>ee555ce9-f0c6-4142-998a-f5be2f4c6923</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_IndicationTable</name>
-        <field name="value">
-            <property name="Attribute">Value</property>
-            <property name="Label">POS_Indication/Value.Label</property>
-            <property name="ModeSearch">READONLY</property>
-            <property name="HRef">TREE</property>
-        </field>
-        <field name="description">
-            <property name="Attribute">Description</property>
-            <property name="Label">POS_Indication/Description.Label</property>
-            <property name="ModeSearch">READONLY</property>
-        </field>
+        <name>POS_IndicationTree</name>
+        <target>
+            <menu>POS_IndicationTree_Menu</menu>
+            <form>POS_IndicationForm</form>
+        </target>
+        <type>POS_Indication</type>
+        <property name="Target">content</property>
+        <property name="TargetMode">view</property>
     </definition>
-</ui-table>
+</ui-menu>

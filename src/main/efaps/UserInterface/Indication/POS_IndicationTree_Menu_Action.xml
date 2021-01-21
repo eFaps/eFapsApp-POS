@@ -15,24 +15,17 @@
     limitations under the License.
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd"
+<ui-menu xmlns="http://www.efaps.org/xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>410a7530-507a-4715-a5b4-89424cba9219</uuid>
+    <uuid>c279659f-a96f-4cd6-827f-b7141725ceb0</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_IndicationTable</name>
-        <field name="value">
-            <property name="Attribute">Value</property>
-            <property name="Label">POS_Indication/Value.Label</property>
-            <property name="ModeSearch">READONLY</property>
-            <property name="HRef">TREE</property>
-        </field>
-        <field name="description">
-            <property name="Attribute">Description</property>
-            <property name="Label">POS_Indication/Description.Label</property>
-            <property name="ModeSearch">READONLY</property>
-        </field>
+        <name>POS_IndicationTree_Menu_Action</name>
+        <childs>
+            <child>POS_IndicationTree_Menu_Action_Edit</child>
+            <child>POS_IndicationTree_Menu_Action_Checkin</child>
+        </childs>
     </definition>
-</ui-table>
+</ui-menu>

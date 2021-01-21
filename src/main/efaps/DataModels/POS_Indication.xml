@@ -60,6 +60,12 @@
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Description</name>
+            <type>String</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_ObjectSQLTable</sqltable>
@@ -83,5 +89,6 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>MODIFIED</sqlcolumn>
         </attribute>
+        <store name="ERP_DocumentVFSStore"/>
     </definition>
 </datamodel-type>
