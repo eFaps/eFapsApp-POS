@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2021 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,9 @@ public abstract class BalanceReport_Base
                                     .setUserLastName(multi.getSelect(selUserLastName))
                                     .setDocName(multi.getSelect(selDocName));
                     final Instance docInst = multi.getSelect(selDocInst);
-                    docBeans.put(docInst, bean);
+                    if (InstanceUtils.isValid(docInst)) {
+                        docBeans.put(docInst, bean);
+                    }
                 }
                 if (!docBeans.isEmpty()) {
                     final QueryBuilder paymentQueryBldr = new QueryBuilder(CISales.Payment);
