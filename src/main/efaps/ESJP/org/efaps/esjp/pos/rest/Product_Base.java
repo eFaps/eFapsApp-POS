@@ -147,6 +147,7 @@ public abstract class Product_Base
                         CIProducts.ProductAbstract.Description,
                         CIProducts.ProductAbstract.Note,
                         CIProducts.ProductAbstract.DefaultUoM);
+        multi.addAttributeSet(CIProducts.ProductAbstract.Barcodes.name);
         multi.execute();
         while (multi.next()) {
             final Object cats = multi.getSelect(selCat);
@@ -208,6 +209,12 @@ public abstract class Product_Base
                 }
             }
 
+            final Map<String, Object> barcodeValues = multi.getAttributeSet(CIProducts.ProductAbstract.Barcodes.name);
+            final var barcodes = new HashSet<String>();
+            if (barcodeValues != null) {
+                final var values = (ArrayList<String>) barcodeValues.get("Code");
+                barcodes.addAll(values);
+            }
             final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
             final ProductDto dto = ProductDto.builder()
@@ -225,6 +232,7 @@ public abstract class Product_Base
                 .withUoMCode(uoM.getCommonCode())
                 .withRelations(relations)
                 .withIndicationSets(getIndicationSets(multi, selIndication))
+                .withBarcodes(barcodes)
                 .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
