@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
 import org.efaps.admin.datamodel.Status;
@@ -49,8 +50,10 @@ import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.products.util.Products;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
+import org.efaps.pos.dto.BarcodeDto;
 import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.ProductDto;
@@ -140,14 +143,13 @@ public abstract class Product_Base
             multi.addSelect(selIndication);
         }
 
-        for (final Entry<Integer, String> entry: relSelects.entrySet()) {
+        for (final Entry<Integer, String> entry : relSelects.entrySet()) {
             multi.addSelect(entry.getValue());
         }
         multi.addAttribute(CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description,
                         CIProducts.ProductAbstract.Note,
                         CIProducts.ProductAbstract.DefaultUoM);
-        multi.addAttributeSet(CIProducts.ProductAbstract.Barcodes.name);
         multi.execute();
         while (multi.next()) {
             final Object cats = multi.getSelect(selCat);
@@ -160,7 +162,7 @@ public abstract class Product_Base
             final Object imageOids = multi.getSelect(selImageOid);
             final String imageOid;
             if (imageOids instanceof List) {
-               imageOid = (String) ((List<?>) imageOids).get(0);
+                imageOid = (String) ((List<?>) imageOids).get(0);
             } else if (imageOids instanceof String) {
                 imageOid = (String) imageOids;
             } else {
@@ -180,7 +182,8 @@ public abstract class Product_Base
                                     .withKey(tax.getUUID().toString())
                                     .withCatKey(tax.getTaxCat().getUuid().toString())
                                     .withName(tax.getName())
-                                    .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class, tax.getTaxType().name()))
+                                    .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class,
+                                                    tax.getTaxType().name()))
                                     .withAmount(tax.getAmount())
                                     .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
                                     .build());
@@ -190,16 +193,16 @@ public abstract class Product_Base
             });
 
             final Set<ProductRelationDto> relations = new HashSet<>();
-            for (final Entry<Integer, String> entry: relSelects.entrySet()) {
+            for (final Entry<Integer, String> entry : relSelects.entrySet()) {
                 final String label = relLabels.get(entry.getKey());
                 final Object relation = multi.getSelect(entry.getValue());
                 if (relation instanceof List) {
-                     ((Collection<? extends String>) relation).forEach(oid -> {
-                         relations.add(ProductRelationDto.builder()
-                                                    .withLabel(label)
-                                                    .withProductOid(oid)
-                                                    .build());
-                     });
+                    ((Collection<? extends String>) relation).forEach(oid -> {
+                        relations.add(ProductRelationDto.builder()
+                                        .withLabel(label)
+                                        .withProductOid(oid)
+                                        .build());
+                    });
 
                 } else if (relation instanceof String) {
                     relations.add(ProductRelationDto.builder()
@@ -208,32 +211,46 @@ public abstract class Product_Base
                                     .build());
                 }
             }
+            final var barcodes = new HashSet<BarcodeDto>();
+            if (Products.STANDART_ACTBARCODES.get()) {
+                final var attrSet = AttributeSet.find(CIProducts.ProductAbstract.getType().getName(),
+                                CIProducts.ProductAbstract.Barcodes.name);
+                // attrSet.getType();
+                final QueryBuilder barcodeQueryBldr = new QueryBuilder(attrSet);
+                barcodeQueryBldr.addWhereAttrEqValue(attrSet.getAttributeName(), multi.getCurrentInstance());
 
-            final Map<String, Object> barcodeValues = multi.getAttributeSet(CIProducts.ProductAbstract.Barcodes.name);
-            final var barcodes = new HashSet<String>();
-            if (barcodeValues != null) {
-                final var values = (ArrayList<String>) barcodeValues.get("Code");
-                barcodes.addAll(values);
+                final var barcodePrint = barcodeQueryBldr.getPrint();
+                barcodePrint.addAttribute("Code");
+                final SelectBuilder selBarcodeType = SelectBuilder.get().linkto("BarcodeType").attribute("Value");
+                barcodePrint.addSelect(selBarcodeType);
+                barcodePrint.executeWithoutAccessCheck();
+                while (barcodePrint.next()) {
+                    barcodes.add(BarcodeDto.builder()
+                                    .withCode(barcodePrint.getAttribute("Code"))
+                                    .withType(barcodePrint.getSelect(selBarcodeType))
+                                    .build());
+                }
             }
+
             final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
             final ProductDto dto = ProductDto.builder()
-                .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
-                .withType(getProductType(multi.getCurrentInstance()))
-                .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
-                .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
-                .withOID(multi.getCurrentInstance().getOid())
-                .withCategoryOids(catOids)
-                .withNetPrice(calculator.getNetUnitPrice())
-                .withCrossPrice(calculator.getCrossUnitPrice())
-                .withTaxes(taxes)
-                .withImageOid(imageOid)
-                .withUoM(uoM.getSymbol())
-                .withUoMCode(uoM.getCommonCode())
-                .withRelations(relations)
-                .withIndicationSets(getIndicationSets(multi, selIndication))
-                .withBarcodes(barcodes)
-                .build();
+                            .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
+                            .withType(getProductType(multi.getCurrentInstance()))
+                            .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
+                            .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
+                            .withOID(multi.getCurrentInstance().getOid())
+                            .withCategoryOids(catOids)
+                            .withNetPrice(calculator.getNetUnitPrice())
+                            .withCrossPrice(calculator.getCrossUnitPrice())
+                            .withTaxes(taxes)
+                            .withImageOid(imageOid)
+                            .withUoM(uoM.getSymbol())
+                            .withUoMCode(uoM.getCommonCode())
+                            .withRelations(relations)
+                            .withIndicationSets(getIndicationSets(multi, selIndication))
+                            .withBarcodes(barcodes)
+                            .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
         }
@@ -280,14 +297,15 @@ public abstract class Product_Base
                 LOG.trace(" Instances {}", indSetInsts);
                 if (!indSetInsts.isEmpty()) {
                     final MultiPrintQuery setMulti = new MultiPrintQuery(indSetInsts);
-                    setMulti.addAttribute(CIPOS.IndicationSet.Name,CIPOS.IndicationSet.Description,
+                    setMulti.addAttribute(CIPOS.IndicationSet.Name, CIPOS.IndicationSet.Description,
                                     CIPOS.IndicationSet.Required, CIPOS.IndicationSet.Multiple);
                     setMulti.execute();
                     while (setMulti.next()) {
                         LOG.trace(" Instance {}", setMulti.getCurrentInstance());
                         final Set<IndicationDto> indications = new HashSet<>();
                         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
-                        queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink, setMulti.getCurrentInstance());
+                        queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink,
+                                        setMulti.getCurrentInstance());
                         final MultiPrintQuery multi = queryBldr.getPrint();
                         multi.addAttribute(CIPOS.Indication.Value, CIPOS.Indication.Description);
                         multi.execute();
@@ -302,11 +320,11 @@ public abstract class Product_Base
                             }
 
                             indications.add(IndicationDto.builder()
-                                .withOID(multi.getCurrentInstance().getOid())
-                                .withValue(multi.getAttribute(CIPOS.Indication.Value))
-                                .withDescription(multi.getAttribute(CIPOS.Indication.Description))
-                                .withImageOid(imageOid)
-                                .build());
+                                            .withOID(multi.getCurrentInstance().getOid())
+                                            .withValue(multi.getAttribute(CIPOS.Indication.Value))
+                                            .withDescription(multi.getAttribute(CIPOS.Indication.Description))
+                                            .withImageOid(imageOid)
+                                            .build());
                         }
                         LOG.trace("    indications {}", indications);
 
