@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2019 The eFaps Team
+ * Copyright 2003 - 2021 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
+import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
@@ -94,13 +95,16 @@ public abstract class Product_Base
 
         final Map<Integer, String> relSelects;
         final Map<Integer, String> relLabels;
+        final Map<Integer, String> relTypes;
         if (Pos.PRODREL.exists()) {
             final Properties properties = Pos.PRODREL.get();
             relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
             relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
+            relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
         } else {
             relSelects = new HashMap<>();
             relLabels = new HashMap<>();
+            relTypes = new HashMap<>();
         }
 
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
@@ -195,12 +199,14 @@ public abstract class Product_Base
             final Set<ProductRelationDto> relations = new HashSet<>();
             for (final Entry<Integer, String> entry : relSelects.entrySet()) {
                 final String label = relLabels.get(entry.getKey());
+                final String relType = relTypes.get(entry.getKey());
                 final Object relation = multi.getSelect(entry.getValue());
                 if (relation instanceof List) {
                     ((Collection<? extends String>) relation).forEach(oid -> {
                         relations.add(ProductRelationDto.builder()
                                         .withLabel(label)
                                         .withProductOid(oid)
+                                        .withType(ProductRelationType.valueOf(relType))
                                         .build());
                     });
 
@@ -208,6 +214,7 @@ public abstract class Product_Base
                     relations.add(ProductRelationDto.builder()
                                     .withLabel(label)
                                     .withProductOid((String) relation)
+                                    .withType(ProductRelationType.valueOf(relType))
                                     .build());
                 }
             }
@@ -270,6 +277,8 @@ public abstract class Product_Base
             ret = ProductType.SERVICE;
         } else if (InstanceUtils.isType(_instance, CIProducts.ProductTextPosition)) {
             ret = ProductType.TEXT;
+        } else if (InstanceUtils.isType(_instance, CIProducts.ProductSalesPartList)) {
+            ret = ProductType.PARTLIST;
         } else {
             ret = ProductType.OTHER;
         }

@@ -34,6 +34,7 @@ import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.SysConfLink;
 import org.efaps.esjp.ci.CINumGenPOS;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("77a6fc1e-a406-419f-a1aa-8207255a2522")
@@ -132,8 +133,13 @@ public class Pos
                     .key(BASE + "ProductRelations")
                     .addDefaultValue("Select", "linkfrom[Products_AlternativeBOM#From].linkto[To].oid")
                     .addDefaultValue("Label", "Puede ser replacado por")
+                    .addDefaultValue("RelationType", ProductRelationType.ALTERNATIVE.name())
                     .addDefaultValue("Select01", "linkfrom[Products_AlternativeBOM#To].linkto[From].oid")
                     .addDefaultValue("Label01", "Puede replacadar")
+                    .addDefaultValue("RelationType01", ProductRelationType.ALTERNATIVE.name())
+                    .addDefaultValue("Select02", "linkfrom[Products_SalesBOM#From].linkto[To].oid")
+                    .addDefaultValue("Label02", "Puede replacadar")
+                    .addDefaultValue("RelationType02", ProductRelationType.SALESBOM.name())
                     .description("Configurations of product relations to be included.");
 
     /** See description. */
