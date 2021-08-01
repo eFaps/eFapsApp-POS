@@ -133,12 +133,15 @@ public class Pos
                     .key(BASE + "ProductRelations")
                     .addDefaultValue("Select", "linkfrom[Products_AlternativeBOM#From].linkto[To].oid")
                     .addDefaultValue("Label", "Puede ser replacado por")
+                    .addDefaultValue("QuantitySelect", "linkfrom[Products_AlternativeBOM#From].attribute[Quantity]")
                     .addDefaultValue("RelationType", ProductRelationType.ALTERNATIVE.name())
                     .addDefaultValue("Select01", "linkfrom[Products_AlternativeBOM#To].linkto[From].oid")
                     .addDefaultValue("Label01", "Puede replacadar")
+                    .addDefaultValue("QuantitySelect01", "linkfrom[Products_AlternativeBOM#To].attribute[Quantity]")
                     .addDefaultValue("RelationType01", ProductRelationType.ALTERNATIVE.name())
                     .addDefaultValue("Select02", "linkfrom[Products_SalesBOM#From].linkto[To].oid")
                     .addDefaultValue("Label02", "Puede replacadar")
+                    .addDefaultValue("QuantitySelect02", "linkfrom[Products_SalesBOM#From].attribute[Quantity]")
                     .addDefaultValue("RelationType02", ProductRelationType.SALESBOM.name())
                     .description("Configurations of product relations to be included.");
 

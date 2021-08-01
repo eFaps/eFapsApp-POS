@@ -95,14 +95,17 @@ public abstract class Product_Base
 
         final Map<Integer, String> relSelects;
         final Map<Integer, String> relLabels;
+        final Map<Integer, String> relQuantity;
         final Map<Integer, String> relTypes;
         if (Pos.PRODREL.exists()) {
             final Properties properties = Pos.PRODREL.get();
+            relQuantity = PropertiesUtil.analyseProperty(properties, "QuantitySelect", 0);
             relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
             relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
             relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
         } else {
             relSelects = new HashMap<>();
+            relQuantity = new HashMap<>();
             relLabels = new HashMap<>();
             relTypes = new HashMap<>();
         }
@@ -148,6 +151,9 @@ public abstract class Product_Base
         }
 
         for (final Entry<Integer, String> entry : relSelects.entrySet()) {
+            multi.addSelect(entry.getValue());
+        }
+        for (final Entry<Integer, String> entry : relQuantity.entrySet()) {
             multi.addSelect(entry.getValue());
         }
         multi.addAttribute(CIProducts.ProductAbstract.Name,
@@ -201,10 +207,14 @@ public abstract class Product_Base
                 final String label = relLabels.get(entry.getKey());
                 final String relType = relTypes.get(entry.getKey());
                 final Object relation = multi.getSelect(entry.getValue());
+                final Object quantity = multi.getSelect(relQuantity.get(entry.getKey()));
+
                 if (relation instanceof List) {
+                    final var quantities = ((List<? extends BigDecimal>) quantity).iterator();
                     ((Collection<? extends String>) relation).forEach(oid -> {
                         relations.add(ProductRelationDto.builder()
                                         .withLabel(label)
+                                        .withQuantity(quantities.hasNext() ? quantities.next() : null)
                                         .withProductOid(oid)
                                         .withType(ProductRelationType.valueOf(relType))
                                         .build());
@@ -213,6 +223,7 @@ public abstract class Product_Base
                 } else if (relation instanceof String) {
                     relations.add(ProductRelationDto.builder()
                                     .withLabel(label)
+                                    .withQuantity((BigDecimal) quantity)
                                     .withProductOid((String) relation)
                                     .withType(ProductRelationType.valueOf(relType))
                                     .build());
