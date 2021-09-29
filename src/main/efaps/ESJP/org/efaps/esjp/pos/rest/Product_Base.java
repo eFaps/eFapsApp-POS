@@ -50,6 +50,7 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.products.util.Products;
 import org.efaps.esjp.sales.Calculator;
@@ -253,6 +254,11 @@ public abstract class Product_Base
 
             final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
+            final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
+            var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
+            if (currency == null) {
+                currency = org.efaps.pos.dto.Currency.PEN;
+            }
             final ProductDto dto = ProductDto.builder()
                             .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
                             .withType(getProductType(multi.getCurrentInstance()))
@@ -262,6 +268,7 @@ public abstract class Product_Base
                             .withCategoryOids(catOids)
                             .withNetPrice(calculator.getNetUnitPrice())
                             .withCrossPrice(calculator.getCrossUnitPrice())
+                            .withCurrency(currency)
                             .withTaxes(taxes)
                             .withImageOid(imageOid)
                             .withUoM(uoM.getSymbol())

@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.MultiPrintQuery;
@@ -82,10 +83,11 @@ public abstract class POS_Base
         multi.addAttribute(CIPOS.POS.Name);
         multi.execute();
         while (multi.next()) {
+            final var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, multi.getSelect(selCurrency));
             poss.add(PosDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.POS.Name))
-                .withCurrency(multi.getSelect(selCurrency))
+                .withCurrency(currency)
                 .withDefaultContactOid(multi.getSelect(selContactOid))
                 .withReceiptSeqOid(multi.getSelect(selReceiptSeqOid))
                 .withInvoiceSeqOid(multi.getSelect(selInvoiceSeqOid))
