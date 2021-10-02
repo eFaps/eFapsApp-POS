@@ -28,6 +28,10 @@
             <form>POS_TicketForm</form>
         </target>
         <type>POS_Ticket</type>
+        <childs>
+            <child>POS_TicketTree_Position</child>
+            <child>POS_TicketTree_Payment</child>
+        </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
     </definition>
