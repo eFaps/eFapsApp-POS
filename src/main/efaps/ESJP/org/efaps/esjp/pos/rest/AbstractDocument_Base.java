@@ -18,6 +18,7 @@
 package org.efaps.esjp.pos.rest;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
@@ -67,6 +68,7 @@ import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
+import org.jfree.util.Log;
 import org.joda.time.DateTime;
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
@@ -88,21 +90,24 @@ public abstract class AbstractDocument_Base
         if (InstanceUtils.isValid(contactInst)) {
             insert.add(CISales.DocumentSumAbstract.Contact, contactInst);
         }
-        final BigDecimal netTotal = _dto.getNetTotal() == null ? BigDecimal.ZERO : _dto.getNetTotal();
-        final BigDecimal crossTotal = _dto.getCrossTotal() == null ? BigDecimal.ZERO : _dto.getCrossTotal();
 
-        insert.add(CISales.DocumentSumAbstract.NetTotal, netTotal);
-        insert.add(CISales.DocumentSumAbstract.CrossTotal, crossTotal);
+        final BigDecimal rateNetTotal = _dto.getNetTotal() == null ? BigDecimal.ZERO : _dto.getNetTotal();
+        final BigDecimal rateCrossTotal = _dto.getCrossTotal() == null ? BigDecimal.ZERO : _dto.getCrossTotal();
+
+        insert.add(CISales.DocumentSumAbstract.NetTotal,
+                        exchange(rateNetTotal, _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.DocumentSumAbstract.CrossTotal,
+                        exchange(rateCrossTotal, _dto.getCurrency(), _dto.getExchangeRate()));
         insert.add(CISales.DocumentSumAbstract.DiscountTotal, BigDecimal.ZERO);
-        insert.add(CISales.DocumentSumAbstract.RateNetTotal, netTotal);
-        insert.add(CISales.DocumentSumAbstract.RateCrossTotal, crossTotal);
+        insert.add(CISales.DocumentSumAbstract.RateNetTotal, rateNetTotal);
+        insert.add(CISales.DocumentSumAbstract.RateCrossTotal, rateCrossTotal);
         insert.add(CISales.DocumentSumAbstract.RateDiscountTotal, BigDecimal.ZERO);
         insert.add(CISales.DocumentSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.DocumentSumAbstract.RateCurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.DocumentSumAbstract.Rate, new Object[] { 1, 1 });
-        final Taxes taxes = getTaxes(_dto.getDate(), _dto.getTaxes());
-        insert.add(CISales.DocumentSumAbstract.Taxes, taxes);
-        insert.add(CISales.DocumentSumAbstract.RateTaxes, taxes);
+        insert.add(CISales.DocumentSumAbstract.RateCurrencyId, getCurrencyInst(_dto.getCurrency()).getInstance());
+        insert.add(CISales.DocumentSumAbstract.Rate, getRate(_dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.DocumentSumAbstract.Taxes,
+                        getTaxes(_dto.getDate(), _dto.getTaxes(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.DocumentSumAbstract.RateTaxes, getRateTaxes(_dto.getDate(), _dto.getTaxes()));
         insert.execute();
 
         final Instance ret = insert.getInstance();
@@ -129,6 +134,44 @@ public abstract class AbstractDocument_Base
             }
         }
         return ret;
+    }
+
+    protected CurrencyInst getCurrencyInst(final org.efaps.pos.dto.Currency currency)
+        throws EFapsException
+    {
+        return CurrencyInst.find(currency.name()).orElseGet(() -> {
+            try {
+                return CurrencyInst.get(Currency.getBaseCurrency());
+            } catch (final EFapsException e) {
+                Log.error("Catched {}", e);
+            }
+            return null;
+        });
+    }
+
+    protected BigDecimal exchange(final BigDecimal amount, final org.efaps.pos.dto.Currency currency,
+                                  final BigDecimal exchangeRate)
+        throws EFapsException
+    {
+        var ret = BigDecimal.ZERO;
+        final var currencyInst = getCurrencyInst(currency);
+        // if it the base currency no conversion is needed
+        if (currencyInst.getInstance().equals(Currency.getBaseCurrency())) {
+            ret = amount;
+        } else if (currencyInst.isInvert()) {
+            ret = amount.multiply(exchangeRate);
+        } else if (amount.compareTo(BigDecimal.ZERO) != 0) {
+            ret = amount.divide(exchangeRate, RoundingMode.HALF_DOWN);
+        }
+        return ret;
+    }
+
+    protected Object[] getRate(final org.efaps.pos.dto.Currency currency, final BigDecimal exchangeRate)
+        throws EFapsException
+    {
+        final var currencyInst = getCurrencyInst(currency);
+        return currencyInst.isInvert() ? new Object[] { exchangeRate, 1 }
+                        : new Object[] { 1, exchangeRate };
     }
 
     protected void createTransactionDocument(final AbstractDocumentDto _dto,
@@ -225,14 +268,19 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionAbstract.UoM, print.<Long>getAttribute(CIProducts.ProductAbstract.DefaultUoM));
         insert.add(CISales.PositionSumAbstract.Quantity, _dto.getQuantity());
         insert.add(CISales.PositionSumAbstract.Discount, BigDecimal.ZERO);
-        insert.add(CISales.PositionSumAbstract.DiscountNetUnitPrice, _dto.getNetUnitPrice());
-        insert.add(CISales.PositionSumAbstract.CrossUnitPrice, _dto.getCrossUnitPrice());
-        insert.add(CISales.PositionSumAbstract.NetUnitPrice, _dto.getNetUnitPrice());
-        insert.add(CISales.PositionSumAbstract.CrossPrice, _dto.getCrossPrice());
-        insert.add(CISales.PositionSumAbstract.NetPrice, _dto.getNetPrice());
+        insert.add(CISales.PositionSumAbstract.DiscountNetUnitPrice,
+                        exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.CrossUnitPrice,
+                        exchange(_dto.getCrossUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.NetUnitPrice,
+                        exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.CrossPrice,
+                        exchange(_dto.getCrossPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.NetPrice,
+                        exchange(_dto.getNetPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.PositionSumAbstract.Rate, new Object[] { 1, 1 });
-        insert.add(CISales.PositionSumAbstract.RateCurrencyId, ERP.CURRENCYBASE.get());
+        insert.add(CISales.PositionSumAbstract.Rate, getRate(_dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.RateCurrencyId, getCurrencyInst(_dto.getCurrency()).getInstance());
         insert.add(CISales.PositionSumAbstract.RateNetUnitPrice, _dto.getNetUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossUnitPrice, _dto.getCrossUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, _dto.getCrossUnitPrice());
@@ -240,14 +288,34 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.RateCrossPrice, _dto.getCrossPrice());
         insert.add(CISales.PositionSumAbstract.Remark, _dto.getRemark());
         insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
-        final Taxes taxes = getTaxes(_date, _dto.getTaxes());
-        insert.add(CISales.PositionSumAbstract.Taxes, taxes);
-        insert.add(CISales.PositionSumAbstract.RateTaxes, taxes);
+        insert.add(CISales.PositionSumAbstract.Taxes,
+                        getTaxes(_date, _dto.getTaxes(), _dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.RateTaxes, getRateTaxes(_date, _dto.getTaxes()));
         insert.execute();
         return insert.getInstance();
     }
 
-    protected Taxes getTaxes(final LocalDate _date, final Set<TaxEntryDto> _taxes)
+    protected Taxes getTaxes(final LocalDate _date, final Set<TaxEntryDto> _taxes,
+                             final org.efaps.pos.dto.Currency currency,
+                             final BigDecimal exchangeRate)
+        throws EFapsException
+    {
+        final Taxes ret = new Taxes();
+        for (final TaxEntryDto dto : _taxes) {
+            final TaxEntry taxentry = new TaxEntry();
+            taxentry.setBase(exchange(dto.getBase(), currency, exchangeRate));
+            taxentry.setAmount(exchange(dto.getAmount(), currency, exchangeRate));
+            taxentry.setUUID(getTax(dto).getUUID());
+            taxentry.setCatUUID(getTax(dto).getTaxCat().getUuid());
+            taxentry.setCurrencyUUID(CurrencyInst.get(ERP.CURRENCYBASE.get()).getUUID());
+            taxentry.setDate(new org.joda.time.LocalDate(_date.getYear(), _date.getMonthValue(), _date.getDayOfMonth())
+                            .toDateTimeAtCurrentTime().withTimeAtStartOfDay());
+            ret.getEntries().add(taxentry);
+        }
+        return ret;
+    }
+
+    protected Taxes getRateTaxes(final LocalDate _date, final Set<TaxEntryDto> _taxes)
         throws EFapsException
     {
         final Taxes ret = new Taxes();
