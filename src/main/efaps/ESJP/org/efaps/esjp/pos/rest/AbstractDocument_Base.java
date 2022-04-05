@@ -352,7 +352,8 @@ public abstract class AbstractDocument_Base
         if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
             for (final PaymentDto paymentDto : _dto.getPayments()) {
                 final Parameter parameter = ParameterUtil.instance();
-                final CIType docType = getPaymentDocType(paymentDto.getType());
+                final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
+                final CIType docType = getPaymentDocType(paymentDto.getType(), negate);
                 final Insert insert = new Insert(docType);
                 final PosPayment posPayment = new PosPayment(docType);
                 insert.add(CISales.PaymentDocumentAbstract.Name,
@@ -385,7 +386,7 @@ public abstract class AbstractDocument_Base
                     insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
                 }
                 insert.add(CISales.PaymentDocumentAbstract.Rate, new Object[] { 1, 1 });
-                insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType()));
+                insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType(), negate));
                 insert.execute();
 
                 final Insert payInsert = new Insert(CISales.Payment);
@@ -442,7 +443,7 @@ public abstract class AbstractDocument_Base
         return print.getSelect(selAccountInst);
     }
 
-    protected Status getPaymentDocStatus(final PaymentType _paymentType)
+    protected Status getPaymentDocStatus(final PaymentType _paymentType, final boolean negate)
         throws CacheReloadException
     {
         Status ret;
@@ -454,10 +455,12 @@ public abstract class AbstractDocument_Base
                 ret = Status.find(CISales.PaymentCardStatus.Closed);
                 break;
             case CASH:
-                ret = Status.find(CISales.PaymentCashStatus.Closed);
+                ret = negate ? Status.find(CISales.PaymentCashOutStatus.Closed)
+                                : Status.find(CISales.PaymentCashStatus.Closed);
                 break;
             case CHANGE:
-                ret = Status.find(CISales.PaymentCashOutStatus.Closed);
+                ret = negate ? Status.find(CISales.PaymentCashStatus.Closed)
+                                : Status.find(CISales.PaymentCashOutStatus.Closed);
                 break;
             case FREE:
             default:
@@ -467,7 +470,7 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected CIType getPaymentDocType(final PaymentType _paymentType)
+    protected CIType getPaymentDocType(final PaymentType _paymentType, final boolean negate)
     {
         CIType ret;
         switch (_paymentType) {
@@ -478,10 +481,10 @@ public abstract class AbstractDocument_Base
                 ret = CISales.PaymentCard;
                 break;
             case CASH:
-                ret = CISales.PaymentCash;
+                ret = negate ? CISales.PaymentCashOut : CISales.PaymentCash;
                 break;
             case CHANGE:
-                ret = CISales.PaymentCashOut;
+                ret = negate ? CISales.PaymentCash : CISales.PaymentCashOut;
                 break;
             case FREE:
             default:

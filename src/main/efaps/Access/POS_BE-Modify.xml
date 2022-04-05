@@ -36,6 +36,7 @@
         <type>Contacts_ClassPerson</type>
         <type>Sales_Receipt</type>
         <type>Sales_Invoice</type>
+        <type>Sales_CreditNote</type>
 
         <status group="Contacts_ContactStatus">
             <key>Active</key>
@@ -50,7 +51,11 @@
             <key>Open</key>
             <key>Paid</key>
         </status>
-
+         <status group="Sales_CreditNoteStatus">
+            <key>Draft</key>
+            <key>Open</key>
+            <key>Paid</key>
+        </status>
         <role>POS_BE</role>
     </definition>
 </access-set>

@@ -1,0 +1,77 @@
+/*
+ * Copyright 2003 - 2022 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.efaps.esjp.pos.rest;
+
+import javax.ws.rs.core.Response;
+
+import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Insert;
+import org.efaps.db.Instance;
+import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.pos.dto.AbstractDocItemDto;
+import org.efaps.pos.dto.CreditNoteDto;
+import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@EFapsUUID("9a514a7d-5e78-4b81-97a0-224775d23a61")
+@EFapsApplication("eFapsApp-POS")
+public abstract class CreditNote_Base
+    extends AbstractDocument
+{
+    private static final Logger LOG = LoggerFactory.getLogger(CreditNote.class);
+
+    protected Response addCreditNote(final String _identifier, final CreditNoteDto _creditNoteDto)
+        throws EFapsException
+    {
+        checkAccess(_identifier);
+        LOG.debug("Recieved: {}", _creditNoteDto);
+        final CreditNoteDto dto;
+        if (_creditNoteDto.getOid() == null) {
+            final Instance docInst = createDocument(CISales.CreditNote, Status.find(CISales.CreditNoteStatus.Paid),
+                            _creditNoteDto);
+            for (final AbstractDocItemDto item : _creditNoteDto.getItems()) {
+                createPosition(docInst, CISales.CreditNotePosition, item, _creditNoteDto.getDate());
+            }
+            addPayments(docInst, _creditNoteDto);
+            // connect CreditNote and source document
+            final var sourceDocInst = Instance.get(_creditNoteDto.getSourceDocOid());
+            final Insert insert = new Insert(
+                            InstanceUtils.isKindOf(sourceDocInst, CISales.Invoice) ? CISales.CreditNote2Invoice
+                                            : CISales.CreditNote2Receipt);
+            insert.add(CISales.Document2DocumentAbstract.FromAbstractLink, docInst);
+            insert.add(CISales.Document2DocumentAbstract.ToAbstractLink, sourceDocInst);
+            insert.executeWithoutAccessCheck();
+
+            // createTransactionDocument(_creditNoteDto, docInst);
+            dto = CreditNoteDto.builder()
+                            .withId(_creditNoteDto.getId())
+                            .withOID(docInst.getOid())
+                            .build();
+        } else {
+            dto = CreditNoteDto.builder().build();
+        }
+        final Response ret = Response.ok()
+                        .entity(dto)
+                        .build();
+        return ret;
+    }
+
+}
