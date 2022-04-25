@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
- Copyright 2003 - 2018 The eFaps Team
+ Copyright 2003 - 2022 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@
             <column name="RECEIPTSEQID" type="INTEGER"/>
             <column name="INVOICESEQID" type="INTEGER"/>
             <column name="TICKETSEQID"  type="INTEGER"/>
+            <column name="CREDITNOTESEQID"  type="INTEGER"/>
             <column name="CREATOR"      type="INTEGER"      not-null="true"/>
             <column name="CREATED"      type="DATETIME"     not-null="true"/>
             <column name="MODIFIER"     type="INTEGER"      not-null="true"/>

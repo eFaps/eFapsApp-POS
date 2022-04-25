@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
- Copyright 2003 - 2018 The eFaps Team
+ Copyright 2003 - 2022 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -87,6 +87,19 @@
             <sqltable>POS_POSSQLTable</sqltable>
             <sqlcolumn>TICKETSEQID</sqlcolumn>
             <trigger event="RANGE_VALUE" name="POS_POS.TicketSequenceLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Sequence</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+         <attribute>
+            <name>CreditNoteSequenceLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Sequence</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>CREDITNOTESEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.CreditNoteSequenceLink.RANGE_VALUE"
                 program="org.efaps.esjp.admin.datamodel.RangesValue">
                 <property name="Value">$&lt;attribute[Name]&gt;</property>
                 <property name="Type">POS_Sequence</property>

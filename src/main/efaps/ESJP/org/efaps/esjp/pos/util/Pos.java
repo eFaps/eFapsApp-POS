@@ -186,7 +186,7 @@ public class Pos
 
     public enum DocType implements IBitEnum
     {
-        RECEIPT, INVOICE, TICKET;
+        RECEIPT, INVOICE, TICKET, CREDITNOTE;
 
         @Override
         public int getInt()
