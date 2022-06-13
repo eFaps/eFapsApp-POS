@@ -33,7 +33,8 @@
             <column name="RECEIPTSEQID" type="INTEGER"/>
             <column name="INVOICESEQID" type="INTEGER"/>
             <column name="TICKETSEQID"  type="INTEGER"/>
-            <column name="CREDITNOTESEQID"  type="INTEGER"/>
+            <column name="CREDITNOTEINVSEQID"  type="INTEGER"/>
+            <column name="CREDITNOTERECSEQID"  type="INTEGER"/>
             <column name="CREATOR"      type="INTEGER"      not-null="true"/>
             <column name="CREATED"      type="DATETIME"     not-null="true"/>
             <column name="MODIFIER"     type="INTEGER"      not-null="true"/>

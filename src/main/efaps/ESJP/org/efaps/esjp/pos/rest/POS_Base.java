@@ -79,11 +79,14 @@ public abstract class POS_Base
         final SelectBuilder selTicketSeqOid = SelectBuilder.get()
                         .linkto(CIPOS.POS.TicketSequenceLink)
                         .oid();
-        final SelectBuilder selCreditNoteSeqOid = SelectBuilder.get()
-                        .linkto(CIPOS.POS.CreditNoteSequenceLink)
+        final SelectBuilder selCreditNote4InvoiceSeqOid = SelectBuilder.get()
+                        .linkto(CIPOS.POS.CreditNote4InvoiceSequenceLink)
+                        .oid();
+        final SelectBuilder selCreditNote4ReceiptSeqOid = SelectBuilder.get()
+                        .linkto(CIPOS.POS.CreditNote4ReceiptSequenceLink)
                         .oid();
         multi.addSelect(selCurrency, selContactOid, selReceiptSeqOid, selInvoiceSeqOid, selTicketSeqOid,
-                        selCreditNoteSeqOid);
+                        selCreditNote4InvoiceSeqOid, selCreditNote4ReceiptSeqOid);
         multi.addAttribute(CIPOS.POS.Name);
         multi.execute();
         while (multi.next()) {
@@ -96,7 +99,8 @@ public abstract class POS_Base
                 .withReceiptSeqOid(multi.getSelect(selReceiptSeqOid))
                 .withInvoiceSeqOid(multi.getSelect(selInvoiceSeqOid))
                 .withTicketSeqOid(multi.getSelect(selTicketSeqOid))
-                .withCreditNoteSeqOid(multi.getSelect(selCreditNoteSeqOid))
+                .withCreditNote4InvoiceSeqOid(multi.getSelect(selCreditNote4InvoiceSeqOid))
+                .withCreditNote4ReceiptSeqOid(multi.getSelect(selCreditNote4ReceiptSeqOid))
                 .build());
         }
         final Response ret = Response.ok()

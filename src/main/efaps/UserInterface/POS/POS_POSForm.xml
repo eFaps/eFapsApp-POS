@@ -78,8 +78,13 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
-        <field name="creditNoteSequenceLink">
-            <property name="Attribute">CreditNoteSequenceLink</property>
+        <field name="creditNote4InvoiceSequenceLink">
+            <property name="Attribute">CreditNote4InvoiceSequenceLink</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+        </field>
+        <field name="creditNote4ReceiptSequenceLink">
+            <property name="Attribute">CreditNote4ReceiptSequenceLink</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>

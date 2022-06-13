@@ -94,12 +94,25 @@
             </trigger>
         </attribute>
          <attribute>
-            <name>CreditNoteSequenceLink</name>
+            <name>CreditNote4InvoiceSequenceLink</name>
             <type>LinkWithRanges</type>
             <typelink>POS_Sequence</typelink>
             <sqltable>POS_POSSQLTable</sqltable>
-            <sqlcolumn>CREDITNOTESEQID</sqlcolumn>
-            <trigger event="RANGE_VALUE" name="POS_POS.CreditNoteSequenceLink.RANGE_VALUE"
+            <sqlcolumn>CREDITNOTEINVSEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.CreditNote4InvoiceSequenceLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Sequence</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
+         <attribute>
+            <name>CreditNote4ReceiptSequenceLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Sequence</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>CREDITNOTERECSEQID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.CreditNote4ReceiptSequenceLink.RANGE_VALUE"
                 program="org.efaps.esjp.admin.datamodel.RangesValue">
                 <property name="Value">$&lt;attribute[Name]&gt;</property>
                 <property name="Type">POS_Sequence</property>
