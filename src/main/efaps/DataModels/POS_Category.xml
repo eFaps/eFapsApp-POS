@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
- Copyright 2003 - 2020 The eFaps Team
+ Copyright 2003 - 2022 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -39,6 +39,13 @@
             <type>AssociationLink</type>
             <sqltable>POS_CategorySQLTable</sqltable>
             <sqlcolumn>ASSOCID</sqlcolumn>
+        </attribute>
+         <attribute>
+            <name>ParentLink</name>
+            <type>Link</type>
+            <typelink>POS_Category</typelink>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>PARENTID</sqlcolumn>
         </attribute>
         <attribute>
             <name>Status</name>

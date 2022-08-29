@@ -31,6 +31,7 @@
         <type>POS_Category</type>
         <childs>
             <child>POS_CategoryTree_Product</child>
+            <child>POS_CategoryTree_Category</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>

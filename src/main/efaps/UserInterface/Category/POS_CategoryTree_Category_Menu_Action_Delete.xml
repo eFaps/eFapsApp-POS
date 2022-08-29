@@ -14,17 +14,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
+
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>5b7aabd9-dca7-4782-8dd1-35d11056d54b</uuid>
+<ui-command
+    xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd"
+>
+    <uuid>c5b873c4-b3dd-4f07-8aa0-96af121e602f</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_CategoryMyDesk_Menu_Action</name>
-        <childs>
-            <child>POS_CategoryMyDesk_Menu_Action_Create</child>
-            <child>POS_CategoryMyDesk_Menu_Action_Delete</child>
-        </childs>
+        <name>POS_CategoryTree_Category_Menu_Action_Delete</name>
+        <target>
+            <execute program="org.efaps.esjp.common.uitable.CommonDelete" />
+        </target>
+        <property name="AskUser">true</property>
+        <property name="Submit">true</property>
     </definition>
-</ui-menu>
+</ui-command>

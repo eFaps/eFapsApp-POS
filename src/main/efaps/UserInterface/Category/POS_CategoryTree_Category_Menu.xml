@@ -14,17 +14,20 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
+
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>5b7aabd9-dca7-4782-8dd1-35d11056d54b</uuid>
+<ui-menu
+    xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd"
+>
+    <uuid>3096a29b-06ba-4d0e-8f46-0975a8aed7f0</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_CategoryMyDesk_Menu_Action</name>
+        <name>POS_CategoryTree_Category_Menu</name>
         <childs>
-            <child>POS_CategoryMyDesk_Menu_Action_Create</child>
-            <child>POS_CategoryMyDesk_Menu_Action_Delete</child>
+            <child>POS_CategoryTree_Category_Menu_Action</child>
         </childs>
     </definition>
 </ui-menu>

@@ -15,16 +15,20 @@
  limitations under the License.
 
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>5b7aabd9-dca7-4782-8dd1-35d11056d54b</uuid>
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>82a2464e-bc28-400d-81fd-27f75f2829c9</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_CategoryMyDesk_Menu_Action</name>
-        <childs>
-            <child>POS_CategoryMyDesk_Menu_Action_Create</child>
-            <child>POS_CategoryMyDesk_Menu_Action_Delete</child>
-        </childs>
+        <name>POS_CategoryTree_Category_Menu_Action_Create</name>
+        <target>
+            <form>POS_CategoryForm</form>
+            <execute program="org.efaps.esjp.common.uiform.Create"/>
+        </target>
+        <property name="Target">modal</property>
+        <property name="TargetCreateType">POS_Category</property>
+        <property name="TargetConnectAttribute">POS_Category/ParentLink</property>
+        <property name="TargetMode">create</property>
+        <property name="TargetDefaultMenu">none</property>
     </definition>
-</ui-menu>
+</ui-command>
