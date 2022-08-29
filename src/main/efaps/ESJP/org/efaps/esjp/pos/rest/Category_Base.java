@@ -25,11 +25,14 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.SelectBuilder;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.CategoryDto;
 import org.efaps.util.EFapsException;
@@ -64,6 +67,8 @@ public abstract class Category_Base
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);
         queryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
         final MultiPrintQuery multi = queryBldr.getPrint();
+        final var selParentInst = SelectBuilder.get().linkto(CIPOS.Category.ParentLink).instance();
+        multi.addSelect(selParentInst);
         multi.addAttribute(CIPOS.Category.Name, CIPOS.Category.Weight);
         multi.execute();
         while (multi.next()) {
@@ -75,12 +80,17 @@ public abstract class Category_Base
                     imageOid = multi.getCurrentInstance().getOid();
                 }
             }
-
+            final Instance parentInst = multi.getSelect(selParentInst);
+            String parentOid = null;
+            if (InstanceUtils.isValid(parentInst)) {
+                parentOid = parentInst.getOid();
+            }
             categories.add(CategoryDto.builder()
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Category.Name))
                 .withWeight(multi.getAttribute(CIPOS.Category.Weight))
                 .withImageOid(imageOid)
+                .withParentOid(parentOid)
                 .build());
         }
         final Response ret = Response.ok()
