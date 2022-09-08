@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
-  Copyright 2003 - 2012 The eFaps Team
+  Copyright 2003 - 2022 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,28 +14,22 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
---><ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-
+-->
+<ui-menu
+    xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd"
+>
     <uuid>fdf465d6-e9a3-4795-b096-9fe0f05a57cf</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
-
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Category2ProductTree</name>
-        <!-- targets -->
         <target>
             <menu>POS_Category2ProductTree_Menu</menu>
             <form>POS_Category2ProductForm</form>
         </target>
-        <!-- type tree for -->
-        <type>POS_Category2ProductAbstract</type>
-        <!-- properties -->
+        <type>POS_Category2Product</type>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
     </definition>

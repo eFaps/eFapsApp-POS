@@ -58,6 +58,7 @@ import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.pos.dto.BarcodeDto;
 import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
+import org.efaps.pos.dto.Product2CategoryDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.ProductRelationType;
@@ -138,11 +139,14 @@ public abstract class Product_Base
                         .linkfrom(CIPOS.Category2Product.ToLink)
                         .linkto(CIPOS.Category2Product.FromLink)
                         .oid();
+        final SelectBuilder selCatWeight = SelectBuilder.get()
+                        .linkfrom(CIPOS.Category2Product.ToLink)
+                        .attribute(CIPOS.Category2Product.SortWeight);
         final SelectBuilder selImageOid = SelectBuilder.get()
                         .linkfrom(CIProducts.Product2ImageThumbnail.ProductLink)
                         .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
                         .oid();
-        multi.addSelect(selCat, selImageOid);
+        multi.addSelect(selCat, selCatWeight, selImageOid);
         SelectBuilder selIndication = null;
         if (Pos.INDICATIONSET_ACIVATE.get()) {
             selIndication = SelectBuilder.get()
@@ -165,11 +169,22 @@ public abstract class Product_Base
         multi.execute();
         while (multi.next()) {
             final Object cats = multi.getSelect(selCat);
-            final Set<String> catOids = new HashSet<>();
+            final Object catWeights = multi.getSelect(selCatWeight);
+            final Set<Product2CategoryDto> prod2cats = new HashSet<>();
             if (cats instanceof List) {
-                catOids.addAll((Collection<? extends String>) cats);
+                var catIter = ((Collection<? extends String>) cats).iterator();
+                var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
+                while (catIter.hasNext()) {
+                    prod2cats.add(Product2CategoryDto.builder()
+                                    .withCategoryOid(catIter.next())
+                                    .withWeight(weightIter.next())
+                                    .build());
+                }
             } else if (cats instanceof String) {
-                catOids.add((String) cats);
+                prod2cats.add(Product2CategoryDto.builder()
+                                .withCategoryOid((String) cats)
+                                .withWeight((Integer) catWeights)
+                                .build());
             }
             final Object imageOids = multi.getSelect(selImageOid);
             final String imageOid;
@@ -265,7 +280,7 @@ public abstract class Product_Base
                             .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
                             .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
                             .withOID(multi.getCurrentInstance().getOid())
-                            .withCategoryOids(catOids)
+                            .withCategories(prod2cats)
                             .withNetPrice(calculator.getNetUnitPrice())
                             .withCrossPrice(calculator.getCrossUnitPrice())
                             .withCurrency(currency)
