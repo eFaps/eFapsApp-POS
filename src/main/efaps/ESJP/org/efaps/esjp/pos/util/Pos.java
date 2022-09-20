@@ -149,9 +149,16 @@ public class Pos
     @EFapsSysConfAttribute
     public static final PropertiesSysConfAttribute BALANCE_REPORT = new PropertiesSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
-                    .key(BASE + "BalanceReport")
+                    .key(BASE + "Balance.Report")
                     .addDefaultValue("Type", CIPOS.Balance.getType().getName())
                     .description("Configurations for Balance Report");
+
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute BALANCE_ACIVATECASHENTRY = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Balance.ActivateCashEntry")
+                    .description("Activate the handling for spots.");
+
 
     @EFapsSysConfLink
     public static final SysConfLink PRODDOCTYPE4DOC = new SysConfLink()
@@ -165,6 +172,10 @@ public class Pos
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Contact.ActivateEmail")
                     .description("Activate the handling of categories.");
+
+
+    /** See description. */
+
 
 
     public enum Role implements IBitEnum

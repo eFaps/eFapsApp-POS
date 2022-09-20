@@ -16,13 +16,17 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
@@ -45,6 +49,22 @@ public abstract class Config_Base
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
         LOG.debug("Request for Configs: {}", config);
 
+        FieldUtils.getAllFieldsList(Pos.class).stream().filter(field -> {
+            return Modifier.isStatic(field.getModifiers());
+        }).filter(field -> {
+            return !StringUtils.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID");
+        }).forEach(field -> {
+            try {
+                final var fieldObject = FieldUtils.readStaticField(field);
+                if (fieldObject instanceof AbstractSysConfAttribute) {
+                    final var sysConfAttr = (AbstractSysConfAttribute<?,?>) fieldObject;
+                    config.put( sysConfAttr.getKey(), String.valueOf(sysConfAttr.get()));
+                }
+            } catch (IllegalAccessException | EFapsException e1) {
+                LOG.error("Catched error on read static field: {}", e1);
+            }
+        });
+
         config.put(ERP.COMPANY_NAME.getKey(), ERP.COMPANY_NAME.get());
         config.put(ERP.COMPANY_TAX.getKey(), ERP.COMPANY_TAX.get());
         config.put(ERP.COMPANY_ACTIVITY.getKey(), ERP.COMPANY_ACTIVITY.get());
@@ -56,8 +76,6 @@ public abstract class Config_Base
         config.put(ERP.COMPANY_CITY.getKey(), ERP.COMPANY_CITY.get());
         config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
         config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
-        config.put(Pos.VERSION.getKey(), Pos.VERSION.get());
-        config.put(Pos.CONTACT_ACIVATEEMAIL.getKey(), Pos.CONTACT_ACIVATEEMAIL.get().toString());
 
         final Response ret = Response.ok()
                         .entity(config)
