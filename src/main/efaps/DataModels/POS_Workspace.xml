@@ -166,10 +166,11 @@
             <sqlcolumn>GRIDSIZE</sqlcolumn>
         </attribute>
         <attribute>
-            <name>GridShowPrice</name>
-            <type>Boolean</type>
+            <name>Flags</name>
+            <type>BitEnum</type>
+            <className>org.efaps.esjp.pos.util.Pos$WorkspaceFlag</className>
             <sqltable>POS_WorkspaceSQLTable</sqltable>
-            <sqlcolumn>GRIDSHOWPRICE</sqlcolumn>
+            <sqlcolumn>FLAGS</sqlcolumn>
         </attribute>
         <attributeset>
             <name>DiscountSet</name>

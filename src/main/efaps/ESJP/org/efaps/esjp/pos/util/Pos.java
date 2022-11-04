@@ -288,6 +288,25 @@ public class Pos
         }
     }
 
+
+    public enum WorkspaceFlag implements IBitEnum
+    {
+        GRIDSHOWPRICE,
+        ORDERREQUIRESCONTACT;
+
+        @Override
+        public int getInt()
+        {
+            return BitEnumType.getInt4Index(ordinal());
+        }
+
+        @Override
+        public int getBitIndex()
+        {
+            return ordinal();
+        }
+    }
+
     /**
      * @return the SystemConfigruation for Payroll
      * @throws CacheReloadException on error

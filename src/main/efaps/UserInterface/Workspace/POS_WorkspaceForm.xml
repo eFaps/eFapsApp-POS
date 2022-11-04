@@ -73,8 +73,8 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
-        <field name="gridShowPrice">
-            <property name="Attribute">GridShowPrice</property>
+        <field name="flags">
+            <property name="Attribute">Flags</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>

@@ -50,6 +50,7 @@ import org.efaps.esjp.pos.util.Pos.GridSize;
 import org.efaps.esjp.pos.util.Pos.PosLayout;
 import org.efaps.esjp.pos.util.Pos.PrintTarget;
 import org.efaps.esjp.pos.util.Pos.SpotConfig;
+import org.efaps.esjp.pos.util.Pos.WorkspaceFlag;
 import org.efaps.pos.dto.CardDto;
 import org.efaps.pos.dto.DiscountDto;
 import org.efaps.pos.dto.FloorDto;
@@ -68,11 +69,13 @@ import org.slf4j.LoggerFactory;
 public abstract class Workspace_Base
     extends AbstractRest
 {
+
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Workspace.class);
 
     /**
      * Gets the categories.
+     *
      * @param _identifier
      *
      * @return the categories
@@ -96,7 +99,7 @@ public abstract class Workspace_Base
         multi.addSelect(selPosOID, selWarehouseOID);
         multi.addAttribute(CIPOS.Workspace.Name, CIPOS.Workspace.DocTypes, CIPOS.Workspace.SpotConfig,
                         CIPOS.Workspace.SpotCount, CIPOS.Workspace.PosLayout, CIPOS.Workspace.PosLayout,
-                        CIPOS.Workspace.GridShowPrice, CIPOS.Workspace.GridSize);
+                        CIPOS.Workspace.Flags, CIPOS.Workspace.GridSize);
         multi.execute();
         while (multi.next()) {
             final Set<org.efaps.pos.dto.DocType> dtoDocTypes = new HashSet<>();
@@ -121,13 +124,16 @@ public abstract class Workspace_Base
 
                 while (printerLinkIter.hasNext()) {
                     printCmdDtos.add(PrintCmdDto.builder()
-                            .withPrinterOid(Instance.get(CIPOS.Printer.getType(), printerLinkIter.next()).getOid())
-                            .withTarget(EnumUtils.getEnum(org.efaps.pos.dto.PrintTarget.class,
-                                            printTargetIter.hasNext() ? printTargetIter.next().name() : PrintTarget.JOB.name()))
-                            .withTargetOid(Instance.get(CIPOS.Category.getType(), targetLinkIter.next()).getOid())
-                            .withReportOid(Instance.get(CIAdminProgram.JasperReportCompiled.getType(),
-                                            reportLinkIter.next()).getOid())
-                            .build());
+                                    .withPrinterOid(Instance.get(CIPOS.Printer.getType(), printerLinkIter.next())
+                                                    .getOid())
+                                    .withTarget(EnumUtils.getEnum(org.efaps.pos.dto.PrintTarget.class,
+                                                    printTargetIter.hasNext() ? printTargetIter.next().name()
+                                                                    : PrintTarget.JOB.name()))
+                                    .withTargetOid(Instance.get(CIPOS.Category.getType(), targetLinkIter.next())
+                                                    .getOid())
+                                    .withReportOid(Instance.get(CIAdminProgram.JasperReportCompiled.getType(),
+                                                    reportLinkIter.next()).getOid())
+                                    .build());
                 }
             }
             final Set<DiscountDto> discountDtos = new HashSet<>();
@@ -137,19 +143,21 @@ public abstract class Workspace_Base
             final Map<String, Object> discounts = print2.getAttributeSet(CIPOS.Workspace.DiscountSet.name);
             if (discounts != null) {
                 LOG.trace("Discounts: {} for {}", discounts, multi.getCurrentInstance());
-                final Iterator<DiscountType> discountTypeIter = ((ArrayList<DiscountType>) discounts.get("DiscountType")).iterator();
+                final Iterator<DiscountType> discountTypeIter = ((ArrayList<DiscountType>) discounts
+                                .get("DiscountType")).iterator();
                 final Iterator<BigDecimal> valueIter = ((ArrayList<BigDecimal>) discounts.get("Value")).iterator();
                 final Iterator<String> labelIter = ((ArrayList<String>) discounts.get("Label")).iterator();
                 final Iterator<Long> productLinkIter = ((ArrayList<Long>) discounts.get("ProductLink")).iterator();
 
                 while (discountTypeIter.hasNext()) {
                     discountDtos.add(DiscountDto.builder()
-                        .withType(EnumUtils.getEnum(org.efaps.pos.dto.DiscountType.class,
-                                        discountTypeIter.next().name()))
-                        .withValue(valueIter.hasNext() ? valueIter.next() : BigDecimal.ZERO)
-                        .withLabel(labelIter.hasNext() ? labelIter.next() : "No Label")
-                        .withProductOid(Instance.get(CIProducts.ProductTextPosition.getType(), productLinkIter.next()).getOid())
-                        .build());
+                                    .withType(EnumUtils.getEnum(org.efaps.pos.dto.DiscountType.class,
+                                                    discountTypeIter.next().name()))
+                                    .withValue(valueIter.hasNext() ? valueIter.next() : BigDecimal.ZERO)
+                                    .withLabel(labelIter.hasNext() ? labelIter.next() : "No Label")
+                                    .withProductOid(Instance.get(CIProducts.ProductTextPosition.getType(),
+                                                    productLinkIter.next()).getOid())
+                                    .build());
                 }
             }
 
@@ -166,7 +174,8 @@ public abstract class Workspace_Base
                     final Long cartTypeId = cardTypeIter.next();
                     String label = labelIter.next();
                     if (StringUtils.isEmpty(label)) {
-                        final PrintQuery labelPrint = new PrintQuery(CISales.AttributeDefinitionPaymentCardType.getType(), cartTypeId);
+                        final PrintQuery labelPrint = new PrintQuery(
+                                        CISales.AttributeDefinitionPaymentCardType.getType(), cartTypeId);
                         labelPrint.addAttribute(CISales.AttributeDefinitionPaymentCardType.Value);
                         labelPrint.executeWithoutAccessCheck();
                         label = labelPrint.getAttribute(CISales.AttributeDefinitionPaymentCardType.Value);
@@ -182,7 +191,8 @@ public abstract class Workspace_Base
             floorAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Floor.FromLink, multi.getCurrentInstance());
 
             final QueryBuilder floorQueryBldr = new QueryBuilder(CIPOS.Floor);
-            floorQueryBldr.addWhereAttrInQuery(CIPOS.Floor.ID, floorAttrQueryBldr.getAttributeQuery(CIPOS.Workspace2Floor.ToLink));
+            floorQueryBldr.addWhereAttrInQuery(CIPOS.Floor.ID,
+                            floorAttrQueryBldr.getAttributeQuery(CIPOS.Workspace2Floor.ToLink));
             final MultiPrintQuery floorMulti = floorQueryBldr.getPrint();
             floorMulti.addAttribute(CIPOS.Floor.Name);
             floorMulti.execute();
@@ -199,21 +209,23 @@ public abstract class Workspace_Base
                 final List<SpotDto> spots = new ArrayList<>();
                 while (spotMulti.next()) {
                     spots.add(SpotDto.builder()
-                        .withOID(spotMulti.getCurrentInstance().getOid())
-                        .withLabel(spotMulti.getAttribute(CIPOS.Spot.Label))
-                        .build());
+                                    .withOID(spotMulti.getCurrentInstance().getOid())
+                                    .withLabel(spotMulti.getAttribute(CIPOS.Spot.Label))
+                                    .build());
                 }
                 floors.add(FloorDto.builder()
-                    .withOID(floorMulti.getCurrentInstance().getOid())
-                    .withName(floorMulti.getAttribute(CIPOS.Floor.Name))
-                    .withSpots(spots)
-                    .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid() : null)
-                    .build());
+                                .withOID(floorMulti.getCurrentInstance().getOid())
+                                .withName(floorMulti.getAttribute(CIPOS.Floor.Name))
+                                .withSpots(spots)
+                                .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid()
+                                                : null)
+                                .build());
             }
             final List<String> categoryOids = new ArrayList<>();
             if (Pos.CATEGORY_ACTIVATE.get()) {
                 final QueryBuilder categoryAttrQueryBldr = new QueryBuilder(CIPOS.Workspace2Category);
-                categoryAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Category.FromLink, multi.getCurrentInstance());
+                categoryAttrQueryBldr.addWhereAttrEqValue(CIPOS.Workspace2Category.FromLink,
+                                multi.getCurrentInstance());
 
                 final QueryBuilder categoryQueryBldr = new QueryBuilder(CIPOS.Category);
                 categoryQueryBldr.addWhereAttrInQuery(CIPOS.Category.ID, categoryAttrQueryBldr.getAttributeQuery(
@@ -228,26 +240,29 @@ public abstract class Workspace_Base
             final SpotConfig spotConfig = multi.getAttribute(CIPOS.Workspace.SpotConfig);
             final Integer spotCount = multi.getAttribute(CIPOS.Workspace.SpotCount);
             final PosLayout posLayout = multi.getAttribute(CIPOS.Workspace.PosLayout);
-            final boolean gridShowPrice = multi.getAttribute(CIPOS.Workspace.GridShowPrice);
             final GridSize gridSize = multi.getAttribute(CIPOS.Workspace.GridSize);
+            final Collection<WorkspaceFlag> flags = multi.getAttribute(CIPOS.Workspace.Flags);
+
+            final var flagsBitValue = flags == null ? 0
+                            : flags.stream().map(WorkspaceFlag::getInt).reduce(0, Integer::sum);
 
             workspaces.add(WorkspaceDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
-                .withName(multi.getAttribute(CIPOS.Workspace.Name))
-                .withPosOid(multi.getSelect(selPosOID))
-                .withWarehouseOid(multi.getSelect(selWarehouseOID))
-                .withDocTypes(dtoDocTypes)
-                .withSpotConfig(EnumUtils.getEnum(org.efaps.pos.dto.SpotConfig.class, spotConfig.name()))
-                .withSpotCount(spotCount == null ? -1 : spotCount)
-                .withPrintCmds(printCmdDtos)
-                .withPosLayout(EnumUtils.getEnum(org.efaps.pos.dto.PosLayout.class, posLayout.name()))
-                .withDiscounts(discountDtos)
-                .withCards(cardDtos)
-                .withGridShowPrice(gridShowPrice)
-                .withGridSize(EnumUtils.getEnum(org.efaps.pos.dto.PosGridSize.class, gridSize.name()))
-                .withFloors(floors)
-                .withCategoryOids(categoryOids)
-                .build());
+                            .withOID(multi.getCurrentInstance().getOid())
+                            .withName(multi.getAttribute(CIPOS.Workspace.Name))
+                            .withPosOid(multi.getSelect(selPosOID))
+                            .withWarehouseOid(multi.getSelect(selWarehouseOID))
+                            .withDocTypes(dtoDocTypes)
+                            .withSpotConfig(EnumUtils.getEnum(org.efaps.pos.dto.SpotConfig.class, spotConfig.name()))
+                            .withSpotCount(spotCount == null ? -1 : spotCount)
+                            .withPrintCmds(printCmdDtos)
+                            .withPosLayout(EnumUtils.getEnum(org.efaps.pos.dto.PosLayout.class, posLayout.name()))
+                            .withDiscounts(discountDtos)
+                            .withCards(cardDtos)
+                            .withFlags(flagsBitValue)
+                            .withGridSize(EnumUtils.getEnum(org.efaps.pos.dto.PosGridSize.class, gridSize.name()))
+                            .withFloors(floors)
+                            .withCategoryOids(categoryOids)
+                            .build());
         }
         LOG.debug("Workspaces: {}", workspaces);
         final Response ret = Response.ok()
