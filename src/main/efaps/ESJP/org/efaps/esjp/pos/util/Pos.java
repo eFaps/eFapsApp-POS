@@ -292,7 +292,8 @@ public class Pos
     public enum WorkspaceFlag implements IBitEnum
     {
         GRIDSHOWPRICE,
-        ORDERREQUIRESCONTACT;
+        ORDERREQUIRESCONTACT,
+        ROUNDPAYABLE;
 
         @Override
         public int getInt()

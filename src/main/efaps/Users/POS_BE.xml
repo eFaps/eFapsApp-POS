@@ -30,6 +30,7 @@
                 <accessset>Products_Reader</accessset>
                 <accessset>POS_BE-Read</accessset>
                 <accessset>POS_BE-Modify</accessset>
+                <accessset>HumanResource_Reader</accessset>
             </datamodel>
         </access>
     </definition>
