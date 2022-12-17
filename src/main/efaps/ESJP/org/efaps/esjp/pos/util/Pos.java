@@ -293,7 +293,8 @@ public class Pos
     {
         GRIDSHOWPRICE,
         ORDERREQUIRESCONTACT,
-        ROUNDPAYABLE;
+        ROUNDPAYABLE,
+        ASSIGNSELLER;
 
         @Override
         public int getInt()
