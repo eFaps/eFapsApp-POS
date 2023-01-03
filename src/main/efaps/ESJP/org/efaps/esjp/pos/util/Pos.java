@@ -157,7 +157,7 @@ public class Pos
     public static final BooleanSysConfAttribute BALANCE_ACIVATECASHENTRY = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Balance.ActivateCashEntry")
-                    .description("Activate the handling for spots.");
+                    .description("Activate the possibility to set Cash Entries for Balances.");
 
 
     @EFapsSysConfLink
@@ -175,8 +175,11 @@ public class Pos
 
 
     /** See description. */
-
-
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute PAYMENT_REQUIRE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Payment.RequirePayment")
+                    .description("Require a payment (do not allow 0 or negativ change).");
 
     public enum Role implements IBitEnum
     {
