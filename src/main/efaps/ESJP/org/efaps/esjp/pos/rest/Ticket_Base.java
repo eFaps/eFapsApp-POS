@@ -21,8 +21,10 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CISales;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
@@ -38,6 +40,18 @@ public abstract class Ticket_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Receipt.class);
 
+    @Override
+    protected CIType getDocumentType()
+    {
+        return CISales.Receipt;
+    }
+
+    @Override
+    protected CIType getEmployee2DocumentType()
+    {
+        return CIPOS.Employee2Ticket;
+    }
+
     /**
      * Gets the categories.
      *
@@ -52,7 +66,7 @@ public abstract class Ticket_Base
         LOG.debug("Recieved: {}", _ticketDto);
         final TicketDto dto;
         if (_ticketDto.getOid() == null) {
-            final Instance docInst = createDocument(CIPOS.Ticket, Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
+            final Instance docInst = createDocument(Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
             for (final AbstractDocItemDto item : _ticketDto.getItems()) {
                 createPosition(docInst, CIPOS.TicketPosition, item, _ticketDto.getDate());
             }

@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.pos.dto.AbstractDocItemDto;
@@ -44,6 +45,18 @@ public abstract class Receipt_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Receipt.class);
 
+    @Override
+    protected CIType getDocumentType()
+    {
+        return CISales.Receipt;
+    }
+
+    @Override
+    protected CIType getEmployee2DocumentType()
+    {
+        return CISales.Employee2Receipt;
+    }
+
     /**
      * Gets the categories.
      *
@@ -57,8 +70,7 @@ public abstract class Receipt_Base
         LOG.debug("Recieved: {}", _receiptDto);
         final ReceiptDto dto;
         if (_receiptDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.Receipt, Status.find(CISales.ReceiptStatus.Paid),
-                            _receiptDto);
+            final Instance docInst = createDocument(Status.find(CISales.ReceiptStatus.Paid), _receiptDto);
             for (final AbstractDocItemDto item : _receiptDto.getItems()) {
                 createPosition(docInst, CISales.ReceiptPosition, item, _receiptDto.getDate());
             }

@@ -39,6 +39,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -77,10 +78,13 @@ public abstract class AbstractDocument_Base
     extends AbstractRest
 {
 
-    protected Instance createDocument(final CIType _ciType, final Status _status, final AbstractDocumentDto _dto)
+    protected abstract CIType getDocumentType();
+    protected abstract CIType getEmployee2DocumentType();
+
+    protected Instance createDocument(final Status _status, final AbstractDocumentDto _dto)
         throws EFapsException
     {
-        final Insert insert = new Insert(_ciType);
+        final Insert insert = new Insert(getDocumentType());
         insert.add(CISales.DocumentSumAbstract.Name, _dto.getNumber());
         insert.add(CISales.DocumentSumAbstract.Date, _dto.getDate());
         insert.add(CISales.DocumentSumAbstract.StatusAbstract, _status);
@@ -131,6 +135,22 @@ public abstract class AbstractDocument_Base
                 relInsert.add(CIPOS.Balance2Document.FromLink, balanceInst);
                 relInsert.add(CIPOS.Balance2Document.ToLink, ret);
                 relInsert.execute();
+            }
+        }
+
+        if (getEmployee2DocumentType() != null && CollectionUtils.isNotEmpty(_dto.getEmployeeRelations())) {
+            for (final var relation : _dto.getEmployeeRelations()) {
+                final var employeeInst = Instance.get(relation.getEmployeeOid());
+                if (InstanceUtils.isKindOf(employeeInst, CIHumanResource.EmployeeAbstract)) {
+                    switch (relation.getType()) {
+                        case SELLER:
+                        default:
+                            final Insert relInsert = new Insert(getEmployee2DocumentType());
+                            relInsert.add(CIHumanResource.Employee2DocumentAbstract.FromAbstractLink, employeeInst);
+                            relInsert.add(CIHumanResource.Employee2DocumentAbstract.ToAbstractLink, ret);
+                            relInsert.execute();
+                    }
+                }
             }
         }
         return ret;

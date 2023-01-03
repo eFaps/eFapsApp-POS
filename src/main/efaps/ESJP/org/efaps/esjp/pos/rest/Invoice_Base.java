@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.pos.dto.AbstractDocItemDto;
@@ -39,6 +40,18 @@ public abstract class Invoice_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Receipt.class);
 
+    @Override
+    protected CIType getDocumentType()
+    {
+        return CISales.Invoice;
+    }
+
+    @Override
+    protected CIType getEmployee2DocumentType()
+    {
+        return CISales.Employee2Invoice;
+    }
+
     /**
      * Gets the categories.
      *
@@ -52,8 +65,7 @@ public abstract class Invoice_Base
         LOG.debug("Recieved: {}", _invoiceDto);
         final ReceiptDto dto;
         if (_invoiceDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.Invoice, Status.find(CISales.InvoiceStatus.Paid),
-                            _invoiceDto);
+            final Instance docInst = createDocument(Status.find(CISales.InvoiceStatus.Paid), _invoiceDto);
             for (final AbstractDocItemDto item : _invoiceDto.getItems()) {
                 createPosition(docInst, CISales.InvoicePosition, item, _invoiceDto.getDate());
             }

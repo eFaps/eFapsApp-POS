@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
@@ -46,6 +47,18 @@ public abstract class Order_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Order.class);
 
+    @Override
+    protected CIType getDocumentType()
+    {
+        return CIPOS.Order;
+    }
+
+    @Override
+    protected CIType getEmployee2DocumentType()
+    {
+        return CIPOS.Employee2Order;
+    }
+
     /**
      * Gets the categories.
      *
@@ -66,7 +79,7 @@ public abstract class Order_Base
                 status = Status.find(CIPOS.OrderStatus.Closed);
             }
 
-            final Instance docInst = createDocument(CIPOS.Order, status, _orderDto);
+            final Instance docInst = createDocument(status, _orderDto);
             for (final AbstractDocItemDto item : _orderDto.getItems()) {
                 createPosition(docInst, CIPOS.OrderPosition, item, _orderDto.getDate());
             }

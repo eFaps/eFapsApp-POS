@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
@@ -38,6 +39,18 @@ public abstract class CreditNote_Base
 {
     private static final Logger LOG = LoggerFactory.getLogger(CreditNote.class);
 
+    @Override
+    protected CIType getDocumentType()
+    {
+        return CISales.CreditNote;
+    }
+
+    @Override
+    protected CIType getEmployee2DocumentType()
+    {
+        return CISales.Employee2CreditNote;
+    }
+
     protected Response addCreditNote(final String _identifier, final CreditNoteDto _creditNoteDto)
         throws EFapsException
     {
@@ -45,7 +58,7 @@ public abstract class CreditNote_Base
         LOG.debug("Recieved: {}", _creditNoteDto);
         final CreditNoteDto dto;
         if (_creditNoteDto.getOid() == null) {
-            final Instance docInst = createDocument(CISales.CreditNote, Status.find(CISales.CreditNoteStatus.Paid),
+            final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid),
                             _creditNoteDto);
             for (final AbstractDocItemDto item : _creditNoteDto.getItems()) {
                 createPosition(docInst, CISales.CreditNotePosition, item, _creditNoteDto.getDate());
