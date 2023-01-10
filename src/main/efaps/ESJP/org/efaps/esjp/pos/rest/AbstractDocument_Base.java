@@ -380,6 +380,12 @@ public abstract class AbstractDocument_Base
                                 NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
                 if (PaymentType.CARD.equals(paymentDto.getType())) {
                     insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
+                    insert.add(CISales.PaymentCard.CardNumber, paymentDto.getCardTypeId());
+                    insert.add(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
+                    insert.add(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
+                    insert.add(CISales.PaymentCard.OperationId, paymentDto.getOperationId());
+                    insert.add(CISales.PaymentCard.OperationDateTime, paymentDto.getOperationDateTime());
+                    insert.add(CISales.PaymentCard.Info, paymentDto.getInfo());
                 }
 
                 if (PaymentType.ELECTRONIC.equals(paymentDto.getType())) {
@@ -387,6 +393,11 @@ public abstract class AbstractDocument_Base
                     if (InstanceUtils.isValid(epayInst)) {
                         insert.add(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
                     }
+                    insert.add(CISales.PaymentElectronic.ServiceProvider, paymentDto.getServiceProvider());
+                    insert.add(CISales.PaymentElectronic.Authorization, paymentDto.getAuthorization());
+                    insert.add(CISales.PaymentElectronic.OperationId, paymentDto.getOperationId());
+                    insert.add(CISales.PaymentElectronic.OperationDateTime, paymentDto.getOperationDateTime());
+                    insert.add(CISales.PaymentElectronic.Info, paymentDto.getInfo());
                 }
 
                 final String code = posPayment.getCode4CreateDoc(parameter);
