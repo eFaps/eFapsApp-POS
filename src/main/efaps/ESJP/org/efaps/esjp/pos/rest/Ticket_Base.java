@@ -24,7 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.ci.CISales;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
@@ -43,7 +42,7 @@ public abstract class Ticket_Base
     @Override
     protected CIType getDocumentType()
     {
-        return CISales.Receipt;
+        return CIPOS.Ticket;
     }
 
     @Override
