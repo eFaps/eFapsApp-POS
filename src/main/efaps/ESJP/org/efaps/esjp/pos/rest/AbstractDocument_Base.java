@@ -380,7 +380,7 @@ public abstract class AbstractDocument_Base
                                 NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
                 if (PaymentType.CARD.equals(paymentDto.getType())) {
                     insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
-                    insert.add(CISales.PaymentCard.CardNumber, paymentDto.getCardTypeId());
+                    insert.add(CISales.PaymentCard.CardNumber, paymentDto.getCardNumber());
                     insert.add(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
                     insert.add(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
                     insert.add(CISales.PaymentCard.OperationId, paymentDto.getOperationId());
