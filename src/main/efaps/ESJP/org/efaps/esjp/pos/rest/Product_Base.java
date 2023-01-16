@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2021 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,9 @@ public abstract class Product_Base
      * @throws EFapsException the eFaps exception
      */
     @SuppressWarnings("unchecked")
-    public Response getProducts(final String _identifier)
+    public Response getProducts(final String _identifier,
+                                final int limit,
+                                final int offset)
         throws EFapsException
     {
         checkAccess(_identifier);
@@ -133,6 +135,13 @@ public abstract class Product_Base
         } else {
             queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
         }
+        queryBldr.addOrderByAttributeAsc(CIProducts.ProductAbstract.ID);
+        if (limit > 0) {
+            queryBldr.setLimit(limit);
+        }
+        if (offset > 0) {
+            queryBldr.setOffset(offset);
+        }
 
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selCat = SelectBuilder.get()
@@ -172,8 +181,8 @@ public abstract class Product_Base
             final Object catWeights = multi.getSelect(selCatWeight);
             final Set<Product2CategoryDto> prod2cats = new HashSet<>();
             if (cats instanceof List) {
-                var catIter = ((Collection<? extends String>) cats).iterator();
-                var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
+                final var catIter = ((Collection<? extends String>) cats).iterator();
+                final var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
                 while (catIter.hasNext()) {
                     prod2cats.add(Product2CategoryDto.builder()
                                     .withCategoryOid(catIter.next())

@@ -20,6 +20,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -40,9 +41,11 @@ public class Product
     @Path("/{identifier}/products")
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public Response getProducts(@PathParam("identifier") final String _identifier)
+    public Response getProducts(@PathParam("identifier") final String _identifier,
+                                @QueryParam("limit") final int limit,
+                                @QueryParam("offset") final int offset)
         throws EFapsException
     {
-        return super.getProducts(_identifier);
+        return super.getProducts(_identifier, limit, offset);
     }
 }

@@ -49,13 +49,22 @@ public abstract class Contact_Base
     private static final Logger LOG = LoggerFactory.getLogger(Contact.class);
 
     @SuppressWarnings("unchecked")
-    public Response getContacts(final String _identifier)
+    public Response getContacts(final String _identifier,
+                                final int limit,
+                                final int offset)
         throws EFapsException
     {
         checkAccess(_identifier);
         final List<ContactDto> contacts = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
+        queryBldr.addOrderByAttributeAsc(CIContacts.Contact.ID);
+        if (limit > 0) {
+            queryBldr.setLimit(limit);
+        }
+        if (offset > 0) {
+            queryBldr.setOffset(offset);
+        }
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selTaxNumber = SelectBuilder.get()
                         .clazz(CIContacts.ClassOrganisation)
