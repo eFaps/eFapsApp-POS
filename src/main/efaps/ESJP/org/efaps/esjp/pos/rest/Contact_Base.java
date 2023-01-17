@@ -16,6 +16,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +52,8 @@ public abstract class Contact_Base
     @SuppressWarnings("unchecked")
     public Response getContacts(final String _identifier,
                                 final int limit,
-                                final int offset)
+                                final int offset,
+                                final OffsetDateTime after)
         throws EFapsException
     {
         checkAccess(_identifier);
@@ -64,6 +66,9 @@ public abstract class Contact_Base
         }
         if (offset > 0) {
             queryBldr.setOffset(offset);
+        }
+        if (after != null) {
+            queryBldr.addWhereAttrGreaterValue(CIContacts.Contact.Modified, after);
         }
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selTaxNumber = SelectBuilder.get()

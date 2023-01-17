@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.time.OffsetDateTime;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -43,10 +45,11 @@ public class Contact
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Response getContacts(@PathParam("identifier") final String _identifier,
                                 @QueryParam("limit") final int limit,
-                                @QueryParam("offset") final int offset)
+                                @QueryParam("offset") final int offset,
+                                @QueryParam("after") final OffsetDateTime after)
         throws EFapsException
     {
-        return super.getContacts(_identifier, limit, offset);
+        return super.getContacts(_identifier, limit, offset, after);
     }
 
     @Override
