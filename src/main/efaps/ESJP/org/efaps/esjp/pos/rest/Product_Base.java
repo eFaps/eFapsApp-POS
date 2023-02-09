@@ -44,6 +44,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -55,7 +56,9 @@ import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.products.util.Products;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
+import org.efaps.pos.dto.BOMGroupConfigDto;
 import org.efaps.pos.dto.BarcodeDto;
+import org.efaps.pos.dto.ConfigurationBOMDto;
 import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.Product2CategoryDto;
@@ -181,11 +184,10 @@ public abstract class Product_Base
             final Object catWeights = multi.getSelect(selCatWeight);
             final Set<Product2CategoryDto> prod2cats = new HashSet<>();
             if (cats instanceof List) {
-                final var catIter = ((Collection<? extends String>) cats).iterator();
                 final var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
-                while (catIter.hasNext()) {
+                for (final String element : (Collection<? extends String>) cats) {
                     prod2cats.add(Product2CategoryDto.builder()
-                                    .withCategoryOid(catIter.next())
+                                    .withCategoryOid(element)
                                     .withWeight(weightIter.next())
                                     .build());
                 }
@@ -276,6 +278,59 @@ public abstract class Product_Base
                 }
             }
 
+            final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
+            final var configurationBOMs = new HashSet<ConfigurationBOMDto>();
+            if (Products.STANDART_ACTCONFBOM.get()) {
+                final var eval = EQL.builder().print()
+                                .query(CIProducts.BOMGroupConfiguration)
+                                .where()
+                                .attribute(CIProducts.BOMGroupConfiguration.ProductLink).eq(multi.getCurrentInstance())
+                                .select()
+                                .attribute(CIProducts.BOMGroupConfiguration.Name,
+                                                CIProducts.BOMGroupConfiguration.Description)
+                                .evaluate();
+                while (eval.next()) {
+                    LOG.info("found out for {}", multi.getCurrentInstance());
+
+                    final Collection<Products.BOMGroupConfig> flags = eval.get(CIProducts.BOMGroupConfiguration.Config);
+
+                    final var flagsBitValue = flags == null ? 0
+                                    : flags.stream().map(Products.BOMGroupConfig::getInt).reduce(0, Integer::sum);
+
+                    eval.<Integer>get(CIProducts.BOMGroupConfiguration.Config);
+                    bomGroupConfigs.add(BOMGroupConfigDto.builder()
+                                    .withOID(eval.inst().getOid())
+                                    .withName(eval.get(CIProducts.BOMGroupConfiguration.Name))
+                                    .withDescription(eval.get(CIProducts.BOMGroupConfiguration.Description))
+                                    .withFlags(flagsBitValue)
+                                    .withProductOid(multi.getCurrentInstance().getOid())
+                                    .build());
+                }
+
+                final var eval2 = EQL.builder().print()
+                                .query(CIProducts.ConfigurationBOM)
+                                .where()
+                                .attribute(CIProducts.ConfigurationBOM.From).eq(multi.getCurrentInstance())
+                                .select()
+                                .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
+                                                CIProducts.ConfigurationBOM.UoM)
+                                .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink).oid().as("bomGroupOid")
+                                .linkto(CIProducts.ConfigurationBOM.To).oid().as("toOid")
+                                .evaluate();
+                while (eval2.next()) {
+                    final var uoMId = eval2.<Long>get(CIProducts.ConfigurationBOM.UoM);
+                    final String uoM = uoMId == null ? null : Dimension.getUoM(uoMId).getCommonCode();
+                    configurationBOMs.add(ConfigurationBOMDto.builder()
+                                    .withOID(eval2.inst().getOid())
+                                    .withToProductOid(eval2.get("toOid"))
+                                    .withPosition(eval2.get(CIProducts.ConfigurationBOM.Position))
+                                    .withQuantity(eval2.get(CIProducts.ConfigurationBOM.Quantity))
+                                    .withBomGroupOid(eval2.get("bomGroupOid"))
+                                    .withUoM(uoM)
+                                    .build());
+                }
+            }
+
             final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
 
             final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
@@ -300,6 +355,8 @@ public abstract class Product_Base
                             .withRelations(relations)
                             .withIndicationSets(getIndicationSets(multi, selIndication))
                             .withBarcodes(barcodes)
+                            .withBomGroupConfigs(bomGroupConfigs)
+                            .withConfigurationBOMs(configurationBOMs)
                             .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
@@ -367,7 +424,8 @@ public abstract class Product_Base
                             while (multi.next()) {
                                 String imageOid = null;
                                 if (Pos.INDICATION_ACIVATEIMAGE.get()) {
-                                    final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
+                                    final Resource resource = Store
+                                                    .get(multi.getCurrentInstance().getType().getStoreId())
                                                     .getResource(multi.getCurrentInstance());
                                     if (resource.exists()) {
                                         imageOid = multi.getCurrentInstance().getOid();
@@ -385,7 +443,8 @@ public abstract class Product_Base
 
                             String imageOid = null;
                             if (Pos.INDICATIONSET_ACIVATEIMAGE.get()) {
-                                final Resource resource = Store.get(setMulti.getCurrentInstance().getType().getStoreId())
+                                final Resource resource = Store
+                                                .get(setMulti.getCurrentInstance().getType().getStoreId())
                                                 .getResource(setMulti.getCurrentInstance());
                                 if (resource.exists()) {
                                     imageOid = setMulti.getCurrentInstance().getOid();
