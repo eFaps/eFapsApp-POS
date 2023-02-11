@@ -17,6 +17,7 @@
 package org.efaps.esjp.pos.rest;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -94,49 +95,52 @@ public abstract class Product_Base
     @SuppressWarnings("unchecked")
     public Response getProducts(final String _identifier,
                                 final int limit,
-                                final int offset)
+                                final int offset,
+                                final OffsetDateTime after)
         throws EFapsException
     {
         checkAccess(_identifier);
         LOG.debug("Received request for product sync from {}", _identifier);
         final List<ProductDto> products = new ArrayList<>();
 
-        final Map<Integer, String> relSelects;
-        final Map<Integer, String> relLabels;
-        final Map<Integer, String> relQuantity;
-        final Map<Integer, String> relTypes;
-        if (Pos.PRODREL.exists()) {
-            final Properties properties = Pos.PRODREL.get();
-            relQuantity = PropertiesUtil.analyseProperty(properties, "QuantitySelect", 0);
-            relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
-            relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
-            relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
-        } else {
-            relSelects = new HashMap<>();
-            relQuantity = new HashMap<>();
-            relLabels = new HashMap<>();
-            relTypes = new HashMap<>();
-        }
-
         final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
-        if (Pos.CATEGORY_ACTIVATE.get()) {
-            queryBldr.setOr(true);
-            final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
-            attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
+        if (after == null) {
+            if (Pos.CATEGORY_ACTIVATE.get()) {
+                queryBldr.setOr(true);
+                final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
+                attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
 
-            final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
-            relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
-                            attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
+                final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
+                relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
+                                attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
 
-            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                            relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
-            // we need the textpositions
-            final QueryBuilder attrQueryBldr2 = new QueryBuilder(CIProducts.ProductTextPosition);
-            attrQueryBldr2.addWhereAttrEqValue(CIProducts.ProductTextPosition.Active, true);
-            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                            attrQueryBldr2.getAttributeQuery(CIProducts.ProductTextPosition.ID));
+                queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                                relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
+                // we need the textpositions
+                final QueryBuilder attrQueryBldr2 = new QueryBuilder(CIProducts.ProductTextPosition);
+                attrQueryBldr2.addWhereAttrEqValue(CIProducts.ProductTextPosition.Active, true);
+                queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                                attrQueryBldr2.getAttributeQuery(CIProducts.ProductTextPosition.ID));
+            } else {
+                queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
+            }
         } else {
-            queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
+            queryBldr.setOr(true);
+            // update of pricelist position
+            final var positionAttrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistPosition);
+            positionAttrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistPosition.Modified, after);
+            final var listAttrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
+            listAttrQueryBldr.addWhereAttrInQuery(CIProducts.ProductPricelistAbstract.ID,
+                         positionAttrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistPosition.ProductPricelist));
+            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                          listAttrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
+            //update of pricelist
+            final var attrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
+            attrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistAbstract.Modified, after);
+            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
+                            attrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
+            //update of product
+            queryBldr.addWhereAttrGreaterValue(CIProducts.ProductAbstract.Modified, after);
         }
         queryBldr.addOrderByAttributeAsc(CIProducts.ProductAbstract.ID);
         if (limit > 0) {
@@ -166,6 +170,23 @@ public abstract class Product_Base
                             .linkto(CIPOS.IndicationSet2Product.FromLink)
                             .instance();
             multi.addSelect(selIndication);
+        }
+
+        final Map<Integer, String> relSelects;
+        final Map<Integer, String> relLabels;
+        final Map<Integer, String> relQuantity;
+        final Map<Integer, String> relTypes;
+        if (Pos.PRODREL.exists()) {
+            final Properties properties = Pos.PRODREL.get();
+            relQuantity = PropertiesUtil.analyseProperty(properties, "QuantitySelect", 0);
+            relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+            relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
+            relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
+        } else {
+            relSelects = new HashMap<>();
+            relQuantity = new HashMap<>();
+            relLabels = new HashMap<>();
+            relTypes = new HashMap<>();
         }
 
         for (final Entry<Integer, String> entry : relSelects.entrySet()) {
@@ -290,8 +311,6 @@ public abstract class Product_Base
                                                 CIProducts.BOMGroupConfiguration.Description)
                                 .evaluate();
                 while (eval.next()) {
-                    LOG.info("found out for {}", multi.getCurrentInstance());
-
                     final Collection<Products.BOMGroupConfig> flags = eval.get(CIProducts.BOMGroupConfiguration.Config);
 
                     final var flagsBitValue = flags == null ? 0
