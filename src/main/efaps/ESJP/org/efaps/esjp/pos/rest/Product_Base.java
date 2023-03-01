@@ -308,7 +308,8 @@ public abstract class Product_Base
                                 .attribute(CIProducts.BOMGroupConfiguration.ProductLink).eq(multi.getCurrentInstance())
                                 .select()
                                 .attribute(CIProducts.BOMGroupConfiguration.Name,
-                                                CIProducts.BOMGroupConfiguration.Description)
+                                           CIProducts.BOMGroupConfiguration.Description,
+                                           CIProducts.BOMGroupConfiguration.Weight)
                                 .evaluate();
                 while (eval.next()) {
                     final Collection<Products.BOMGroupConfig> flags = eval.get(CIProducts.BOMGroupConfiguration.Config);
@@ -321,6 +322,7 @@ public abstract class Product_Base
                                     .withOID(eval.inst().getOid())
                                     .withName(eval.get(CIProducts.BOMGroupConfiguration.Name))
                                     .withDescription(eval.get(CIProducts.BOMGroupConfiguration.Description))
+                                    .withWeight(eval.get(CIProducts.BOMGroupConfiguration.Weight))
                                     .withFlags(flagsBitValue)
                                     .withProductOid(multi.getCurrentInstance().getOid())
                                     .build());
