@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,15 +132,17 @@ public abstract class Product_Base
             positionAttrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistPosition.Modified, after);
             final var listAttrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
             listAttrQueryBldr.addWhereAttrInQuery(CIProducts.ProductPricelistAbstract.ID,
-                         positionAttrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistPosition.ProductPricelist));
+                            positionAttrQueryBldr
+                                            .getAttributeQuery(CIProducts.ProductPricelistPosition.ProductPricelist));
             queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                          listAttrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-            //update of pricelist
+                            listAttrQueryBldr.getAttributeQuery(
+                                            CIProducts.ProductPricelistAbstract.ProductAbstractLink));
+            // update of pricelist
             final var attrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
             attrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistAbstract.Modified, after);
             queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
                             attrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-            //update of product
+            // update of product
             queryBldr.addWhereAttrGreaterValue(CIProducts.ProductAbstract.Modified, after);
         }
         queryBldr.addOrderByAttributeAsc(CIProducts.ProductAbstract.ID);
@@ -195,10 +198,8 @@ public abstract class Product_Base
         for (final Entry<Integer, String> entry : relQuantity.entrySet()) {
             multi.addSelect(entry.getValue());
         }
-        multi.addAttribute(CIProducts.ProductAbstract.Name,
-                        CIProducts.ProductAbstract.Description,
-                        CIProducts.ProductAbstract.Note,
-                        CIProducts.ProductAbstract.DefaultUoM);
+        multi.addAttribute(CIProducts.ProductAbstract.Name, CIProducts.ProductAbstract.Description,
+                        CIProducts.ProductAbstract.Note, CIProducts.ProductAbstract.DefaultUoM);
         multi.execute();
         while (multi.next()) {
             final Object cats = multi.getSelect(selCat);
@@ -207,16 +208,13 @@ public abstract class Product_Base
             if (cats instanceof List) {
                 final var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
                 for (final String element : (Collection<? extends String>) cats) {
-                    prod2cats.add(Product2CategoryDto.builder()
-                                    .withCategoryOid(element)
-                                    .withWeight(weightIter.next())
+                    prod2cats.add(Product2CategoryDto.builder().withCategoryOid(element).withWeight(weightIter.next())
                                     .build());
                 }
             } else if (cats instanceof String) {
-                prod2cats.add(Product2CategoryDto.builder()
-                                .withCategoryOid((String) cats)
-                                .withWeight((Integer) catWeights)
-                                .build());
+                prod2cats
+                                .add(Product2CategoryDto.builder().withCategoryOid((String) cats)
+                                                .withWeight((Integer) catWeights).build());
             }
             final Object imageOids = multi.getSelect(selImageOid);
             final String imageOid;
@@ -231,7 +229,8 @@ public abstract class Product_Base
             final Parameter parameter = ParameterUtil.instance();
 
             final Calculator calculator = new Calculator(parameter, null, multi.getCurrentInstance(), BigDecimal.ONE,
-                            null, BigDecimal.ZERO, true, getCalcConf());
+                            null,
+                            BigDecimal.ZERO, true, getCalcConf());
 
             final Set<TaxDto> taxes = new HashSet<>();
             calculator.getTaxes().forEach(tax -> {
@@ -302,22 +301,25 @@ public abstract class Product_Base
             final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
             final var configurationBOMs = new HashSet<ConfigurationBOMDto>();
             if (Products.STANDART_ACTCONFBOM.get()) {
-                final var eval = EQL.builder().print()
+                final var eval = EQL.builder()
+                                .print()
                                 .query(CIProducts.BOMGroupConfiguration)
                                 .where()
-                                .attribute(CIProducts.BOMGroupConfiguration.ProductLink).eq(multi.getCurrentInstance())
+                                .attribute(CIProducts.BOMGroupConfiguration.ProductLink)
+                                .eq(multi.getCurrentInstance())
                                 .select()
                                 .attribute(CIProducts.BOMGroupConfiguration.Name,
-                                           CIProducts.BOMGroupConfiguration.Description,
-                                           CIProducts.BOMGroupConfiguration.Weight)
+                                                CIProducts.BOMGroupConfiguration.Description,
+                                                CIProducts.BOMGroupConfiguration.Weight,
+                                                CIProducts.BOMGroupConfiguration.Config)
                                 .evaluate();
                 while (eval.next()) {
                     final Collection<Products.BOMGroupConfig> flags = eval.get(CIProducts.BOMGroupConfiguration.Config);
-
                     final var flagsBitValue = flags == null ? 0
-                                    : flags.stream().map(Products.BOMGroupConfig::getInt).reduce(0, Integer::sum);
+                                    : flags.stream().filter(Objects::nonNull)
+                                                    .map(Products.BOMGroupConfig::getInt)
+                                                    .reduce(0, Integer::sum);
 
-                    eval.<Integer>get(CIProducts.BOMGroupConfiguration.Config);
                     bomGroupConfigs.add(BOMGroupConfigDto.builder()
                                     .withOID(eval.inst().getOid())
                                     .withName(eval.get(CIProducts.BOMGroupConfiguration.Name))
@@ -328,15 +330,21 @@ public abstract class Product_Base
                                     .build());
                 }
 
-                final var eval2 = EQL.builder().print()
+                final var eval2 = EQL.builder()
+                                .print()
                                 .query(CIProducts.ConfigurationBOM)
                                 .where()
-                                .attribute(CIProducts.ConfigurationBOM.From).eq(multi.getCurrentInstance())
+                                .attribute(CIProducts.ConfigurationBOM.From)
+                                .eq(multi.getCurrentInstance())
                                 .select()
                                 .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
                                                 CIProducts.ConfigurationBOM.UoM)
-                                .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink).oid().as("bomGroupOid")
-                                .linkto(CIProducts.ConfigurationBOM.To).oid().as("toOid")
+                                .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink)
+                                .oid()
+                                .as("bomGroupOid")
+                                .linkto(CIProducts.ConfigurationBOM.To)
+                                .oid()
+                                .as("toOid")
                                 .evaluate();
                 while (eval2.next()) {
                     final var uoMId = eval2.<Long>get(CIProducts.ConfigurationBOM.UoM);
@@ -383,9 +391,7 @@ public abstract class Product_Base
             products.add(dto);
         }
 
-        final Response ret = Response.ok()
-                        .entity(products)
-                        .build();
+        final Response ret = Response.ok().entity(products).build();
         return ret;
     }
 
