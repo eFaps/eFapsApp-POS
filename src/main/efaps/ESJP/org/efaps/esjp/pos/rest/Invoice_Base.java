@@ -24,7 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
-import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.util.EFapsException;
@@ -47,6 +46,12 @@ public abstract class Invoice_Base
     }
 
     @Override
+    protected CIType getPositionType()
+    {
+        return CISales.InvoicePosition;
+    }
+
+    @Override
     protected CIType getEmployee2DocumentType()
     {
         return CISales.Employee2Invoice;
@@ -66,9 +71,7 @@ public abstract class Invoice_Base
         final ReceiptDto dto;
         if (_invoiceDto.getOid() == null) {
             final Instance docInst = createDocument(Status.find(CISales.InvoiceStatus.Paid), _invoiceDto);
-            for (final AbstractDocItemDto item : _invoiceDto.getItems()) {
-                createPosition(docInst, CISales.InvoicePosition, item, _invoiceDto.getDate());
-            }
+            createPositions(docInst, _invoiceDto);
             addPayments(docInst, _invoiceDto);
             createTransactionDocument(_invoiceDto, docInst);
             dto = ReceiptDto.builder()

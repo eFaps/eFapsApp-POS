@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2019 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
-import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
@@ -51,6 +50,12 @@ public abstract class Order_Base
     protected CIType getDocumentType()
     {
         return CIPOS.Order;
+    }
+
+    @Override
+    protected CIType getPositionType()
+    {
+        return CIPOS.OrderPosition;
     }
 
     @Override
@@ -80,9 +85,7 @@ public abstract class Order_Base
             }
 
             final Instance docInst = createDocument(status, _orderDto);
-            for (final AbstractDocItemDto item : _orderDto.getItems()) {
-                createPosition(docInst, CIPOS.OrderPosition, item, _orderDto.getDate());
-            }
+            createPositions(docInst, _orderDto);
             final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
             queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
             queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);

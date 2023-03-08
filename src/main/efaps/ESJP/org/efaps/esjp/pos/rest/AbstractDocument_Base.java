@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.efaps.admin.common.NumberGenerator;
@@ -79,6 +80,7 @@ public abstract class AbstractDocument_Base
 {
 
     protected abstract CIType getDocumentType();
+    protected abstract CIType getPositionType();
     protected abstract CIType getEmployee2DocumentType();
 
     protected Instance createDocument(final Status _status, final AbstractDocumentDto _dto)
@@ -269,24 +271,65 @@ public abstract class AbstractDocument_Base
         }
     }
 
-    protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto,
+    protected void createPositions(final Instance docInstance,
+                                   final AbstractDocumentDto documentDto)
+        throws EFapsException
+    {
+        final var sortedItems = documentDto.getItems().stream().sorted((item0,
+                                                       item1) -> item0.getIndex().compareTo(item1.getIndex()))
+                        .collect(Collectors.toList());
+        Instance parentInstance = null;
+        for (final var item : sortedItems) {
+            if (item.getParentIdx() == null) {
+                parentInstance = createPosition(docInstance, item, documentDto.getDate());
+            } else {
+                createChildPosition(docInstance, item, parentInstance);
+            }
+        }
+    }
+
+    protected Instance createChildPosition(final Instance docInstance,
+                                           final AbstractDocItemDto itemDto,
+                                           final Instance parentPositionInstance)
+        throws EFapsException
+    {
+        final Insert insert = new Insert(CISales.ConfigurationPosition);
+        insert.add(CISales.ConfigurationPosition.PositionAbstractLink, parentPositionInstance);
+        insert.add(CISales.PositionAbstract.PositionNumber, itemDto.getIndex());
+        insert.add(CISales.PositionAbstract.DocumentAbstractLink, docInstance);
+        insert.add(CISales.PositionAbstract.Product,  Instance.get(itemDto.getProductOid()));
+        final var productInfo = getProductInfo(itemDto.getProductOid());
+        insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
+        insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
+        insert.add(CISales.PositionAbstract.Quantity, itemDto.getQuantity());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Object[] getProductInfo(String productOid)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print(productOid)
+                        .attribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.DefaultUoM)
+                        .evaluate();
+        return new Object[] { eval.get(CIProducts.ProductAbstract.Description),
+                        eval.get(CIProducts.ProductAbstract.DefaultUoM) };
+    }
+
+
+    protected Instance createPosition(final Instance _docInstance,
+                                      final AbstractDocItemDto _dto,
                                       final LocalDate _date)
         throws EFapsException
     {
-        final Insert insert = new Insert(_ciType);
+        final Insert insert = new Insert(getPositionType());
         insert.add(CISales.PositionAbstract.PositionNumber, _dto.getIndex());
         insert.add(CISales.PositionAbstract.DocumentAbstractLink, _docInstance);
-
-        final Instance prodInst = Instance.get(_dto.getProductOid());
-        insert.add(CISales.PositionAbstract.Product, prodInst);
-
-        final PrintQuery print = new PrintQuery(prodInst);
-        print.addAttribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.DefaultUoM);
-        print.execute();
-        insert.add(CISales.PositionAbstract.ProductDesc, print.<String>getAttribute(
-                        CIProducts.ProductAbstract.Description));
-        insert.add(CISales.PositionAbstract.UoM, print.<Long>getAttribute(CIProducts.ProductAbstract.DefaultUoM));
-        insert.add(CISales.PositionSumAbstract.Quantity, _dto.getQuantity());
+        insert.add(CISales.PositionAbstract.Product,  Instance.get(_dto.getProductOid()));
+        final var productInfo = getProductInfo(_dto.getProductOid());
+        insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
+        insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
+        insert.add(CISales.PositionAbstract.Quantity, _dto.getQuantity());
         insert.add(CISales.PositionSumAbstract.Discount, BigDecimal.ZERO);
         insert.add(CISales.PositionSumAbstract.DiscountNetUnitPrice,
                         exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
