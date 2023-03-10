@@ -33,7 +33,8 @@
 
         <type>POS_Category</type>
         <type>POS_Payment</type>
-     
+        <type>POS_PriceGroupBackend</type>
+
         <role>POS_Modifier</role>
     </definition>
 </access-set>

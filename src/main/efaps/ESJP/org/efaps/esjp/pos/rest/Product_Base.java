@@ -227,10 +227,10 @@ public abstract class Product_Base
             }
 
             final Parameter parameter = ParameterUtil.instance();
+            ParameterUtil.setParameterValues(parameter, "identifier", _identifier);
 
             final Calculator calculator = new Calculator(parameter, null, multi.getCurrentInstance(), BigDecimal.ONE,
-                            null,
-                            BigDecimal.ZERO, true, getCalcConf());
+                            null, BigDecimal.ZERO, true, getCalcConf());
 
             final Set<TaxDto> taxes = new HashSet<>();
             calculator.getTaxes().forEach(tax -> {

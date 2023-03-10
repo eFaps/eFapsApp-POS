@@ -27,6 +27,7 @@
         <access-type>checkout</access-type>
 
         <type>POS_Category</type>
+        <type>POS_PriceGroupBackend</type>
 
         <role>POS_BE</role>
     </definition>
