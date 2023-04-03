@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,17 @@ public class Contact
         throws EFapsException
     {
         return super.getContacts(_identifier, limit, offset, after);
+    }
+
+    @Override
+    @Path("/{identifier}/contacts/{oid}")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getContact(@PathParam("identifier") final String _identifier,
+                               @PathParam("oid") final String oid)
+        throws EFapsException
+    {
+        return super.getContact(_identifier, oid);
     }
 
     @Override
