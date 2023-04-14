@@ -415,6 +415,8 @@ public abstract class AbstractDocument_Base
         if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
             for (final PaymentDto paymentDto : _dto.getPayments()) {
                 final Parameter parameter = ParameterUtil.instance();
+
+                final var rateCurrencyInst = getCurrencyInst(paymentDto.getCurrency());
                 final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
                 final CIType docType = getPaymentDocType(paymentDto.getType(), negate);
                 final Insert insert = new Insert(docType);
@@ -450,28 +452,28 @@ public abstract class AbstractDocument_Base
                 insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
                 insert.add(CISales.PaymentDocumentAbstract.Date, _dto.getDate());
                 final Instance baseCurrInst = Currency.getBaseCurrency();
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
-                insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
+                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst);
                 insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
 
                 final Instance contactInst = Instance.get(_dto.getContactOid());
                 if (InstanceUtils.isValid(contactInst)) {
                     insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
                 }
-                insert.add(CISales.PaymentDocumentAbstract.Rate, new Object[] { 1, 1 });
+                final var rate = getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
+                insert.add(CISales.PaymentDocumentAbstract.Rate, rate);
+
                 insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType(), negate));
                 insert.execute();
 
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
                 payInsert.add(CISales.Payment.CreateDocument, _docInst);
-                payInsert.add(CISales.Payment.RateCurrencyLink, baseCurrInst);
+                payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst);
                 payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
                 payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
                 payInsert.add(CISales.Payment.CurrencyLink, baseCurrInst);
                 payInsert.add(CISales.Payment.Date, new DateTime());
-                payInsert.add(CISales.Payment.Rate, new Object[] { 1, 1 });
+                payInsert.add(CISales.Payment.Rate, rate);
                 payInsert.execute();
 
                 final Insert transIns;
