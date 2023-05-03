@@ -191,12 +191,20 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Object[] getRate(final org.efaps.pos.dto.Currency currency, final BigDecimal exchangeRate)
+    protected Object[] getRate(final org.efaps.pos.dto.Currency currency,
+                               final BigDecimal exchangeRate)
         throws EFapsException
     {
+        BigDecimal rate;
+        if (exchangeRate.compareTo(BigDecimal.ZERO) == 0) {
+            rate = BigDecimal.ONE;
+        } else {
+            rate = exchangeRate;
+        }
+
         final var currencyInst = getCurrencyInst(currency);
-        return currencyInst.isInvert() ? new Object[] { exchangeRate, 1 }
-                        : new Object[] { 1, exchangeRate };
+        return currencyInst.isInvert() ? new Object[] { rate, 1 }
+                        : new Object[] { 1, rate };
     }
 
     protected void createTransactionDocument(final AbstractDocumentDto _dto,
