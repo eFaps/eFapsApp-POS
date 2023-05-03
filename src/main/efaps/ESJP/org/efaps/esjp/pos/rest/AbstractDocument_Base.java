@@ -429,6 +429,7 @@ public abstract class AbstractDocument_Base
                 final Parameter parameter = ParameterUtil.instance();
 
                 final var rateCurrencyInst = getCurrencyInst(paymentDto.getCurrency());
+                LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
                 final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
                 final CIType docType = getPaymentDocType(paymentDto.getType(), negate);
                 final Insert insert = new Insert(docType);
@@ -480,7 +481,7 @@ public abstract class AbstractDocument_Base
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
                 payInsert.add(CISales.Payment.CreateDocument, _docInst);
-                payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst);
+                payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst.getInstance());
                 payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
                 payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
                 payInsert.add(CISales.Payment.CurrencyLink, baseCurrInst);
