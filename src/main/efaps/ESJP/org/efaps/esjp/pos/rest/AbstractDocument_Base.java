@@ -72,12 +72,15 @@ import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.jfree.util.Log;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractDocument_Base
     extends AbstractRest
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDocument.class);
 
     protected abstract CIType getDocumentType();
     protected abstract CIType getPositionType();
@@ -414,6 +417,7 @@ public abstract class AbstractDocument_Base
     {
         if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
             for (final PaymentDto paymentDto : _dto.getPayments()) {
+                LOG.debug("adding PaymentDto: {}", paymentDto);
                 final Parameter parameter = ParameterUtil.instance();
 
                 final var rateCurrencyInst = getCurrencyInst(paymentDto.getCurrency());
@@ -452,7 +456,7 @@ public abstract class AbstractDocument_Base
                 insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
                 insert.add(CISales.PaymentDocumentAbstract.Date, _dto.getDate());
                 final Instance baseCurrInst = Currency.getBaseCurrency();
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst);
+                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst.getInstance());
                 insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
 
                 final Instance contactInst = Instance.get(_dto.getContactOid());
