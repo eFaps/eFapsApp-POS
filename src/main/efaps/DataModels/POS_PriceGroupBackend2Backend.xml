@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-   Copyright 2003 - 2018 The eFaps Team
+ Copyright 2003 - 2023 The eFaps Team
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,23 +16,27 @@
  limitations under the License.
 
 -->
-<access-set xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>eac0324b-08c2-4520-a11a-cfd0411d3a81</uuid>
+    <uuid>ecc640a7-d3a5-496b-9f2f-2eff7bbb0ea7</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Reader</name>
-
-        <access-type>show</access-type>
-        <access-type>read</access-type>
-        <access-type>checkout</access-type>
-
-        <type>POS_Category</type>
-        <type>POS_Payment</type>
-        <type>POS_PriceGroupBackend</type>
-
-        <role>POS_Reader</role>
+        <name>POS_PriceGroupBackend2Backend</name>
+        <parent>Products_PriceGroup2Object</parent>
+        <attribute>
+            <name>FromLink</name>
+            <type>Link</type>
+            <typelink>POS_PriceGroupBackend</typelink>
+            <sqltable>Products_PriceGroup2ObjectSQLTable</sqltable>
+            <sqlcolumn>FROMID</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>ToLink</name>
+            <type>Link</type>
+            <typelink>POS_Backend</typelink>
+            <sqltable>Products_PriceGroup2ObjectSQLTable</sqltable>
+            <sqlcolumn>TOID</sqlcolumn>
+        </attribute>
     </definition>
-
-</access-set>
+</datamodel-type>

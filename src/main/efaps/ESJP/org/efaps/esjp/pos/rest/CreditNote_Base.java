@@ -26,7 +26,6 @@ import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
-import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.CreditNoteDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -46,6 +45,12 @@ public abstract class CreditNote_Base
     }
 
     @Override
+    protected CIType getPositionType()
+    {
+        return CISales.CreditNotePosition;
+    }
+
+    @Override
     protected CIType getEmployee2DocumentType()
     {
         return CISales.Employee2CreditNote;
@@ -58,11 +63,8 @@ public abstract class CreditNote_Base
         LOG.debug("Recieved: {}", _creditNoteDto);
         final CreditNoteDto dto;
         if (_creditNoteDto.getOid() == null) {
-            final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid),
-                            _creditNoteDto);
-            for (final AbstractDocItemDto item : _creditNoteDto.getItems()) {
-                createPosition(docInst, CISales.CreditNotePosition, item, _creditNoteDto.getDate());
-            }
+            final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid), _creditNoteDto);
+            createPositions(docInst, _creditNoteDto);
             addPayments(docInst, _creditNoteDto);
             // connect CreditNote and source document
             final var sourceDocInst = Instance.get(_creditNoteDto.getSourceDocOid());

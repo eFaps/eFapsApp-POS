@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CISales;
-import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -52,6 +51,12 @@ public abstract class Receipt_Base
     }
 
     @Override
+    protected CIType getPositionType()
+    {
+        return CISales.ReceiptPosition;
+    }
+
+    @Override
     protected CIType getEmployee2DocumentType()
     {
         return CISales.Employee2Receipt;
@@ -71,12 +76,9 @@ public abstract class Receipt_Base
         final ReceiptDto dto;
         if (_receiptDto.getOid() == null) {
             final Instance docInst = createDocument(Status.find(CISales.ReceiptStatus.Paid), _receiptDto);
-            for (final AbstractDocItemDto item : _receiptDto.getItems()) {
-                createPosition(docInst, CISales.ReceiptPosition, item, _receiptDto.getDate());
-            }
+            createPositions(docInst, _receiptDto);
             addPayments(docInst, _receiptDto);
             createTransactionDocument(_receiptDto, docInst);
-
             dto = ReceiptDto.builder()
                             .withId(_receiptDto.getId())
                             .withOID(docInst.getOid())

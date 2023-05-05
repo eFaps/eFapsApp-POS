@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,10 @@ import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
+import org.efaps.eql.EQL;
+import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIContacts;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.pos.dto.IdentificationType;
@@ -46,6 +49,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Contact_Base
     extends AbstractRest
 {
+
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Contact.class);
 
@@ -60,6 +64,7 @@ public abstract class Contact_Base
         final List<ContactDto> contacts = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
+        queryBldr.addWhereAttrEqValue(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active));
         queryBldr.addOrderByAttributeAsc(CIContacts.Contact.ID);
         if (limit > 0) {
             queryBldr.setLimit(limit);
@@ -91,7 +96,7 @@ public abstract class Contact_Base
         multi.addAttribute(CIContacts.Contact.Name);
         multi.addSelect(selTaxNumber, selIdentityCard, selDOIType);
         multi.execute();
-        while(multi.next()) {
+        while (multi.next()) {
             String idNumber = multi.getSelect(selTaxNumber);
             IdentificationType idType;
             if (StringUtils.isNotBlank(idNumber)) {
@@ -142,7 +147,70 @@ public abstract class Contact_Base
         return ret;
     }
 
-    public Response addContact(final String _identifier, final ContactDto _contactDto)
+    public Response getContact(final String _identifier,
+                               final String oid)
+        throws EFapsException
+    {
+        checkAccess(_identifier);
+        Response ret = null;
+        final var contactInstance = Instance.get(oid);
+        if (InstanceUtils.isType(contactInstance, CIContacts.Contact)) {
+            final var eval = EQL.builder()
+                            .with(StmtFlag.TRIGGEROFF)
+                            .print(contactInstance)
+                            .attribute(CIContacts.Contact.Name)
+                            .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
+                                .as("taxNumber")
+                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
+                                .as("identityCard")
+                            .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
+                                .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
+                            .evaluate();
+            if (eval.next()) {
+                String idNumber = eval.get("taxNumber");
+                IdentificationType idType;
+                if (StringUtils.isNotBlank(idNumber)) {
+                    idType = IdentificationType.RUC;
+                } else {
+                    idNumber = eval.get("identityCard");
+                    final String doiType = eval.get("doiType");
+                    if (StringUtils.isBlank(doiType)) {
+                        idType = IdentificationType.OTHER;
+                    } else {
+                        switch (doiType) {
+                            case "01":
+                                idType = IdentificationType.DNI;
+                                break;
+                            case "02":
+                                idType = IdentificationType.PASSPORT;
+                                break;
+                            case "04":
+                                idType = IdentificationType.CE;
+                                break;
+                            default:
+                                idType = IdentificationType.OTHER;
+                                break;
+                        }
+                    }
+                }
+                ret = Response.ok().entity(ContactDto.builder()
+                                .withOID(eval.inst().getOid())
+                                .withName(eval.get(CIContacts.Contact.Name))
+                                .withIdType(idType)
+                                .withIdNumber(idNumber)
+                                .build())
+                                .build();
+            } else {
+                ret = Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
+            }
+        } else {
+            ret = Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).build();
+        }
+        return ret;
+    }
+
+    public Response addContact(final String _identifier,
+                               final ContactDto _contactDto)
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _contactDto);

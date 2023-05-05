@@ -36,7 +36,8 @@
 
         <type>POS_Category</type>
         <type>POS_Payment</type>
-        
+        <type>POS_PriceGroupBackend</type>
+
         <role>POS_Admin</role>
     </definition>
 </access-set>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,15 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
+import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EFapsUUID("7f5c44d3-ea2e-4d49-a1ba-b69715db111d")
 @EFapsApplication("eFapsApp-POS")
@@ -56,9 +60,18 @@ public abstract class Config_Base
         }).forEach(field -> {
             try {
                 final var fieldObject = FieldUtils.readStaticField(field);
-                if (fieldObject instanceof AbstractSysConfAttribute) {
+                if (fieldObject instanceof PropertiesSysConfAttribute) {
+                  final var sysConfAttr = (PropertiesSysConfAttribute) fieldObject;
+                  final var properties = sysConfAttr.get();
+                  final var mapper = new ObjectMapper();
+                  try {
+                    config.put(sysConfAttr.getKey(), mapper.writeValueAsString(properties));
+                  } catch (final JsonProcessingException e1) {
+                    LOG.error("Catched", e1);
+                  }
+                } else if (fieldObject instanceof AbstractSysConfAttribute) {
                     final var sysConfAttr = (AbstractSysConfAttribute<?,?>) fieldObject;
-                    config.put( sysConfAttr.getKey(), String.valueOf(sysConfAttr.get()));
+                    config.put(sysConfAttr.getKey(), String.valueOf(sysConfAttr.get()));
                 }
             } catch (IllegalAccessException | EFapsException e1) {
                 LOG.error("Catched error on read static field: {}", e1);

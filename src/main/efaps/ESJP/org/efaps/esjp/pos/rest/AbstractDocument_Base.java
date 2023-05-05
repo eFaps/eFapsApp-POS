@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.efaps.admin.common.NumberGenerator;
@@ -71,14 +72,18 @@ import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.jfree.util.Log;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractDocument_Base
     extends AbstractRest
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDocument.class);
 
     protected abstract CIType getDocumentType();
+    protected abstract CIType getPositionType();
     protected abstract CIType getEmployee2DocumentType();
 
     protected Instance createDocument(final Status _status, final AbstractDocumentDto _dto)
@@ -186,12 +191,20 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Object[] getRate(final org.efaps.pos.dto.Currency currency, final BigDecimal exchangeRate)
+    protected Object[] getRate(final org.efaps.pos.dto.Currency currency,
+                               final BigDecimal exchangeRate)
         throws EFapsException
     {
+        BigDecimal rate;
+        if (exchangeRate.compareTo(BigDecimal.ZERO) == 0) {
+            rate = BigDecimal.ONE;
+        } else {
+            rate = exchangeRate;
+        }
+
         final var currencyInst = getCurrencyInst(currency);
-        return currencyInst.isInvert() ? new Object[] { exchangeRate, 1 }
-                        : new Object[] { 1, exchangeRate };
+        return currencyInst.isInvert() ? new Object[] { rate, 1 }
+                        : new Object[] { 1, rate };
     }
 
     protected void createTransactionDocument(final AbstractDocumentDto _dto,
@@ -269,24 +282,65 @@ public abstract class AbstractDocument_Base
         }
     }
 
-    protected Instance createPosition(final Instance _docInstance, final CIType _ciType, final AbstractDocItemDto _dto,
+    protected void createPositions(final Instance docInstance,
+                                   final AbstractDocumentDto documentDto)
+        throws EFapsException
+    {
+        final var sortedItems = documentDto.getItems().stream().sorted((item0,
+                                                       item1) -> item0.getIndex().compareTo(item1.getIndex()))
+                        .collect(Collectors.toList());
+        Instance parentInstance = null;
+        for (final var item : sortedItems) {
+            if (item.getParentIdx() == null) {
+                parentInstance = createPosition(docInstance, item, documentDto.getDate());
+            } else {
+                createChildPosition(docInstance, item, parentInstance);
+            }
+        }
+    }
+
+    protected Instance createChildPosition(final Instance docInstance,
+                                           final AbstractDocItemDto itemDto,
+                                           final Instance parentPositionInstance)
+        throws EFapsException
+    {
+        final Insert insert = new Insert(CISales.ConfigurationPosition);
+        insert.add(CISales.ConfigurationPosition.PositionAbstractLink, parentPositionInstance);
+        insert.add(CISales.PositionAbstract.PositionNumber, itemDto.getIndex());
+        insert.add(CISales.PositionAbstract.DocumentAbstractLink, docInstance);
+        insert.add(CISales.PositionAbstract.Product,  Instance.get(itemDto.getProductOid()));
+        final var productInfo = getProductInfo(itemDto.getProductOid());
+        insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
+        insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
+        insert.add(CISales.PositionAbstract.Quantity, itemDto.getQuantity());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Object[] getProductInfo(String productOid)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print(productOid)
+                        .attribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.DefaultUoM)
+                        .evaluate();
+        return new Object[] { eval.get(CIProducts.ProductAbstract.Description),
+                        eval.get(CIProducts.ProductAbstract.DefaultUoM) };
+    }
+
+
+    protected Instance createPosition(final Instance _docInstance,
+                                      final AbstractDocItemDto _dto,
                                       final LocalDate _date)
         throws EFapsException
     {
-        final Insert insert = new Insert(_ciType);
+        final Insert insert = new Insert(getPositionType());
         insert.add(CISales.PositionAbstract.PositionNumber, _dto.getIndex());
         insert.add(CISales.PositionAbstract.DocumentAbstractLink, _docInstance);
-
-        final Instance prodInst = Instance.get(_dto.getProductOid());
-        insert.add(CISales.PositionAbstract.Product, prodInst);
-
-        final PrintQuery print = new PrintQuery(prodInst);
-        print.addAttribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.DefaultUoM);
-        print.execute();
-        insert.add(CISales.PositionAbstract.ProductDesc, print.<String>getAttribute(
-                        CIProducts.ProductAbstract.Description));
-        insert.add(CISales.PositionAbstract.UoM, print.<Long>getAttribute(CIProducts.ProductAbstract.DefaultUoM));
-        insert.add(CISales.PositionSumAbstract.Quantity, _dto.getQuantity());
+        insert.add(CISales.PositionAbstract.Product,  Instance.get(_dto.getProductOid()));
+        final var productInfo = getProductInfo(_dto.getProductOid());
+        insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
+        insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
+        insert.add(CISales.PositionAbstract.Quantity, _dto.getQuantity());
         insert.add(CISales.PositionSumAbstract.Discount, BigDecimal.ZERO);
         insert.add(CISales.PositionSumAbstract.DiscountNetUnitPrice,
                         exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
@@ -371,7 +425,11 @@ public abstract class AbstractDocument_Base
     {
         if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
             for (final PaymentDto paymentDto : _dto.getPayments()) {
+                LOG.debug("adding PaymentDto: {}", paymentDto);
                 final Parameter parameter = ParameterUtil.instance();
+
+                final var rateCurrencyInst = getCurrencyInst(paymentDto.getCurrency());
+                LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
                 final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
                 final CIType docType = getPaymentDocType(paymentDto.getType(), negate);
                 final Insert insert = new Insert(docType);
@@ -407,28 +465,28 @@ public abstract class AbstractDocument_Base
                 insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
                 insert.add(CISales.PaymentDocumentAbstract.Date, _dto.getDate());
                 final Instance baseCurrInst = Currency.getBaseCurrency();
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
-                insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, baseCurrInst);
+                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst.getInstance());
                 insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
 
                 final Instance contactInst = Instance.get(_dto.getContactOid());
                 if (InstanceUtils.isValid(contactInst)) {
                     insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
                 }
-                insert.add(CISales.PaymentDocumentAbstract.Rate, new Object[] { 1, 1 });
+                final var rate = getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
+                insert.add(CISales.PaymentDocumentAbstract.Rate, rate);
+
                 insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType(), negate));
                 insert.execute();
 
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
                 payInsert.add(CISales.Payment.CreateDocument, _docInst);
-                payInsert.add(CISales.Payment.RateCurrencyLink, baseCurrInst);
+                payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst.getInstance());
                 payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
                 payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
                 payInsert.add(CISales.Payment.CurrencyLink, baseCurrInst);
                 payInsert.add(CISales.Payment.Date, new DateTime());
-                payInsert.add(CISales.Payment.Rate, new Object[] { 1, 1 });
+                payInsert.add(CISales.Payment.Rate, rate);
                 payInsert.execute();
 
                 final Insert transIns;

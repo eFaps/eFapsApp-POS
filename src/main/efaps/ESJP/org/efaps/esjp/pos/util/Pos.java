@@ -173,6 +173,14 @@ public class Pos
                     .key(BASE + "Contact.ActivateEmail")
                     .description("Activate the handling of categories.");
 
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute CALCULATOR_CONFIG = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Calculator.Config")
+                    .addDefaultValue("NetPriceScale", "4")
+                    .addDefaultValue("ItemTaxScale", "2")
+                    .addDefaultValue("CrossPriceScale", "4")
+                    .description("Configuration for Calculators.");
 
     /** See description. */
     @EFapsSysConfAttribute

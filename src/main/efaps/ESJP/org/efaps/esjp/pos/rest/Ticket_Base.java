@@ -24,7 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -43,6 +42,12 @@ public abstract class Ticket_Base
     protected CIType getDocumentType()
     {
         return CIPOS.Ticket;
+    }
+
+    @Override
+    protected CIType getPositionType()
+    {
+        return CIPOS.TicketPosition;
     }
 
     @Override
@@ -66,9 +71,7 @@ public abstract class Ticket_Base
         final TicketDto dto;
         if (_ticketDto.getOid() == null) {
             final Instance docInst = createDocument(Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
-            for (final AbstractDocItemDto item : _ticketDto.getItems()) {
-                createPosition(docInst, CIPOS.TicketPosition, item, _ticketDto.getDate());
-            }
+            createPositions(docInst, _ticketDto);
             addPayments(docInst, _ticketDto);
             createTransactionDocument(_ticketDto, docInst);
 

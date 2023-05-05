@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.time.OffsetDateTime;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,9 +45,10 @@ public class Product
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
     public Response getProducts(@PathParam("identifier") final String _identifier,
                                 @QueryParam("limit") final int limit,
-                                @QueryParam("offset") final int offset)
+                                @QueryParam("offset") final int offset,
+                                @QueryParam("after") final OffsetDateTime after)
         throws EFapsException
     {
-        return super.getProducts(_identifier, limit, offset);
+        return super.getProducts(_identifier, limit, offset, after);
     }
 }
