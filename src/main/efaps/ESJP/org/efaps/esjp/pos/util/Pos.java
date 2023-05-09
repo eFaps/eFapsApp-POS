@@ -189,6 +189,12 @@ public class Pos
                     .key(BASE + "Payment.RequirePayment")
                     .description("Require a payment (do not allow 0 or negativ change).");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute STOCKTAKING_ACTIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Stocktaking.Activate")
+                    .description("Require a payment (do not allow 0 or negativ change).");
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;
