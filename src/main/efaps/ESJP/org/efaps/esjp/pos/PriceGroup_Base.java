@@ -43,8 +43,8 @@ public abstract class PriceGroup_Base
     {
         boolean ret = false;
         LOG.debug("Checking if Backend-PriceGroup applies: {}", _priceGroupInstance);
-        if (InstanceUtils.isType(_priceGroupInstance, CIPOS.PriceGroupBackend)) {
-            final var identifier = _parameter.getParameterValue("identifier");
+        final var identifier = _parameter.getParameterValue("identifier");
+        if (InstanceUtils.isType(_priceGroupInstance, CIPOS.PriceGroupBackend) && identifier != null) {
             final var eval = EQL.builder()
                             .print()
                             .query(CIPOS.Backend)
