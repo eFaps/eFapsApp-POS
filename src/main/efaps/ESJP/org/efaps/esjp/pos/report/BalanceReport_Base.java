@@ -64,9 +64,7 @@ public abstract class BalanceReport_Base
 
     public enum Grouping
     {
-        PAYMENTTYPE,
-        USER,
-        BALANCE;
+        BACKEND, PAYMENTTYPE, USER, BALANCE;
     }
 
     /**
@@ -169,14 +167,18 @@ public abstract class BalanceReport_Base
                 final SelectBuilder selUserLastName = new SelectBuilder(selBalance).linkto(CIPOS.Balance.UserLink)
                                 .linkto(CIPOS.User.EmployeeLink)
                                 .attribute(CIHumanResource.Employee.LastName);
+                final SelectBuilder selBackendName = new SelectBuilder(selBalance).linkto(CIPOS.Balance.BackendLink)
+                                .attribute(CIPOS.Backend.Name);
                 final SelectBuilder selDoc = SelectBuilder.get().linkto(CIPOS.Balance2Document.ToLink);
                 final SelectBuilder selDocInst = new SelectBuilder(selDoc).instance();
                 final SelectBuilder selDocName = new SelectBuilder(selDoc).attribute(CISales.DocumentAbstract.Name);
-                multi.addSelect(selBalanceName, selDocName, selDocInst, selUserFirstName, selUserLastName);
+                multi.addSelect(selBalanceName, selDocName, selDocInst, selUserFirstName, selUserLastName,
+                                selBackendName);
                 multi.execute();
                 final Map<Instance, DataBean> docBeans = new HashMap<>();
                 while (multi.next()) {
                     final DataBean bean = getDataBean()
+                                    .setBackendName(multi.getSelect(selBackendName))
                                     .setBalanceName(multi.getSelect(selBalanceName))
                                     .setUserFirstName(multi.getSelect(selUserFirstName))
                                     .setUserLastName(multi.getSelect(selUserLastName))
@@ -216,6 +218,7 @@ public abstract class BalanceReport_Base
                         }
                         final DataBean docBean = docBeans.get(docInst);
                         final DataBean bean = getDataBean()
+                                        .setBackendName(docBean.getBackendName())
                                         .setBalanceName(docBean.getBalanceName())
                                         .setUserFirstName(docBean.getUserFirstName())
                                         .setUserLastName(docBean.getUserLastName())
@@ -243,24 +246,33 @@ public abstract class BalanceReport_Base
                     final List<Enum<?>> selected = groupBy.getObject();
                     for (final Enum<?> sel : selected) {
                         switch ((Grouping) sel) {
+                            case BACKEND:
+                                chain.addComparator((_arg0,
+                                                     _arg1) -> _arg0.getBackendName()
+                                                                     .compareTo(_arg1.getBackendName()));
+                                break;
                             case PAYMENTTYPE:
-                                chain.addComparator((_arg0, _arg1) -> _arg0.getPaymentType()
-                                                .compareTo(_arg1.getPaymentType()));
+                                chain.addComparator((_arg0,
+                                                     _arg1) -> _arg0.getPaymentType()
+                                                                     .compareTo(_arg1.getPaymentType()));
                                 break;
                             case USER:
                                 chain.addComparator(
-                                                (_arg0, _arg1) -> _arg0.getUserName().compareTo(_arg1.getUserName()));
+                                                (_arg0,
+                                                 _arg1) -> _arg0.getUserName().compareTo(_arg1.getUserName()));
                                 break;
                             case BALANCE:
-                                chain.addComparator((_arg0, _arg1) -> _arg0.getBalanceName()
-                                                .compareTo(_arg1.getBalanceName()));
+                                chain.addComparator((_arg0,
+                                                     _arg1) -> _arg0.getBalanceName()
+                                                                     .compareTo(_arg1.getBalanceName()));
                                 break;
                             default:
                                 break;
                         }
                     }
                 }
-                chain.addComparator((_arg0, _arg1) -> _arg0.getPaymentCode().compareTo(_arg1.getPaymentCode()));
+                chain.addComparator((_arg0,
+                                     _arg1) -> _arg0.getPaymentCode().compareTo(_arg1.getPaymentCode()));
                 Collections.sort(values, chain);
                 ret = new JRBeanCollectionDataSource(values);
                 getFilteredReport().cache(_parameter, ret);
@@ -346,6 +358,8 @@ public abstract class BalanceReport_Base
                                            final JasperReportBuilder _builder)
             throws EFapsException
         {
+            final TextColumnBuilder<String> backendName = DynamicReports.col.column(label("backendName"), "backendName",
+                            DynamicReports.type.stringType());
             final TextColumnBuilder<String> balanceName = DynamicReports.col.column(label("balanceName"), "balanceName",
                             DynamicReports.type.stringType());
             final TextColumnBuilder<String> userName = DynamicReports.col.column(label("userName"), "userName",
@@ -367,6 +381,13 @@ public abstract class BalanceReport_Base
                 final List<Enum<?>> selected = groupBy.getObject();
                 for (final Enum<?> sel : selected) {
                     switch ((Grouping) sel) {
+                        case BACKEND:
+                            final ColumnGroupBuilder backendGroup = DynamicReports.grp.group(backendName)
+                                            .groupByDataType();
+                            final AggregationSubtotalBuilder<BigDecimal> backendGroupSum = DynamicReports.sbt.sum(amount);
+                            _builder.groupBy(backendGroup);
+                            _builder.addSubtotalAtGroupFooter(backendGroup, backendGroupSum);
+                            break;
                         case PAYMENTTYPE:
                             final ColumnGroupBuilder paymentTypeGroup = DynamicReports.grp.group(paymentType)
                                             .groupByDataType();
@@ -394,8 +415,8 @@ public abstract class BalanceReport_Base
                 }
             }
             _builder
-                            .addColumn(balanceName, userName, docName, paymentName, paymentCode, paymentType, amount)
-                            .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
+                .addColumn(backendName, balanceName, userName, docName, paymentName, paymentCode, paymentType, amount)
+                .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
         }
 
         protected String label(final String _key)
@@ -407,6 +428,7 @@ public abstract class BalanceReport_Base
     public static class DataBean
     {
 
+        private String backendName;
         private String balanceName;
         private String docName;
         private String userFirstName;
@@ -416,6 +438,17 @@ public abstract class BalanceReport_Base
         private String paymentType;
 
         private BigDecimal amount;
+
+        public String getBackendName()
+        {
+            return backendName;
+        }
+
+        public DataBean setBackendName(String backendName)
+        {
+            this.backendName = backendName;
+            return this;
+        }
 
         public String getBalanceName()
         {
