@@ -37,6 +37,8 @@
         <type>Sales_Receipt</type>
         <type>Sales_Invoice</type>
         <type>Sales_CreditNote</type>
+        <type>Products_TransactionInbound</type>
+        <type>Products_TransactionOutbound</type>
 
         <status group="Contacts_ContactStatus">
             <key>Active</key>
