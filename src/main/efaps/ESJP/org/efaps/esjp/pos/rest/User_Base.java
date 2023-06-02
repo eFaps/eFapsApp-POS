@@ -78,10 +78,11 @@ public abstract class User_Base
                         .attribute(CIHumanResource.Employee.FirstName);
         final SelectBuilder selEmployeeLastName = new SelectBuilder(selEmployee)
                         .attribute(CIHumanResource.Employee.LastName);
+        final SelectBuilder selEmployeeOid = new SelectBuilder(selEmployee).oid();
         final SelectBuilder selWorkspaceOids = SelectBuilder.get()
                         .linkfrom(CIPOS.User2Workspace.FromLink)
                         .linkto(CIPOS.User2Workspace.ToLink).oid();
-        multi.addSelect(selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids);
+        multi.addSelect(selEmployeeOid, selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids);
         multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Roles, CIPOS.User.Visible);
         multi.execute();
         while (multi.next()) {
@@ -102,6 +103,7 @@ public abstract class User_Base
                 .withUsername(multi.getAttribute(CIPOS.User.Name))
                 .withPassword(multi.getAttribute(CIPOS.User.Password))
                 .withVisible(multi.getAttribute(CIPOS.User.Visible))
+                .withEmployeeOid(multi.getSelect(selEmployeeOid))
                 .withFirstName(multi.getSelect(selEmployeeFirstName))
                 .withSurName(multi.getSelect(selEmployeeLastName))
                 .withRoles(dtoRoles)
