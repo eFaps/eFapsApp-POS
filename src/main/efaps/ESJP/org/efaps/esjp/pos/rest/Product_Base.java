@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
@@ -166,15 +165,6 @@ public abstract class Product_Base
                         .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
                         .oid();
         multi.addSelect(selCat, selCatWeight, selImageOid);
-        SelectBuilder selIndication = null;
-        if (Pos.INDICATIONSET_ACIVATE.get()) {
-            selIndication = SelectBuilder.get()
-                            .linkfrom(CIPOS.IndicationSet2Product.ToLink)
-                            .linkto(CIPOS.IndicationSet2Product.FromLink)
-                            .instance();
-            multi.addSelect(selIndication);
-        }
-
         final Map<Integer, String> relSelects;
         final Map<Integer, String> relLabels;
         final Map<Integer, String> relQuantity;
@@ -382,7 +372,7 @@ public abstract class Product_Base
                             .withUoM(uoM.getSymbol())
                             .withUoMCode(uoM.getCommonCode())
                             .withRelations(relations)
-                            .withIndicationSets(getIndicationSets(multi, selIndication))
+                            .withIndicationSets(getIndicationSets(multi.getCurrentInstance()))
                             .withBarcodes(barcodes)
                             .withBomGroupConfigs(bomGroupConfigs)
                             .withConfigurationBOMs(configurationBOMs)
@@ -413,82 +403,70 @@ public abstract class Product_Base
     }
 
     @SuppressWarnings("unchecked")
-    protected Set<IndicationSetDto> getIndicationSets(final MultiPrintQuery _multi,
-                                                      final SelectBuilder _selIndication)
-
+    protected Set<IndicationSetDto> getIndicationSets(final Instance productInstance)
     {
         final Set<IndicationSetDto> ret = new HashSet<>();
         try {
             if (Pos.INDICATIONSET_ACIVATE.get()) {
-                final Object indicationSets = _multi.getSelect(_selIndication);
-                LOG.trace("Loading indication Sets {}", indicationSets);
-                if (indicationSets != null) {
-                    LOG.trace("Class {}", indicationSets.getClass());
-                    List<Instance> indSetInsts = new ArrayList<>();
-                    if (indicationSets instanceof List) {
-                        indSetInsts = (List<Instance>) indicationSets;
-                    } else if (indicationSets instanceof Instance) {
-                        indSetInsts.add((Instance) indicationSets);
+                final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.IndicationSet2Product);
+                attrQueryBldr.addWhereAttrEqValue(CIPOS.IndicationSet2Product.ToLink, productInstance);
+                final QueryBuilder isQueryBldr = new QueryBuilder(CIPOS.IndicationSet);
+                isQueryBldr.addWhereAttrInQuery(CIPOS.IndicationSet.ID,
+                                attrQueryBldr.getAttributeQuery(CIPOS.IndicationSet2Product.FromLink));
+
+                final MultiPrintQuery setMulti = isQueryBldr.getPrint();
+                setMulti.addAttribute(CIPOS.IndicationSet.Name, CIPOS.IndicationSet.Description,
+                                CIPOS.IndicationSet.Required, CIPOS.IndicationSet.Multiple);
+                setMulti.execute();
+                while (setMulti.next()) {
+                    LOG.trace(" Instance {}", setMulti.getCurrentInstance());
+                    final Set<IndicationDto> indications = new HashSet<>();
+                    final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
+                    queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink,
+                                    setMulti.getCurrentInstance());
+                    final MultiPrintQuery multi = queryBldr.getPrint();
+                    multi.addAttribute(CIPOS.Indication.Value, CIPOS.Indication.Description);
+                    multi.execute();
+                    while (multi.next()) {
+                        String imageOid = null;
+                        if (Pos.INDICATION_ACIVATEIMAGE.get()) {
+                            final Resource resource = Store
+                                            .get(multi.getCurrentInstance().getType().getStoreId())
+                                            .getResource(multi.getCurrentInstance());
+                            if (resource.exists()) {
+                                imageOid = multi.getCurrentInstance().getOid();
+                            }
+                        }
+
+                        indications.add(IndicationDto.builder()
+                                        .withOID(multi.getCurrentInstance().getOid())
+                                        .withValue(multi.getAttribute(CIPOS.Indication.Value))
+                                        .withDescription(multi.getAttribute(CIPOS.Indication.Description))
+                                        .withImageOid(imageOid)
+                                        .build());
                     }
-                    indSetInsts = indSetInsts.stream().filter(inst -> {
-                        return InstanceUtils.isValid(inst);
-                    }).collect(Collectors.toList());
-                    LOG.trace(" Instances {}", indSetInsts);
-                    if (!indSetInsts.isEmpty()) {
-                        final MultiPrintQuery setMulti = new MultiPrintQuery(indSetInsts);
-                        setMulti.addAttribute(CIPOS.IndicationSet.Name, CIPOS.IndicationSet.Description,
-                                        CIPOS.IndicationSet.Required, CIPOS.IndicationSet.Multiple);
-                        setMulti.execute();
-                        while (setMulti.next()) {
-                            LOG.trace(" Instance {}", setMulti.getCurrentInstance());
-                            final Set<IndicationDto> indications = new HashSet<>();
-                            final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Indication);
-                            queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink,
-                                            setMulti.getCurrentInstance());
-                            final MultiPrintQuery multi = queryBldr.getPrint();
-                            multi.addAttribute(CIPOS.Indication.Value, CIPOS.Indication.Description);
-                            multi.execute();
-                            while (multi.next()) {
-                                String imageOid = null;
-                                if (Pos.INDICATION_ACIVATEIMAGE.get()) {
-                                    final Resource resource = Store
-                                                    .get(multi.getCurrentInstance().getType().getStoreId())
-                                                    .getResource(multi.getCurrentInstance());
-                                    if (resource.exists()) {
-                                        imageOid = multi.getCurrentInstance().getOid();
-                                    }
-                                }
+                    LOG.trace("    indications {}", indications);
 
-                                indications.add(IndicationDto.builder()
-                                                .withOID(multi.getCurrentInstance().getOid())
-                                                .withValue(multi.getAttribute(CIPOS.Indication.Value))
-                                                .withDescription(multi.getAttribute(CIPOS.Indication.Description))
-                                                .withImageOid(imageOid)
-                                                .build());
-                            }
-                            LOG.trace("    indications {}", indications);
-
-                            String imageOid = null;
-                            if (Pos.INDICATIONSET_ACIVATEIMAGE.get()) {
-                                final Resource resource = Store
-                                                .get(setMulti.getCurrentInstance().getType().getStoreId())
-                                                .getResource(setMulti.getCurrentInstance());
-                                if (resource.exists()) {
-                                    imageOid = setMulti.getCurrentInstance().getOid();
-                                }
-                            }
-                            ret.add(IndicationSetDto.builder()
-                                            .withOID(setMulti.getCurrentInstance().getOid())
-                                            .withName(setMulti.getAttribute(CIPOS.IndicationSet.Name))
-                                            .withDescription(setMulti.getAttribute(CIPOS.IndicationSet.Description))
-                                            .withRequired(setMulti.getAttribute(CIPOS.IndicationSet.Required))
-                                            .withMultiple(setMulti.getAttribute(CIPOS.IndicationSet.Multiple))
-                                            .withImageOid(imageOid)
-                                            .withIndications(indications)
-                                            .build());
+                    String imageOid = null;
+                    if (Pos.INDICATIONSET_ACIVATEIMAGE.get()) {
+                        final Resource resource = Store
+                                        .get(setMulti.getCurrentInstance().getType().getStoreId())
+                                        .getResource(setMulti.getCurrentInstance());
+                        if (resource.exists()) {
+                            imageOid = setMulti.getCurrentInstance().getOid();
                         }
                     }
+                    ret.add(IndicationSetDto.builder()
+                                    .withOID(setMulti.getCurrentInstance().getOid())
+                                    .withName(setMulti.getAttribute(CIPOS.IndicationSet.Name))
+                                    .withDescription(setMulti.getAttribute(CIPOS.IndicationSet.Description))
+                                    .withRequired(setMulti.getAttribute(CIPOS.IndicationSet.Required))
+                                    .withMultiple(setMulti.getAttribute(CIPOS.IndicationSet.Multiple))
+                                    .withImageOid(imageOid)
+                                    .withIndications(indications)
+                                    .build());
                 }
+
             }
         } catch (final EFapsException e) {
             LOG.error("Catched error during getIndicationSets", e);
