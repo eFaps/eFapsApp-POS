@@ -62,6 +62,7 @@ import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
+import org.efaps.pos.dto.CreditNoteDto;
 import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.PaymentDto;
 import org.efaps.pos.dto.PaymentType;
@@ -230,7 +231,8 @@ public abstract class AbstractDocument_Base
                 protected Type getType4DocCreate(final Parameter _parameter)
                     throws EFapsException
                 {
-                    return CISales.TransactionDocumentShadowOut.getType();
+                    return _dto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowIn.getType()
+                                    : CISales.TransactionDocumentShadowOut.getType();
                 }
 
                 @Override
@@ -240,7 +242,9 @@ public abstract class AbstractDocument_Base
                     throws EFapsException
                 {
                     _insert.add(CISales.DocumentAbstract.StatusAbstract,
-                                    Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
+                                    _dto instanceof CreditNoteDto
+                                                    ? Status.find(CISales.TransactionDocumentShadowInStatus.Closed)
+                                                    : Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
                 }
 
                 @Override
@@ -258,7 +262,8 @@ public abstract class AbstractDocument_Base
                 protected Type getType4PositionCreate(final Parameter _parameter)
                     throws EFapsException
                 {
-                    return CISales.TransactionDocumentShadowOutPosition.getType();
+                    return _dto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowInPosition.getType()
+                                    : CISales.TransactionDocumentShadowOutPosition.getType();
                 }
             };
             final Parameter parameter = ParameterUtil.instance();
@@ -272,6 +277,8 @@ public abstract class AbstractDocument_Base
                 relType = CISales.Receipt2TransactionDocumentShadowOut;
             } else if (_dto instanceof TicketDto) {
                 relType = CIPOS.Ticket2TransactionDocumentShadowOut;
+            } else if (_dto instanceof CreditNoteDto) {
+                relType = CISales.CreditNote2TransactionDocumentShadowIn;
             }
             if (relType != null) {
                 final Insert insert = new Insert(relType);
