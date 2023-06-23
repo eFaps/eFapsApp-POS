@@ -195,6 +195,12 @@ public class Pos
                     .key(BASE + "Stocktaking.Activate")
                     .description("Require a payment (do not allow 0 or negativ change).");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute PAYABLE_ACTIVATENOTE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Payable.ActivateNote")
+                    .description("Activate the possiblity to add a note to the payable documents.");
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;
