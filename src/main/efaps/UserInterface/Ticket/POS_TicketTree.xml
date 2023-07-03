@@ -31,6 +31,8 @@
         <childs>
             <child>POS_TicketTree_Position</child>
             <child>POS_TicketTree_Payment</child>
+            <child>POS_TicketTree_PaymentAnalysis</child>
+            <child>Common_History_ObjectTree_StatusLog</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
