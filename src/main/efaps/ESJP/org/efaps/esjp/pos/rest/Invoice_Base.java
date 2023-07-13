@@ -57,6 +57,12 @@ public abstract class Invoice_Base
         return CISales.Employee2Invoice;
     }
 
+    @Override
+    protected CIType getDepartment2DocumentType()
+    {
+        return  CISales.HumanResource_Department2Invoice;
+    }
+
     /**
      * Gets the categories.
      *

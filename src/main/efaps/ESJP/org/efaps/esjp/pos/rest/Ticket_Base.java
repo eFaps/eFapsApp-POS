@@ -56,6 +56,12 @@ public abstract class Ticket_Base
         return CIPOS.Employee2Ticket;
     }
 
+    @Override
+    protected CIType getDepartment2DocumentType()
+    {
+        return CIPOS.HumanResource_Department2Ticket;
+    }
+
     /**
      * Gets the categories.
      *

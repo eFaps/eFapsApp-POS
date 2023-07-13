@@ -162,5 +162,18 @@
             <sqltable>POS_POSSQLTable</sqltable>
             <sqlcolumn>CONTACTID</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>DepartmentLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>HumanResource_Department</typelink>
+            <sqltable>POS_POSSQLTable</sqltable>
+            <sqlcolumn>DEPARTMENTID</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_POS.DepartmentLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Name</property>
+                <property name="Type">HumanResource_Department</property>
+                <property name="EmptyValue">true</property>
+            </trigger>
+        </attribute>
     </definition>
 </datamodel-type>

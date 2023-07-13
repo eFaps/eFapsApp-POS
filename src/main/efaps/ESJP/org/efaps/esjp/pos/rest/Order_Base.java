@@ -64,6 +64,12 @@ public abstract class Order_Base
         return CIPOS.Employee2Order;
     }
 
+    @Override
+    protected CIType getDepartment2DocumentType()
+    {
+        return null;
+    }
+
     /**
      * Gets the categories.
      *

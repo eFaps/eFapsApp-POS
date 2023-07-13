@@ -201,6 +201,12 @@ public class Pos
                     .key(BASE + "Payable.ActivateNote")
                     .description("Activate the possiblity to add a note to the payable documents.");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute POS_ASSIGNDEPARTMENT = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "POS.AssignDepartment")
+                    .description("Be able to assign a department to a POS");
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;

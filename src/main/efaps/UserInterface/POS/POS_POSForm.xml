@@ -88,6 +88,17 @@
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
         </field>
+        <field name="departmentLink">
+            <property name="Attribute">DepartmentLink</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+             <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI" method="configCheck"
+                name="POS_CategoryForm.image.UI_ACCESSCHECK" event="UI_ACCESSCHECK">
+                <!-- POS-Configuration -->
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.POS.AssignDepartment</property>
+            </trigger>
+        </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
         </field>

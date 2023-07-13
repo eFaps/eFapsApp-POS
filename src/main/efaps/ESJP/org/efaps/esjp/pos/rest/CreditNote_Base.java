@@ -56,6 +56,12 @@ public abstract class CreditNote_Base
         return CISales.Employee2CreditNote;
     }
 
+    @Override
+    protected CIType getDepartment2DocumentType()
+    {
+        return  CISales.HumanResource_Department2CreditNote;
+    }
+
     protected Response addCreditNote(final String _identifier, final CreditNoteDto _creditNoteDto)
         throws EFapsException
     {

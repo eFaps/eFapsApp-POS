@@ -40,6 +40,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
+import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
@@ -86,6 +87,7 @@ public abstract class AbstractDocument_Base
     protected abstract CIType getDocumentType();
     protected abstract CIType getPositionType();
     protected abstract CIType getEmployee2DocumentType();
+    protected abstract CIType getDepartment2DocumentType();
 
     protected Instance createDocument(final Status _status, final AbstractDocumentDto _dto)
         throws EFapsException
@@ -122,16 +124,29 @@ public abstract class AbstractDocument_Base
 
         final Instance ret = insert.getInstance();
 
-        final Instance workspacInst = Instance.get(_dto.getWorkspaceOid());
-        if (InstanceUtils.isValid(workspacInst)) {
-            final PrintQuery print = new PrintQuery(workspacInst);
-            print.addAttribute(CIPOS.Workspace.POSLink);
-            print.executeWithoutAccessCheck();
+        final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
+        if (InstanceUtils.isValid(workspaceInst)) {
+            final var eval = EQL.builder().with(StmtFlag.TRIGGEROFF)
+                .print(workspaceInst)
+                .linkto(CIPOS.Workspace.POSLink).instance().as("POSInst")
+                .linkto(CIPOS.Workspace.POSLink).linkto(CIPOS.POS.DepartmentLink).instance().as("depInst")
+                .evaluate();
+            eval.next();
 
-            final Insert relInsert = new Insert(CIPOS.POS2Document);
-            relInsert.add(CIPOS.POS2Document.FromLink, print.<Long>getAttribute(CIPOS.Workspace.POSLink));
-            relInsert.add(CIPOS.POS2Document.ToLink, ret);
-            relInsert.execute();
+            EQL.builder().insert(CIPOS.POS2Document)
+                .set(CIPOS.POS2Document.FromLink, eval.get("POSInst"))
+                .set(CIPOS.POS2Document.ToLink, ret)
+                .execute();
+
+            if (Pos.POS_ASSIGNDEPARTMENT.get()) {
+                final Instance depInst = eval.get("depInst");
+                if (InstanceUtils.isValid(depInst) && getDepartment2DocumentType() != null) {
+                    EQL.builder().insert(getDepartment2DocumentType())
+                                    .set(CIHumanResource.Department2DocumentAbstract.FromAbstractLink, depInst)
+                                    .set(CIHumanResource.Department2DocumentAbstract.ToAbstractLink, ret)
+                                    .execute();
+                }
+            }
         }
 
         if (_dto instanceof AbstractPayableDocumentDto) {

@@ -62,6 +62,12 @@ public abstract class Receipt_Base
         return CISales.Employee2Receipt;
     }
 
+    @Override
+    protected CIType getDepartment2DocumentType()
+    {
+        return  CISales.HumanResource_Department2Receipt;
+    }
+
     /**
      * Gets the categories.
      *
