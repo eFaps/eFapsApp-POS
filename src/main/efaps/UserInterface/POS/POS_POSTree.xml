@@ -30,7 +30,6 @@
         <type>POS_POS</type>
         <childs>
             <child>POS_POSTree_Documents</child>
-            <child>POS_POSTree_CashDeskBalance</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>
