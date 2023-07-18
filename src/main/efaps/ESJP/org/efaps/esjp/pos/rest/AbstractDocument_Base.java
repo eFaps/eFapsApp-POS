@@ -20,7 +20,7 @@ package org.efaps.esjp.pos.rest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -391,7 +391,7 @@ public abstract class AbstractDocument_Base
         return insert.getInstance();
     }
 
-    protected Taxes getTaxes(final LocalDate _date, final Set<TaxEntryDto> _taxes,
+    protected Taxes getTaxes(final LocalDate _date, final Collection<TaxEntryDto> _taxes,
                              final org.efaps.pos.dto.Currency currency,
                              final BigDecimal exchangeRate)
         throws EFapsException
@@ -411,7 +411,7 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Taxes getRateTaxes(final LocalDate _date, final Set<TaxEntryDto> _taxes)
+    protected Taxes getRateTaxes(final LocalDate _date, final Collection<TaxEntryDto> _taxes)
         throws EFapsException
     {
         final Taxes ret = new Taxes();
