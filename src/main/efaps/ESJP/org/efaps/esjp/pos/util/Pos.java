@@ -254,7 +254,7 @@ public class Pos
 
     public enum PrinterType implements IEnum
     {
-        PREVIEW, PHYSICAL;
+        PREVIEW, PHYSICAL, EXTENSION;
 
         @Override
         public int getInt()
