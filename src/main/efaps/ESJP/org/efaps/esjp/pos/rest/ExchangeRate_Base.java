@@ -19,8 +19,8 @@ package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
 
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;

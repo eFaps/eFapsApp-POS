@@ -20,7 +20,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.AttributeSet;
@@ -201,10 +201,10 @@ public abstract class Contact_Base
                                 .build())
                                 .build();
             } else {
-                ret = Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
+                ret = Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).build();
             }
         } else {
-            ret = Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).build();
+            ret = Response.status(jakarta.ws.rs.core.Response.Status.BAD_REQUEST).build();
         }
         return ret;
     }
