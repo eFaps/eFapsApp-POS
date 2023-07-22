@@ -20,7 +20,7 @@ import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
