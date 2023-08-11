@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 
-    Copyright 2003 - 2019 The eFaps Team
+    Copyright 2003 - 2023 The eFaps Team
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -23,15 +23,25 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BalanceReportFilterForm</name>
-        <field name="date">
+        <field name="dateFrom">
             <property name="ModeEdit">EDITABLE</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.DateUI</property>
-            <property name="Label">org.efaps.esjp.pos.report.BalanceReport.date</property>
+            <property name="Label">org.efaps.esjp.pos.report.BalanceReport.dateFrom</property>
             <property name="Columns">12</property>
             <trigger event="UI_FIELD_VALUE" method="getDateFromFieldValue"
                 name="POS_BalanceReportFilterForm.date.UI_FIELD_VALUE"
                 program="org.efaps.esjp.erp.FilteredReport" />
         </field>
+        <field name="dateTo">
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.DateUI</property>
+            <property name="Label">org.efaps.esjp.pos.report.BalanceReport.dateTo</property>
+            <property name="Columns">12</property>
+            <trigger event="UI_FIELD_VALUE" method="getDateToFieldValue"
+                name="POS_BalanceReportFilterForm.date.UI_FIELD_VALUE"
+                program="org.efaps.esjp.erp.FilteredReport" />
+        </field>
+
         <field name="groupBy">
             <property name="ModeEdit">EDITABLE</property>
             <property name="UIType">SNIPPLET</property>

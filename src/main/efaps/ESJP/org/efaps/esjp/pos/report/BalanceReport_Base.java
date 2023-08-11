@@ -328,14 +328,20 @@ public abstract class BalanceReport_Base
             throws EFapsException
         {
             final Map<String, Object> filterMap = filteredReport.getFilterMap(_parameter);
-            final DateTime date;
-            if (filterMap.containsKey("date")) {
-                date = (DateTime) filterMap.get("date");
+            final DateTime dateFrom;
+            if (filterMap.containsKey("dateFrom")) {
+                dateFrom = (DateTime) filterMap.get("dateFrom");
             } else {
-                date = new DateTime();
+                dateFrom = new DateTime();
             }
-            _queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, date.withTimeAtStartOfDay().minusMinutes(1));
-            _queryBldr.addWhereAttrLessValue(CIPOS.Balance.StartAt, date.plusDays(1).withTimeAtStartOfDay());
+            final DateTime dateTo;
+            if (filterMap.containsKey("dateTo")) {
+                dateTo = (DateTime) filterMap.get("dateTo");
+            } else {
+                dateTo = new DateTime();
+            }
+            _queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, dateFrom.withTimeAtStartOfDay().minusMinutes(1));
+            _queryBldr.addWhereAttrLessValue(CIPOS.Balance.StartAt, dateTo.plusDays(1).withTimeAtStartOfDay());
         }
 
         /**
