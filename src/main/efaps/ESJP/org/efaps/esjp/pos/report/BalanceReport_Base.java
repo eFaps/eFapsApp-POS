@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2021 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,8 @@ import org.efaps.esjp.erp.FilteredReport;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
@@ -61,6 +64,8 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 public abstract class BalanceReport_Base
     extends FilteredReport
 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BalanceReport.class);
 
     public enum Grouping
     {
@@ -177,14 +182,16 @@ public abstract class BalanceReport_Base
                 multi.execute();
                 final Map<Instance, DataBean> docBeans = new HashMap<>();
                 while (multi.next()) {
+                    final Instance docInst = multi.getSelect(selDocInst);
                     final DataBean bean = getDataBean()
                                     .setBackendName(multi.getSelect(selBackendName))
                                     .setBalanceName(multi.getSelect(selBalanceName))
                                     .setUserFirstName(multi.getSelect(selUserFirstName))
                                     .setUserLastName(multi.getSelect(selUserLastName))
                                     .setDocName(multi.getSelect(selDocName));
-                    final Instance docInst = multi.getSelect(selDocInst);
                     if (InstanceUtils.isValid(docInst)) {
+                        bean.setDocType(docInst.getType().getLabel());
+                        LOG.debug("Bean: {}", bean);
                         docBeans.put(docInst, bean);
                     }
                 }
@@ -223,6 +230,7 @@ public abstract class BalanceReport_Base
                                         .setUserFirstName(docBean.getUserFirstName())
                                         .setUserLastName(docBean.getUserLastName())
                                         .setDocName(docBean.getDocName())
+                                        .setDocType(docBean.getDocType())
                                         .setPaymentName(paymentMulti.getSelect(selTargetDocName))
                                         .setPaymentCode(paymentMulti.getSelect(selTargetDocCode))
                                         .setPaymentType(paymentInst.getType().getLabel())
@@ -247,32 +255,24 @@ public abstract class BalanceReport_Base
                     for (final Enum<?> sel : selected) {
                         switch ((Grouping) sel) {
                             case BACKEND:
-                                chain.addComparator((_arg0,
-                                                     _arg1) -> _arg0.getBackendName()
-                                                                     .compareTo(_arg1.getBackendName()));
+                                chain.addComparator(Comparator.comparing(DataBean::getBackendName));
                                 break;
                             case PAYMENTTYPE:
-                                chain.addComparator((_arg0,
-                                                     _arg1) -> _arg0.getPaymentType()
-                                                                     .compareTo(_arg1.getPaymentType()));
+                                chain.addComparator(Comparator.comparing(DataBean::getPaymentType));
                                 break;
                             case USER:
                                 chain.addComparator(
-                                                (_arg0,
-                                                 _arg1) -> _arg0.getUserName().compareTo(_arg1.getUserName()));
+                                                Comparator.comparing(DataBean::getUserName));
                                 break;
                             case BALANCE:
-                                chain.addComparator((_arg0,
-                                                     _arg1) -> _arg0.getBalanceName()
-                                                                     .compareTo(_arg1.getBalanceName()));
+                                chain.addComparator(Comparator.comparing(DataBean::getBalanceName));
                                 break;
                             default:
                                 break;
                         }
                     }
                 }
-                chain.addComparator((_arg0,
-                                     _arg1) -> _arg0.getPaymentCode().compareTo(_arg1.getPaymentCode()));
+                chain.addComparator(Comparator.comparing(DataBean::getPaymentCode));
                 Collections.sort(values, chain);
                 ret = new JRBeanCollectionDataSource(values);
                 getFilteredReport().cache(_parameter, ret);
@@ -364,6 +364,8 @@ public abstract class BalanceReport_Base
                             DynamicReports.type.stringType());
             final TextColumnBuilder<String> userName = DynamicReports.col.column(label("userName"), "userName",
                             DynamicReports.type.stringType());
+            final TextColumnBuilder<String> docType = DynamicReports.col.column(label("docType"), "docType",
+                            DynamicReports.type.stringType());
             final TextColumnBuilder<String> docName = DynamicReports.col.column(label("docName"), "docName",
                             DynamicReports.type.stringType());
             final TextColumnBuilder<String> paymentName = DynamicReports.col.column(label("paymentName"), "paymentName",
@@ -384,7 +386,8 @@ public abstract class BalanceReport_Base
                         case BACKEND:
                             final ColumnGroupBuilder backendGroup = DynamicReports.grp.group(backendName)
                                             .groupByDataType();
-                            final AggregationSubtotalBuilder<BigDecimal> backendGroupSum = DynamicReports.sbt.sum(amount);
+                            final AggregationSubtotalBuilder<BigDecimal> backendGroupSum = DynamicReports.sbt
+                                            .sum(amount);
                             _builder.groupBy(backendGroup);
                             _builder.addSubtotalAtGroupFooter(backendGroup, backendGroupSum);
                             break;
@@ -414,9 +417,9 @@ public abstract class BalanceReport_Base
                     }
                 }
             }
-            _builder
-                .addColumn(backendName, balanceName, userName, docName, paymentName, paymentCode, paymentType, amount)
-                .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
+            _builder.addColumn(backendName, balanceName, userName, docType, docName, paymentName, paymentCode,
+                                            paymentType, amount)
+                    .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
         }
 
         protected String label(final String _key)
@@ -430,6 +433,7 @@ public abstract class BalanceReport_Base
 
         private String backendName;
         private String balanceName;
+        private String docType;
         private String docName;
         private String userFirstName;
         private String userLastName;
@@ -458,6 +462,17 @@ public abstract class BalanceReport_Base
         public DataBean setBalanceName(final String _balanceName)
         {
             balanceName = _balanceName;
+            return this;
+        }
+
+        public String getDocType()
+        {
+            return docType;
+        }
+
+        public DataBean setDocType(final String docType)
+        {
+            this.docType = docType;
             return this;
         }
 
