@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
-    Copyright 2003 - 2019 The eFaps Team
+    Copyright 2003 - 2023 The eFaps Team
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,27 +18,13 @@
 <ui-menu xmlns="http://www.efaps.org/xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>f1859bdf-b3c6-42c5-8aa4-7cc2766fc493</uuid>
+    <uuid>5f2156a0-b861-41d0-9606-690a4e12eab4</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_ConfigMyDesk</name>
-        <access>
-            <role>Administration</role>
-            <role>POS_Admin</role>
-            <role>POS_Modifier</role>
-            <role>POS_Reader</role>
-        </access>
+        <name>POS_RoleTree_Menu</name>
         <childs>
-            <child>POS_BackendMyDesk</child>
-            <child>POS_POSMyDesk</child>
-            <child>POS_WorkspaceMyDesk</child>
-            <child>POS_RoleMyDesk</child>
-            <child>POS_UserMyDesk</child>
-            <child>POS_SequenceMyDesk</child>
-            <child>POS_PrinterMyDesk</child>
-            <child>POS_FloorMyDesk</child>
-            <child>POS_IndicationSetMyDesk</child>
+            <child>POS_RoleTree_Menu_Action</child>
         </childs>
     </definition>
 </ui-menu>

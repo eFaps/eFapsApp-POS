@@ -338,6 +338,25 @@ public class Pos
         }
     }
 
+    public enum Permission implements IBitEnum
+    {
+        ADMIN,
+        COLLECT,
+        ORDER;
+
+        @Override
+        public int getInt()
+        {
+            return BitEnumType.getInt4Index(ordinal());
+        }
+
+        @Override
+        public int getBitIndex()
+        {
+            return ordinal();
+        }
+    }
+
     /**
      * @return the SystemConfigruation for Payroll
      * @throws CacheReloadException on error

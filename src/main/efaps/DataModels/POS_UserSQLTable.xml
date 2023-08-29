@@ -30,7 +30,7 @@
             <column name="NAME"         not-null="true"     type="STRING_SHORT" length="64"/>
             <column name="PWD"          not-null="true"     type="STRING_SHORT" length="256"/>
             <column name="EMPLOYEEID"   not-null="true"     type="INTEGER"/>
-            <column name="ROLES"                            type="INTEGER"/>
+            <column name="ROLE"                             type="INTEGER"/>
             <column name="VISIBLE"                          type="BOOLEAN"/>
             <column name="CREATOR"      not-null="true"     type="INTEGER"/>
             <column name="CREATED"      not-null="true"     type="DATETIME"/>

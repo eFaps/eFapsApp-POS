@@ -72,11 +72,16 @@
             <sqlcolumn>EMPLOYEEID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>Roles</name>
-            <type>BitEnum</type>
-            <className>org.efaps.esjp.pos.util.Pos$Role</className>
+            <name>RoleLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_Role</typelink>
             <sqltable>POS_UserSQLTable</sqltable>
-            <sqlcolumn>ROLES</sqlcolumn>
+            <sqlcolumn>ROLE</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_User.RoleLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">$&lt;attribute[Name]&gt;</property>
+                <property name="Type">POS_Role</property>
+            </trigger>
         </attribute>
         <attribute>
             <name>Visible</name>

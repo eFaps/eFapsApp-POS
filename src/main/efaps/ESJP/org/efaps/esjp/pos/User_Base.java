@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public abstract class User_Base
 
                 final PasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
                 _insert.add(CIPOS.User.Password, passwordEncryptor.encryptPassword(clearTextPwd));
-            };
+            }
         }.execute(_parameter);
     }
 
@@ -70,7 +70,7 @@ public abstract class User_Base
             {
                 _update.add(CIPOS.User.EmployeeLink, Instance.get(_parameter.getParameterValue(
                                 CIFormPOS.POS_UserForm.employeeLink.name)));
-            };
+            }
         }.execute(_parameter);
     }
 
@@ -88,7 +88,7 @@ public abstract class User_Base
 
                 final PasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
                 _update.add(CIPOS.User.Password, passwordEncryptor.encryptPassword(clearTextPwd));
-            };
+            }
         }.execute(_parameter);
     }
 

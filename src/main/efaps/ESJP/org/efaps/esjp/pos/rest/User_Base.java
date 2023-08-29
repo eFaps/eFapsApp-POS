@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,6 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.db.SelectBuilder;
 import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.pos.util.Pos.Role;
-import org.efaps.pos.dto.Roles;
 import org.efaps.pos.dto.UserDto;
 import org.efaps.util.EFapsException;
 
@@ -82,14 +80,18 @@ public abstract class User_Base
         final SelectBuilder selWorkspaceOids = SelectBuilder.get()
                         .linkfrom(CIPOS.User2Workspace.FromLink)
                         .linkto(CIPOS.User2Workspace.ToLink).oid();
-        multi.addSelect(selEmployeeOid, selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids);
-        multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Roles, CIPOS.User.Visible);
+        final SelectBuilder selPermissions = SelectBuilder.get()
+                        .linkto(CIPOS.User.RoleLink).attribute(CIPOS.Role.Permissions);
+        multi.addSelect(selEmployeeOid, selEmployeeFirstName, selEmployeeLastName, selWorkspaceOids, selPermissions);
+        multi.addAttribute(CIPOS.User.Name, CIPOS.User.Password, CIPOS.User.Visible);
         multi.execute();
         while (multi.next()) {
-            final Collection<Role> roles = multi.getAttribute(CIPOS.User.Roles);
-            final Set<Roles> dtoRoles = new HashSet<>();
-            for (final Role role : roles) {
-                dtoRoles.add(EnumUtils.getEnum(Roles.class, role.name()));
+            final Collection<org.efaps.esjp.pos.util.Pos.Permission> permisions = multi.getSelect(selPermissions);
+            final Set<org.efaps.pos.dto.Permission> dtoPermissions = new HashSet<>();
+            if (permisions != null) {
+                for (final var permision : permisions) {
+                    dtoPermissions.add(EnumUtils.getEnum(org.efaps.pos.dto.Permission.class, permision.name()));
+                }
             }
             final Object ws = multi.getSelect(selWorkspaceOids);
             final Set<String> wsOids = new HashSet<>();
@@ -106,7 +108,7 @@ public abstract class User_Base
                 .withEmployeeOid(multi.getSelect(selEmployeeOid))
                 .withFirstName(multi.getSelect(selEmployeeFirstName))
                 .withSurName(multi.getSelect(selEmployeeLastName))
-                .withRoles(dtoRoles)
+                .withPermissions(dtoPermissions)
                 .withWorkspaceOids(wsOids)
                 .build());
         }

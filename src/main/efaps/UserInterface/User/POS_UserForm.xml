@@ -49,10 +49,12 @@
                 name="POS_UserForm.employeeLink.UI_FIELD_AUTOCOMPLETE" event="UI_FIELD_AUTOCOMPLETE">
             </trigger>
         </field>
-        <field name="roles">
-            <property name="Attribute">Roles</property>
+        <field name="roleLink">
+            <property name="SelectAlternateOID">linkto[RoleLink].oid</property>
+            <property name="Attribute">RoleLink</property>
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
+            <property name="HRef">TREE</property>
         </field>
         <field name="status">
             <property name="ModeCreate">EDITABLE</property>

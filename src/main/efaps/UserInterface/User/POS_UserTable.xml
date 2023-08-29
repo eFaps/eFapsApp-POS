@@ -29,6 +29,10 @@
             <property name="Label">POS_User/Name.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+        <field name="roleLink">
+            <property name="Select">linkto[RoleLink].attribute[Name]</property>
+            <property name="Label">POS_User/RoleLink.Label</property>
+        </field>
         <field name="status">
             <property name="Select">attribute[Status]</property>
             <property name="Label">POS_User/Status.Label</property>
