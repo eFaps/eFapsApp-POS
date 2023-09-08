@@ -53,10 +53,14 @@ public class Log
         checkAccess(identifier);
         LOG.debug("LogEntry: {}", dto);
 
-        final var eval = EQL.builder().query(CIPOS.Backend).where()
-            .attribute(CIPOS.Backend.Identifier).eq(identifier)
-            .select().instance()
-            .evaluate();
+        final var eval = EQL.builder()
+                        .print()
+                        .query(CIPOS.Backend)
+                        .where()
+                        .attribute(CIPOS.Backend.Identifier).eq(identifier)
+                        .select()
+                        .attribute(CIPOS.Backend.Identifier)
+                        .evaluate();
         eval.next();
         final var backendInst = eval.inst();
         final var inst = EQL.builder().insert(CIPOS.Log)

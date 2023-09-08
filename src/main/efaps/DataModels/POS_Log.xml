@@ -57,31 +57,31 @@
         <attribute>
             <name>Ident</name>
             <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>IDENT</sqlcolumn>
         </attribute>
         <attribute>
             <name>Key</name>
             <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>KEY</sqlcolumn>
         </attribute>
         <attribute>
             <name>Value</name>
             <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>VALUE</sqlcolumn>
         </attribute>
          <attribute>
             <name>Level</name>
             <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>LEVEL</sqlcolumn>
         </attribute>
           <attribute>
             <name>LogDateTime</name>
             <type>DateTime</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>LOGDATETIME</sqlcolumn>
         </attribute>
         <attribute>

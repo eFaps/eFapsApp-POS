@@ -22,8 +22,10 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_LogSQLTable</name>
+        <typeid-column>TYPEID</typeid-column>
         <database>
             <table-name>T_POSLOG</table-name>
+            <column name="TYPEID"      type="INTEGER"      not-null="true"/>
             <column name="COMPANYID"    type="INTEGER"      not-null="true"/>
             <column name="BACKENDID"    type="INTEGER"      not-null="true"/>
             <column name="IDENT"        type="STRING_SHORT" length="255"/>
