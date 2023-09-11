@@ -26,10 +26,12 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.Listener;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.pos.listener.IOnLog;
 import org.efaps.pos.dto.LogEntryDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -93,6 +95,9 @@ public class Log
                                 .set(CIPOS.Log2Order.ToLink, orderInst)
                                 .execute();
             }
+        }
+        for (final IOnLog listener : Listener.get().<IOnLog>invoke(IOnLog.class)) {
+            listener.afterCreate(inst);
         }
         return Response.ok(inst.getOid())
                         .build();
