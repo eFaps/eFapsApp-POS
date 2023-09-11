@@ -47,7 +47,7 @@
             <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>COMPANYID</sqlcolumn>
         </attribute>
-         <attribute>
+        <attribute>
             <name>BackendLink</name>
             <type>Link</type>
             <typelink>POS_Backend</typelink>
@@ -72,13 +72,19 @@
             <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>VALUE</sqlcolumn>
         </attribute>
-         <attribute>
+        <attribute>
             <name>Level</name>
             <type>String</type>
             <sqltable>POS_LogSQLTable</sqltable>
             <sqlcolumn>LEVEL</sqlcolumn>
         </attribute>
-          <attribute>
+        <attribute>
+            <name>Info</name>
+            <type>String</type>
+            <sqltable>POS_LogSQLTable</sqltable>
+            <sqlcolumn>INFO</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>LogDateTime</name>
             <type>DateTime</type>
             <sqltable>POS_LogSQLTable</sqltable>

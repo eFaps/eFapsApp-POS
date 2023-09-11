@@ -15,7 +15,7 @@
  limitations under the License.
 
 -->
-<datamodel-sqltable xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<datamodel-sqltable xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>84119236-0d62-4eca-ab88-c4d0c5c371e2</uuid>
     <file-application>eFapsApp-POS</file-application>
@@ -32,6 +32,7 @@
             <column name="KEY"          type="STRING_SHORT" length="255"/>
             <column name="VALUE"        type="STRING_SHORT" length="2048"/>
             <column name="LEVEL"        type="STRING_SHORT" length="255"/>
+            <column name="INFO"         type="STRING_SHORT" length="2048"/>
             <column name="LOGDATETIME" not-null="true" type="DATETIME"/>
             <column name="CREATOR" not-null="true" type="INTEGER"/>
             <column name="CREATED" not-null="true" type="DATETIME"/>

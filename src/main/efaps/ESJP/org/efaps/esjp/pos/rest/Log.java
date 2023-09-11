@@ -26,12 +26,16 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.LogEntryDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @EFapsUUID("3059a31c-8c71-49d3-bee3-ca5866c04b31")
 @EFapsApplication("eFapsApp-POS")
@@ -39,6 +43,8 @@ import org.slf4j.LoggerFactory;
 public class Log
     extends AbstractRest
 {
+
+    public static final String ORDEROID = "orderOid";
 
     private static final Logger LOG = LoggerFactory.getLogger(Stocktaking.class);
 
@@ -63,6 +69,12 @@ public class Log
                         .evaluate();
         eval.next();
         final var backendInst = eval.inst();
+        String infoStr = "";
+        try {
+            infoStr = getObjectMapper().writeValueAsString(dto.getInfo());
+        } catch (final JsonProcessingException e) {
+            LOG.error("Catched", e);
+        }
         final var inst = EQL.builder().insert(CIPOS.Log)
                         .set(CIPOS.Log.BackendLink, backendInst)
                         .set(CIPOS.Log.Ident, dto.getIdent())
@@ -70,7 +82,18 @@ public class Log
                         .set(CIPOS.Log.Level, dto.getLevel().name())
                         .set(CIPOS.Log.Value, dto.getValue())
                         .set(CIPOS.Log.LogDateTime, dto.getCreatedAt())
+                        .set(CIPOS.Log.Info, infoStr)
                         .execute();
+
+        if (dto.getInfo() != null && dto.getInfo().containsKey(ORDEROID)) {
+            final var orderInst = Instance.get(dto.getInfo().get(ORDEROID));
+            if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
+                EQL.builder().insert(CIPOS.Log2Order)
+                                .set(CIPOS.Log2Order.FromLink, inst)
+                                .set(CIPOS.Log2Order.ToLink, orderInst)
+                                .execute();
+            }
+        }
         return Response.ok(inst.getOid())
                         .build();
     }

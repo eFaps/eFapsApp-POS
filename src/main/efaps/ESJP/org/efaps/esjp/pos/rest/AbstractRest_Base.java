@@ -30,10 +30,15 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.util.EFapsException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @EFapsUUID("4f3f9a28-2cb4-440c-bbe0-98dac596c3b8")
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractRest_Base
 {
+
     /**
      * Check access on Assigned Role.
      *
@@ -66,5 +71,13 @@ public abstract class AbstractRest_Base
         if (CollectionUtils.isEmpty(query.execute())) {
             throw new ForbiddenException("No valid Backend registered.");
         }
+    }
+
+    protected ObjectMapper getObjectMapper()
+    {
+        final var mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        return mapper;
     }
 }
