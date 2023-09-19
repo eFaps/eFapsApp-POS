@@ -95,8 +95,8 @@ public class Log
                 .withValue(dto.getValue())
                 .register();
 
-        if (dto.getInfo() != null && dto.getInfo().containsKey(ORDEROID)) {
-            final var orderInst = Instance.get(dto.getInfo().get(ORDEROID));
+        if (dto.getValue() != null && dto.getValue().containsKey(ORDEROID)) {
+            final var orderInst = Instance.get(dto.getValue().get(ORDEROID));
             if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
                 EQL.builder().insert(CIPOS.Log2Order)
                                 .set(CIPOS.Log2Order.FromLink, inst)
