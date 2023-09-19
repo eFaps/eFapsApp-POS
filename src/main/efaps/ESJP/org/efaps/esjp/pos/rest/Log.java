@@ -27,8 +27,10 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.program.esjp.Listener;
+import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Insert;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.listener.IOnLog;
@@ -36,8 +38,6 @@ import org.efaps.pos.dto.LogEntryDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 @EFapsUUID("3059a31c-8c71-49d3-bee3-ca5866c04b31")
 @EFapsApplication("eFapsApp-POS")
@@ -71,21 +71,29 @@ public class Log
                         .evaluate();
         eval.next();
         final var backendInst = eval.inst();
-        String infoStr = "";
-        try {
-            infoStr = getObjectMapper().writeValueAsString(dto.getInfo());
-        } catch (final JsonProcessingException e) {
-            LOG.error("Catched", e);
-        }
-        final var inst = EQL.builder().insert(CIPOS.Log)
-                        .set(CIPOS.Log.BackendLink, backendInst)
-                        .set(CIPOS.Log.Ident, dto.getIdent())
-                        .set(CIPOS.Log.Key, dto.getKey())
-                        .set(CIPOS.Log.Level, dto.getLevel().name())
-                        .set(CIPOS.Log.Value, dto.getValue())
-                        .set(CIPOS.Log.LogDateTime, dto.getCreatedAt())
-                        .set(CIPOS.Log.Info, infoStr)
-                        .execute();
+
+        final var inst = new org.efaps.esjp.erp.Log()
+        {
+
+            @Override
+            protected CIType getType()
+            {
+                return CIPOS.Log;
+            }
+
+            @Override
+            protected void addToInsert(final Insert insert)
+                throws EFapsException
+            {
+                insert.set(CIPOS.Log.BackendLink, backendInst)
+                                .set(CIPOS.Log.Ident, dto.getIdent());
+            }
+        }.withKey(dto.getKey())
+                .withLevel(dto.getLevel().name())
+                .withLogDateTime(dto.getCreatedAt())
+                .withMessage(identifier)
+                .withValue(dto.getValue())
+                .register();
 
         if (dto.getInfo() != null && dto.getInfo().containsKey(ORDEROID)) {
             final var orderInst = Instance.get(dto.getInfo().get(ORDEROID));
