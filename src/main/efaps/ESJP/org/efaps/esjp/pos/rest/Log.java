@@ -91,7 +91,7 @@ public class Log
         }.withKey(dto.getKey())
                 .withLevel(dto.getLevel().name())
                 .withLogDateTime(dto.getCreatedAt())
-                .withMessage(identifier)
+                .withMessage(dto.getMessage())
                 .withValue(dto.getValue())
                 .register();
 
