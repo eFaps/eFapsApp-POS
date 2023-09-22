@@ -38,6 +38,12 @@
                 <property name="Child_Type">POS_Category</property>
                 <property name="Child_LinkFrom">ParentLink</property>
             </evaluate>
+            <strctbrws program="org.efaps.esjp.ui.structurbrowser.BaseStructurBrowser">
+                <property name="Type">POS_Category</property>
+                <property name="LinkFromIsNull">ParentLink</property>
+                <property name="Child_Type">POS_Category</property>
+                <property name="Child_LinkFrom">ParentLink</property>
+            </strctbrws>
             <trigger
                 program="org.efaps.esjp.admin.access.AccessCheck4UI"
                 method="configCheck" name="POS_MyDesk.UI_ACCESSCHECK"
