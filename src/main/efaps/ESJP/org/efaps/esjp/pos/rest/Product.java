@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2018 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.efaps.util.EFapsException;
 public class Product
     extends Product_Base
 {
+
     @Override
     @Path("/{identifier}/products")
     @GET
@@ -46,9 +47,22 @@ public class Product
     public Response getProducts(@PathParam("identifier") final String _identifier,
                                 @QueryParam("limit") final int limit,
                                 @QueryParam("offset") final int offset,
-                                @QueryParam("after") final OffsetDateTime after)
+                                @QueryParam("after") final OffsetDateTime after,
+                                @QueryParam("term") final String term,
+                                @QueryParam("barcode") final String barcode)
         throws EFapsException
     {
-        return super.getProducts(_identifier, limit, offset, after);
+        return super.getProducts(_identifier, limit, offset, after, term, barcode);
+    }
+
+    @Override
+    @Path("/{identifier}/products/{oid}")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getProduct(@PathParam("identifier") final String _identifier,
+                               @PathParam("oid") final String oid)
+        throws EFapsException
+    {
+        return super.getProduct(_identifier, oid);
     }
 }

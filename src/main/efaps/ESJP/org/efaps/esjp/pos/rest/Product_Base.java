@@ -19,8 +19,8 @@ package org.efaps.esjp.pos.rest;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,6 @@ import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
-import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -46,6 +45,8 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
+import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -69,6 +70,8 @@ import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.OIDUtil;
+import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,127 +89,190 @@ public abstract class Product_Base
      */
     private static final Logger LOG = LoggerFactory.getLogger(Product.class);
 
+    public Response getProduct(final String identifier,
+                               final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        Response response = null;
+        if (OIDUtil.isOID(oid)) {
+            final var prodInstance = Instance.get(oid);
+            if (InstanceUtils.isType(prodInstance, CIProducts.ProductAbstract)) {
+                final var print = EQL.builder().print(prodInstance);
+                response = Response.ok(evalProducts(identifier, print)).build();
+            }
+        }
+        if (response == null) {
+            response = Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return response;
+    }
+
+    public Response findProducts(final String identifier,
+                                 final String term,
+                                 final String barcode)
+        throws EFapsException
+    {
+        final var query = EQL.builder().print()
+                        .query(CIProducts.ProductAbstract);
+        if (barcode != null) {
+            final var attrSet = AttributeSet.find(CIProducts.ProductAbstract.getType().getName(),
+                            CIProducts.ProductAbstract.Barcodes.name);
+            final var barcodeQuery = EQL.builder().nestedQuery(attrSet)
+                            .where()
+                            .attribute("Code").eq(barcode).up()
+                            .selectable(Selectables.attribute("Barcodes"));
+            query.where()
+                .attribute(CIProducts.ProductAbstract.ID)
+                .in(barcodeQuery);
+        }
+        final var select = query.select();
+        return Response.ok(evalProducts(identifier, select)).build();
+    }
+
+    public Response getProducts(final String identifier,
+                                final int limit,
+                                final int offset,
+                                final OffsetDateTime after,
+                                final String term,
+                                final String barcode)
+        throws EFapsException
+    {
+        // checkAccess(identifier);
+        Response ret;
+        if (term == null && barcode == null) {
+            ret = getProducts(identifier, limit, offset, after);
+        } else {
+            ret = findProducts(identifier, term, barcode);
+        }
+        return ret;
+    }
+
     /**
      * Gets the products.
      *
      * @return the products
      * @throws EFapsException the eFaps exception
      */
-    @SuppressWarnings("unchecked")
     public Response getProducts(final String _identifier,
                                 final int limit,
                                 final int offset,
                                 final OffsetDateTime after)
         throws EFapsException
     {
-        checkAccess(_identifier);
-        LOG.debug("Received request for product sync from {}", _identifier);
-        final List<ProductDto> products = new ArrayList<>();
 
-        final QueryBuilder queryBldr = new QueryBuilder(CIProducts.ProductAbstract);
+        LOG.debug("Received request for product sync from {}", _identifier);
+        final var query = EQL.builder().print()
+                        .query(CIProducts.ProductAbstract);
+
         if (after == null) {
             if (Pos.CATEGORY_ACTIVATE.get()) {
-                queryBldr.setOr(true);
-                final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
-                attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
+                final var categoryQuery = EQL.builder().nestedQuery(CIPOS.Category)
+                                .where()
+                                .attribute(CIPOS.Category.Status).eq(CIPOS.CategoryStatus.Active)
+                                .up();
+                final var catRelQuery = EQL.builder().nestedQuery(CIPOS.Category2Product)
+                                .where()
+                                .attribute(CIPOS.Category2Product.FromLink).in(categoryQuery).up();
 
-                final QueryBuilder relAttrQueryBldr = new QueryBuilder(CIPOS.Category2Product);
-                relAttrQueryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
-                                attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
+                final var textPosQuery = EQL.builder().nestedQuery(CIProducts.ProductTextPosition)
+                                .where()
+                                .attribute(CIProducts.ProductTextPosition.Active).eq("true").up();
+                query.where()
+                                .attribute(CIProducts.ProductAbstract.ID)
+                                .in(catRelQuery)
+                                .or()
+                                .attribute(CIProducts.ProductAbstract.ID)
+                                .in(textPosQuery);
 
-                queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                                relAttrQueryBldr.getAttributeQuery(CIPOS.Category2Product.ToLink));
-                // we need the textpositions
-                final QueryBuilder attrQueryBldr2 = new QueryBuilder(CIProducts.ProductTextPosition);
-                attrQueryBldr2.addWhereAttrEqValue(CIProducts.ProductTextPosition.Active, true);
-                queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                                attrQueryBldr2.getAttributeQuery(CIProducts.ProductTextPosition.ID));
             } else {
-                queryBldr.addWhereAttrEqValue(CIProducts.ProductAbstract.Active, true);
+                query.where().attribute(CIProducts.ProductAbstract.Active).eq("true").up();
             }
         } else {
-            queryBldr.setOr(true);
-            // update of pricelist position
-            final var positionAttrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistPosition);
-            positionAttrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistPosition.Modified, after);
-            final var listAttrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
-            listAttrQueryBldr.addWhereAttrInQuery(CIProducts.ProductPricelistAbstract.ID,
-                            positionAttrQueryBldr
-                                            .getAttributeQuery(CIProducts.ProductPricelistPosition.ProductPricelist));
-            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                            listAttrQueryBldr.getAttributeQuery(
-                                            CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-            // update of pricelist
-            final var attrQueryBldr = new QueryBuilder(CIProducts.ProductPricelistAbstract);
-            attrQueryBldr.addWhereAttrGreaterValue(CIProducts.ProductPricelistAbstract.Modified, after);
-            queryBldr.addWhereAttrInQuery(CIProducts.ProductAbstract.ID,
-                            attrQueryBldr.getAttributeQuery(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-            // update of product
-            queryBldr.addWhereAttrGreaterValue(CIProducts.ProductAbstract.Modified, after);
+            final var posQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistPosition)
+                            .where()
+                            .attribute(CIProducts.ProductPricelistPosition.Modified).greater(String.valueOf(after))
+                            .up()
+                            .selectable(Selectables.attribute(CIProducts.ProductPricelistPosition.ProductPricelist));
+
+            final var listQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
+                            .where()
+                            .attribute(CIProducts.ProductPricelistAbstract.ID).in(posQuery)
+                            .up();
+
+            final var listQuery2 = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
+                            .where()
+                            .attribute(CIProducts.ProductPricelistAbstract.Modified).greater(String.valueOf(after))
+                            .up();
+
+            query.where()
+                            .attribute(CIProducts.ProductAbstract.ID).in(listQuery)
+                            .or()
+                            .attribute(CIProducts.ProductAbstract.ID).in(listQuery2)
+                            .or()
+                            .attribute(CIProducts.ProductAbstract.Modified).greater(String.valueOf(after));
         }
-        queryBldr.addOrderByAttributeAsc(CIProducts.ProductAbstract.ID);
+        final var select = query.select().orderBy(CIProducts.ProductAbstract.ID);
+
         if (limit > 0) {
-            queryBldr.setLimit(limit);
+            select.limit(limit);
         }
         if (offset > 0) {
-            queryBldr.setOffset(offset);
+            select.offset(offset);
         }
 
-        final MultiPrintQuery multi = queryBldr.getPrint();
-        final SelectBuilder selCat = SelectBuilder.get()
-                        .linkfrom(CIPOS.Category2Product.ToLink)
-                        .linkto(CIPOS.Category2Product.FromLink)
-                        .oid();
-        final SelectBuilder selCatWeight = SelectBuilder.get()
-                        .linkfrom(CIPOS.Category2Product.ToLink)
-                        .attribute(CIPOS.Category2Product.SortWeight);
-        final SelectBuilder selImageOid = SelectBuilder.get()
+        return Response.ok(evalProducts(_identifier, select)).build();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<ProductDto> evalProducts(final String identifier,
+                                            final Print print)
+        throws CacheReloadException, EFapsException
+    {
+        final List<ProductDto> products = new ArrayList<>();
+
+        print.attribute(CIProducts.ProductAbstract.Name, CIProducts.ProductAbstract.Description,
+                        CIProducts.ProductAbstract.Note, CIProducts.ProductAbstract.DefaultUoM)
+                        .linkfrom(CIPOS.Category2Product.ToLink).linkto(CIPOS.Category2Product.FromLink).oid()
+                        .as("selCat")
+                        .linkfrom(CIPOS.Category2Product.ToLink).attribute(CIPOS.Category2Product.SortWeight)
+                        .as("selCatWeight")
                         .linkfrom(CIProducts.Product2ImageThumbnail.ProductLink)
                         .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
-                        .oid();
-        multi.addSelect(selCat, selCatWeight, selImageOid);
-        final Map<Integer, String> relSelects;
-        final Map<Integer, String> relLabels;
-        final Map<Integer, String> relQuantity;
-        final Map<Integer, String> relTypes;
+                        .oid().as("selImageOid");
+
         if (Pos.PRODREL.exists()) {
             final Properties properties = Pos.PRODREL.get();
-            relQuantity = PropertiesUtil.analyseProperty(properties, "QuantitySelect", 0);
-            relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
-            relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
-            relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
-        } else {
-            relSelects = new HashMap<>();
-            relQuantity = new HashMap<>();
-            relLabels = new HashMap<>();
-            relTypes = new HashMap<>();
+            final Map<Integer, String> relQuantity = PropertiesUtil.analyseProperty(properties,
+                            "QuantitySelect", 0);
+            final Map<Integer, String> relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+            for (final Entry<Integer, String> entry : relSelects.entrySet()) {
+                print.select(entry.getValue()).as("relation" + entry.getKey());
+            }
+            for (final Entry<Integer, String> entry : relQuantity.entrySet()) {
+                print.select(entry.getValue()).as("quantity" + entry.getKey());
+            }
         }
+        final var productEval = print.evaluate();
 
-        for (final Entry<Integer, String> entry : relSelects.entrySet()) {
-            multi.addSelect(entry.getValue());
-        }
-        for (final Entry<Integer, String> entry : relQuantity.entrySet()) {
-            multi.addSelect(entry.getValue());
-        }
-        multi.addAttribute(CIProducts.ProductAbstract.Name, CIProducts.ProductAbstract.Description,
-                        CIProducts.ProductAbstract.Note, CIProducts.ProductAbstract.DefaultUoM);
-        multi.execute();
-        while (multi.next()) {
-            final Object cats = multi.getSelect(selCat);
-            final Object catWeights = multi.getSelect(selCatWeight);
+        while (productEval.next()) {
+            final Object cats = productEval.get("selCat");
+            final Object catWeights = productEval.get("selCatWeight");
             final Set<Product2CategoryDto> prod2cats = new HashSet<>();
             if (cats instanceof List) {
                 final var weightIter = ((Collection<? extends Integer>) catWeights).iterator();
                 for (final String element : (Collection<? extends String>) cats) {
-                    prod2cats.add(Product2CategoryDto.builder().withCategoryOid(element).withWeight(weightIter.next())
-                                    .build());
+                    if (element != null) {
+                        prod2cats.add(Product2CategoryDto.builder().withCategoryOid(element)
+                                        .withWeight(weightIter.next())
+                                        .build());
+                    }
                 }
             } else if (cats instanceof String) {
-                prod2cats
-                                .add(Product2CategoryDto.builder().withCategoryOid((String) cats)
-                                                .withWeight((Integer) catWeights).build());
+                prod2cats.add(Product2CategoryDto.builder().withCategoryOid((String) cats)
+                                .withWeight((Integer) catWeights).build());
             }
-            final Object imageOids = multi.getSelect(selImageOid);
+            final Object imageOids = productEval.get("selImageOid");
             final String imageOid;
             if (imageOids instanceof List) {
                 imageOid = (String) ((List<?>) imageOids).get(0);
@@ -217,9 +283,9 @@ public abstract class Product_Base
             }
 
             final Parameter parameter = ParameterUtil.instance();
-            ParameterUtil.setParameterValues(parameter, "identifier", _identifier);
+            ParameterUtil.setParameterValues(parameter, "identifier", identifier);
 
-            final Calculator calculator = new Calculator(parameter, null, multi.getCurrentInstance(), BigDecimal.ONE,
+            final Calculator calculator = new Calculator(parameter, null, productEval.inst(), BigDecimal.ONE,
                             null, BigDecimal.ZERO, true, getCalcConf());
 
             final Set<TaxDto> taxes = new HashSet<>();
@@ -239,32 +305,44 @@ public abstract class Product_Base
                     LOG.error("Catched", e);
                 }
             });
-
             final Set<ProductRelationDto> relations = new HashSet<>();
-            for (final Entry<Integer, String> entry : relSelects.entrySet()) {
-                final String label = relLabels.get(entry.getKey());
-                final String relType = relTypes.get(entry.getKey());
-                final Object relation = multi.getSelect(entry.getValue());
-                final Object quantity = multi.getSelect(relQuantity.get(entry.getKey()));
+            if (Pos.PRODREL.exists()) {
+                final Properties properties = Pos.PRODREL.get();
+                PropertiesUtil.analyseProperty(properties, "QuantitySelect",
+                                0);
+                final Map<Integer, String> relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+                final Map<Integer, String> relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
+                final Map<Integer, String> relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
 
-                if (relation instanceof List) {
-                    final var quantities = ((List<? extends BigDecimal>) quantity).iterator();
-                    ((Collection<? extends String>) relation).forEach(oid -> {
+                for (final Entry<Integer, String> entry : relSelects.entrySet()) {
+                    final String label = relLabels.get(entry.getKey());
+                    final String relType = relTypes.get(entry.getKey());
+                    final Object relation = productEval.get("relation" + entry.getKey());
+                    Object quantity = productEval.get("quantity" + entry.getKey());
+
+                    if (relation instanceof List) {
+                        if (quantity == null) {
+                            quantity = Arrays.asList(new Object[((List) relation).size()]);
+                        }
+                        final var quantities = ((List<? extends BigDecimal>) quantity).iterator();
+                        ((Collection<? extends String>) relation).forEach(oid -> {
+                            if (oid != null) {
+                                relations.add(ProductRelationDto.builder()
+                                                .withLabel(label)
+                                                .withQuantity(quantities.hasNext() ? quantities.next() : null)
+                                                .withProductOid(oid)
+                                                .withType(ProductRelationType.valueOf(relType))
+                                                .build());
+                            }
+                        });
+                    } else if (relation instanceof String) {
                         relations.add(ProductRelationDto.builder()
                                         .withLabel(label)
-                                        .withQuantity(quantities.hasNext() ? quantities.next() : null)
-                                        .withProductOid(oid)
+                                        .withQuantity((BigDecimal) quantity)
+                                        .withProductOid((String) relation)
                                         .withType(ProductRelationType.valueOf(relType))
                                         .build());
-                    });
-
-                } else if (relation instanceof String) {
-                    relations.add(ProductRelationDto.builder()
-                                    .withLabel(label)
-                                    .withQuantity((BigDecimal) quantity)
-                                    .withProductOid((String) relation)
-                                    .withType(ProductRelationType.valueOf(relType))
-                                    .build());
+                    }
                 }
             }
             final var barcodes = new HashSet<BarcodeDto>();
@@ -273,7 +351,7 @@ public abstract class Product_Base
                                 CIProducts.ProductAbstract.Barcodes.name);
                 // attrSet.getType();
                 final QueryBuilder barcodeQueryBldr = new QueryBuilder(attrSet);
-                barcodeQueryBldr.addWhereAttrEqValue(attrSet.getAttributeName(), multi.getCurrentInstance());
+                barcodeQueryBldr.addWhereAttrEqValue(attrSet.getAttributeName(), productEval.inst());
 
                 final var barcodePrint = barcodeQueryBldr.getPrint();
                 barcodePrint.addAttribute("Code");
@@ -296,7 +374,7 @@ public abstract class Product_Base
                                 .query(CIProducts.BOMGroupConfiguration)
                                 .where()
                                 .attribute(CIProducts.BOMGroupConfiguration.ProductLink)
-                                .eq(multi.getCurrentInstance())
+                                .eq(productEval.inst())
                                 .select()
                                 .attribute(CIProducts.BOMGroupConfiguration.Name,
                                                 CIProducts.BOMGroupConfiguration.Description,
@@ -316,7 +394,7 @@ public abstract class Product_Base
                                     .withDescription(eval.get(CIProducts.BOMGroupConfiguration.Description))
                                     .withWeight(eval.get(CIProducts.BOMGroupConfiguration.Weight))
                                     .withFlags(flagsBitValue)
-                                    .withProductOid(multi.getCurrentInstance().getOid())
+                                    .withProductOid(productEval.inst().getOid())
                                     .build());
                 }
 
@@ -325,7 +403,7 @@ public abstract class Product_Base
                                 .query(CIProducts.ConfigurationBOM)
                                 .where()
                                 .attribute(CIProducts.ConfigurationBOM.From)
-                                .eq(multi.getCurrentInstance())
+                                .eq(productEval.inst())
                                 .select()
                                 .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
                                                 CIProducts.ConfigurationBOM.UoM)
@@ -350,7 +428,7 @@ public abstract class Product_Base
                 }
             }
 
-            final UoM uoM = Dimension.getUoM(multi.getAttribute(CIProducts.ProductAbstract.DefaultUoM));
+            final UoM uoM = Dimension.getUoM(productEval.get(CIProducts.ProductAbstract.DefaultUoM));
 
             final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
             var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
@@ -358,11 +436,11 @@ public abstract class Product_Base
                 currency = org.efaps.pos.dto.Currency.PEN;
             }
             final ProductDto dto = ProductDto.builder()
-                            .withSKU(multi.getAttribute(CIProducts.ProductAbstract.Name))
-                            .withType(getProductType(multi.getCurrentInstance()))
-                            .withDescription(multi.getAttribute(CIProducts.ProductAbstract.Description))
-                            .withNote(multi.getAttribute(CIProducts.ProductAbstract.Note))
-                            .withOID(multi.getCurrentInstance().getOid())
+                            .withSKU(productEval.get(CIProducts.ProductAbstract.Name))
+                            .withType(getProductType(productEval.inst()))
+                            .withDescription(productEval.get(CIProducts.ProductAbstract.Description))
+                            .withNote(productEval.get(CIProducts.ProductAbstract.Note))
+                            .withOID(productEval.inst().getOid())
                             .withCategories(prod2cats)
                             .withNetPrice(calculator.getNetUnitPrice())
                             .withCrossPrice(calculator.getCrossUnitPrice())
@@ -372,7 +450,7 @@ public abstract class Product_Base
                             .withUoM(uoM.getSymbol())
                             .withUoMCode(uoM.getCommonCode())
                             .withRelations(relations)
-                            .withIndicationSets(getIndicationSets(multi.getCurrentInstance()))
+                            .withIndicationSets(getIndicationSets(productEval.inst()))
                             .withBarcodes(barcodes)
                             .withBomGroupConfigs(bomGroupConfigs)
                             .withConfigurationBOMs(configurationBOMs)
@@ -380,9 +458,7 @@ public abstract class Product_Base
             LOG.debug("Product {}", dto);
             products.add(dto);
         }
-
-        final Response ret = Response.ok().entity(products).build();
-        return ret;
+        return products;
     }
 
     protected ProductType getProductType(final Instance _instance)
@@ -402,7 +478,6 @@ public abstract class Product_Base
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     protected Set<IndicationSetDto> getIndicationSets(final Instance productInstance)
     {
         final Set<IndicationSetDto> ret = new HashSet<>();
