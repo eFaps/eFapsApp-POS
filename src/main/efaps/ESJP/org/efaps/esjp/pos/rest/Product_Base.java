@@ -93,7 +93,7 @@ public abstract class Product_Base
                                final String oid)
         throws EFapsException
     {
-        checkAccess(identifier);
+        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         Response response = null;
         if (OIDUtil.isOID(oid)) {
             final var prodInstance = Instance.get(oid);
@@ -138,7 +138,7 @@ public abstract class Product_Base
                                 final String barcode)
         throws EFapsException
     {
-        // checkAccess(identifier);
+        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         Response ret;
         if (term == null && barcode == null) {
             ret = getProducts(identifier, limit, offset, after);

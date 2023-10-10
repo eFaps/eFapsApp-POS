@@ -44,12 +44,17 @@ public abstract class AbstractRest_Base
      *
      * @throws EFapsException the eFaps exception
      */
-    protected void checkAccess()
+    protected void checkAccess(final ACCESSROLE... roles)
         throws EFapsException
     {
-        // POS_BE
-        if (!Context.getThreadContext().getPerson().isAssigned(Role.get(UUID.fromString(
-                        "b1fcb12e-b4e0-4c84-8382-c557d61fdb51")))) {
+        boolean ret = false;
+        for (final ACCESSROLE role : roles) {
+            ret = Context.getThreadContext().getPerson().isAssigned(Role.get(UUID.fromString(role.uuid)));
+            if (ret) {
+                break;
+            }
+        }
+        if (!ret) {
             throw new ForbiddenException("User does not have correct Roles assigned");
         }
     }
@@ -60,10 +65,14 @@ public abstract class AbstractRest_Base
      * @param _identifier the identifier
      * @throws EFapsException the eFaps exception
      */
-    protected void checkAccess(final String _identifier)
+    protected void checkAccess(final String _identifier, final ACCESSROLE... roles)
         throws EFapsException
     {
-        checkAccess();
+        if (roles == null) {
+            checkAccess(ACCESSROLE.BE);
+        } else {
+            checkAccess(roles);
+        }
         final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
         queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
         queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
@@ -79,5 +88,18 @@ public abstract class AbstractRest_Base
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return mapper;
+    }
+
+    public enum ACCESSROLE
+    {
+
+        BE("b1fcb12e-b4e0-4c84-8382-c557d61fdb51"), MOBILE("a1305af0-1d2a-477e-96fd-2debda9f95d8");
+
+        String uuid;
+
+        ACCESSROLE(final String uuid)
+        {
+            this.uuid = uuid;
+        }
     }
 }
