@@ -20,6 +20,7 @@ package org.efaps.esjp.pos.rest;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -29,6 +30,8 @@ import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -38,6 +41,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractRest_Base
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractRest.class);
 
     /**
      * Check access on Assigned Role.
@@ -55,6 +59,7 @@ public abstract class AbstractRest_Base
             }
         }
         if (!ret) {
+            LOG.error("Access denied due to missing Roles");
             throw new ForbiddenException("User does not have correct Roles assigned");
         }
     }
@@ -68,7 +73,7 @@ public abstract class AbstractRest_Base
     protected void checkAccess(final String _identifier, final ACCESSROLE... roles)
         throws EFapsException
     {
-        if (roles == null) {
+        if (ArrayUtils.isEmpty(roles)) {
             checkAccess(ACCESSROLE.BE);
         } else {
             checkAccess(roles);
@@ -78,6 +83,7 @@ public abstract class AbstractRest_Base
         queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
         final InstanceQuery query = queryBldr.getQuery();
         if (CollectionUtils.isEmpty(query.execute())) {
+            LOG.error("Access denied due to Backend registration");
             throw new ForbiddenException("No valid Backend registered.");
         }
     }
