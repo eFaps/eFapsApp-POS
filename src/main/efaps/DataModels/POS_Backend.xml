@@ -69,6 +69,12 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>DESCR</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>ReceiptSerial</name>
+            <type>String</type>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>RECEIPTSERIAL</sqlcolumn>
+        </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
