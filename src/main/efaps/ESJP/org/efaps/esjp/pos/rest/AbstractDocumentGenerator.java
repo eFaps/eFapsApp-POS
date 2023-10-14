@@ -34,10 +34,13 @@ import org.efaps.ci.CIStatus;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.contacts.util.Contacts;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.NumberFormatter;
@@ -230,8 +233,16 @@ public abstract class AbstractDocumentGenerator
     }
 
     protected Instance getContactInstance(final GenerateDocDto dto)
+        throws EFapsException
     {
-        return null;
+        Instance contactInstance = null;
+        if (dto.getContactOid() == null) {
+            contactInstance = Instance.get(dto.getContactOid());
+        }
+        if (!InstanceUtils.isKindOf(contactInstance, CIContacts.ContactAbstract)) {
+            contactInstance = Contacts.STRAYCOSTUMER.get();
+        }
+        return contactInstance;
     }
 
     public Taxes getRateTaxes(final List<Calculator> calculators,
