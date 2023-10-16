@@ -54,6 +54,13 @@ public class Pos
                     .key(BASE + "Activate")
                     .description("Activate the POS implementation");
 
+
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute POS_ACTIVATEMOBILE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "ActivateMobile")
+                    .description("Activate mobile management");
+
     /** See description. */
     @EFapsSysConfAttribute
     public static final StringSysConfAttribute VERSION = new StringSysConfAttribute()
@@ -206,6 +213,8 @@ public class Pos
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "POS.AssignDepartment")
                     .description("Be able to assign a department to a POS");
+
+
 
     public enum Role implements IBitEnum
     {
