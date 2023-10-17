@@ -32,6 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAttribute;
 import org.efaps.ci.CIStatus;
 import org.efaps.ci.CIType;
+import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIContacts;
@@ -53,6 +54,7 @@ import org.efaps.esjp.sales.tax.TaxAmount;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.GenerateDocDto;
+import org.efaps.pos.dto.GenerateDocResponseDto;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -68,11 +70,27 @@ public abstract class AbstractDocumentGenerator
 
     protected abstract CIType getDocumentType();
 
-    protected abstract CIStatus getDocumentStatus();
+    protected abstract CIStatus getDocumentCreateStatus();
 
     protected abstract CIType getPositionType();
 
     protected abstract CIAttribute getAttribute4SerialNumber();
+
+    protected GenerateDocResponseDto toDto(final Instance docInstance)
+        throws EFapsException
+    {
+        final var eval = EQL.builder()
+                        .print(docInstance)
+                        .attribute(CISales.DocumentSumAbstract.CrossTotal)
+                        .evaluate();
+        eval.next();
+        final BigDecimal crossTotal = eval.get(CISales.DocumentSumAbstract.CrossTotal);
+
+        return GenerateDocResponseDto.builder()
+                        .withOid(docInstance.getOid())
+                        .withPayableAmount(crossTotal)
+                        .build();
+    }
 
     protected List<Calculator> evalCalculators(final String identifier,
                                                final GenerateDocDto dto)
@@ -114,9 +132,9 @@ public abstract class AbstractDocumentGenerator
         final BigDecimal netTotal = rateNetTotal.divide(rate, RoundingMode.HALF_UP);
 
         final var eql = EQL.builder().insert(getDocumentType())
-                        .set(CISales.DocumentSumAbstract.Name, evaluateDocName(identifier))
-                        .set(CISales.DocumentSumAbstract.Date, LocalDate.now())
-                        .set(CISales.DocumentSumAbstract.StatusAbstract, getDocumentStatus())
+                        .set(CISales.DocumentSumAbstract.Name, evaluateDocName(identifier, true))
+                        .set(CISales.DocumentSumAbstract.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
+                        .set(CISales.DocumentSumAbstract.StatusAbstract, getDocumentCreateStatus())
                         .set(CISales.DocumentSumAbstract.Contact, getContactInstance(dto))
                         .set(CISales.DocumentSumAbstract.RateCrossTotal,
                                         rateCrossTotal.setScale(scale, RoundingMode.HALF_UP))
@@ -214,7 +232,8 @@ public abstract class AbstractDocumentGenerator
         }
     }
 
-    protected String evaluateDocName(final String identifier)
+    protected String evaluateDocName(final String identifier,
+                                     final Boolean isCreate)
         throws EFapsException
     {
         String serialNumber = null;
@@ -229,7 +248,8 @@ public abstract class AbstractDocumentGenerator
         if (serialNumber == null) {
             LOG.error("Missing configuration for SerialNumbers for identifier: {}", identifier);
         }
-        return SerialNumbers.getNext(getDocumentType(), serialNumber);
+        return isCreate ? SerialNumbers.getPlaceholder(getDocumentType(), serialNumber)
+                        : SerialNumbers.getNext(getDocumentType(), serialNumber);
     }
 
     protected Instance getContactInstance(final GenerateDocDto dto)

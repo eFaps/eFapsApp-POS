@@ -45,7 +45,7 @@
             <property name="ModeEdit">READONLY</property>
             <trigger
                 program="org.efaps.esjp.admin.access.AccessCheck4UI"
-                method="mobileHeading" name="POS_BackendForm.mobileHeading.UI_ACCESSCHECK"
+                method="configCheck" name="POS_BackendForm.mobileHeading.UI_ACCESSCHECK"
                 event="UI_ACCESSCHECK">
                 <!-- POS-Configuration -->
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
@@ -59,7 +59,7 @@
             <property name="Attribute">ReceiptSerial</property>
             <trigger
                 program="org.efaps.esjp.admin.access.AccessCheck4UI"
-                method="receiptSerial" name="POS_BackendForm.receiptSerial.UI_ACCESSCHECK"
+                method="configCheck" name="POS_BackendForm.receiptSerial.UI_ACCESSCHECK"
                 event="UI_ACCESSCHECK">
                 <!-- POS-Configuration -->
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>

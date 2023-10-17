@@ -32,6 +32,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("e5bee587-ad44-4a97-a723-d3f3f1bc8a9c")
 @EFapsApplication("eFapsApp-POS")
@@ -44,14 +45,16 @@ public class ReceiptGenerator
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void createReceipt(@PathParam("identifier") final String identifier,
-                              final GenerateDocDto dto)
+    public Response createReceipt(@PathParam("identifier") final String identifier,
+                                  final GenerateDocDto dto)
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.MOBILE);
         final var calculators = evalCalculators(identifier, dto);
         final var docInstance = createDocument(identifier, dto, calculators);
         createPositions(identifier, dto, calculators, docInstance);
+        final var responseDto = toDto(docInstance);
+        return Response.ok(responseDto).build();
     }
 
     @Override
@@ -61,9 +64,9 @@ public class ReceiptGenerator
     }
 
     @Override
-    protected CIStatus getDocumentStatus()
+    protected CIStatus getDocumentCreateStatus()
     {
-        return CISales.ReceiptStatus.Open;
+        return CISales.ReceiptStatus.Draft;
     }
 
     @Override
