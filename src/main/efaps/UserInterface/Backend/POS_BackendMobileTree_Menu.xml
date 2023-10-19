@@ -15,25 +15,16 @@
  limitations under the License.
 
 -->
-<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-menu xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>b38ea72f-7dd3-4877-9d30-852b22c5ee45</uuid>
+    <uuid>f68a730e-33de-4f98-aeca-a7c77b49e32f</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_BackendMyDesk</name>
-        <access>
-            <role>Administration</role>
-            <role>POS_Admin</role>
-        </access>
-        <target>
-            <menu>POS_BackendMyDesk_Menu</menu>
-            <table>POS_BackendTable</table>
-            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
-                <property name="Type">POS_BackendAbstract</property>
-            </evaluate>
-        </target>
-        <property name="Target">content</property>
-        <property name="TargetShowCheckBoxes">true</property>
+        <name>POS_BackendMobileTree_Menu</name>
+        <childs>
+            <child>POS_BackendMobileTree_Menu_Action</child>
+        </childs>
     </definition>
-</ui-command>
+</ui-menu>

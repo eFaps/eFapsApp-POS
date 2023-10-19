@@ -24,6 +24,10 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BackendTable</name>
+         <field name="type">
+            <property name="Select">type.label</property>
+            <property name="Label">POS_Backend/Type.Label</property>
+        </field>
         <field name="identifier">
             <property name="Select">attribute[Identifier]</property>
             <property name="Label">POS_Backend/Identifier.Label</property>

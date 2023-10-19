@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
   Copyright 2003 - 2018 The eFaps Team
 
@@ -16,13 +15,14 @@
   limitations under the License.
 
 -->
-<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-form xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>ef75ca39-e5bf-45b5-b6f8-a95a030a22ed</uuid>
+    <uuid>1e240e3a-42c7-4471-b2c3-875a02178dc3</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_BackendForm</name>
+        <name>POS_BackendMobileForm</name>
         <field name="identifier">
             <property name="Attribute">Identifier</property>
         </field>
@@ -37,6 +37,12 @@
             <property name="ModeEdit">EDITABLE</property>
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
+        </field>
+        <field name="receiptSerial">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">ReceiptSerial</property>
         </field>
         <field name="status">
             <property name="ModeCreate">EDITABLE</property>

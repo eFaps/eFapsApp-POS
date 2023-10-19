@@ -14,16 +14,18 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- 
+
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-menu xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>5fbd3e43-8dc8-4d2e-86a5-2dcacc794d1e</uuid>
     <file-application>eFapsApp-POS</file-application>
-   <definition>
+    <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BackendMyDesk_Menu_Action</name>
         <childs>
+            <child>POS_BackendMyDesk_Menu_Action_CreateMobile</child>
             <child>POS_BackendMyDesk_Menu_Action_Delete</child>
         </childs>
     </definition>

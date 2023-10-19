@@ -52,7 +52,9 @@ public abstract class AbstractRest_Base
         throws EFapsException
     {
         boolean ret = false;
+        LOG.debug("Checking access by role for the pos REST endpoints:");
         for (final ACCESSROLE role : roles) {
+            LOG.debug("  --> {}", role);
             ret = Context.getThreadContext().getPerson().isAssigned(Role.get(UUID.fromString(role.uuid)));
             if (ret) {
                 break;
@@ -78,9 +80,10 @@ public abstract class AbstractRest_Base
         } else {
             checkAccess(roles);
         }
-        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
-        queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
-        queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
+        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.BackendAbstract);
+        queryBldr.addWhereAttrEqValue(CIPOS.BackendAbstract.StatusAbstract,
+                        Status.find(CIPOS.BackendStatus.Active));
+        queryBldr.addWhereAttrEqValue(CIPOS.BackendAbstract.Identifier, _identifier);
         final InstanceQuery query = queryBldr.getQuery();
         if (CollectionUtils.isEmpty(query.execute())) {
             LOG.error("Access denied due to Backend registration");
