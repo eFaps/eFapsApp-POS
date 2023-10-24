@@ -76,10 +76,10 @@
             <sqlcolumn>DESCR</sqlcolumn>
         </attribute>
         <attribute>
-            <name>ReceiptSerial</name>
+            <name>String1</name>
             <type>String</type>
             <sqltable>POS_BackendSQLTable</sqltable>
-            <sqlcolumn>RECEIPTSERIAL</sqlcolumn>
+            <sqlcolumn>STR1</sqlcolumn>
         </attribute>
         <attribute>
             <name>Creator</name>

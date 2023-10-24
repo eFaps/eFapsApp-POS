@@ -78,6 +78,6 @@ public class ReceiptGenerator
     @Override
     protected CIAttribute getAttribute4SerialNumber()
     {
-        return CIPOS.Backend.ReceiptSerial;
+        return CIPOS.BackendMobile.ReceiptSerial;
     }
 }

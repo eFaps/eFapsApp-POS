@@ -237,8 +237,10 @@ public abstract class AbstractDocumentGenerator
         throws EFapsException
     {
         String serialNumber = null;
-        final var eval = EQL.builder().print().query(CIPOS.Backend).where()
-                        .attribute(CIPOS.Backend.Identifier).eq(identifier)
+        final var eval = EQL.builder().print()
+                        .query(CIPOS.BackendMobile)
+                        .where()
+                        .attribute(CIPOS.BackendMobile.Identifier).eq(identifier)
                         .select()
                         .attribute(getAttribute4SerialNumber())
                         .evaluate();

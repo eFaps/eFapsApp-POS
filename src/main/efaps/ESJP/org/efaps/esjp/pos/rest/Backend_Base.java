@@ -41,7 +41,7 @@ public abstract class Backend_Base
     public Response getIdentifier()
         throws EFapsException
     {
-        checkAccess();
+        checkAccess(ACCESSROLE.BE);
         LOG.debug("Recieved request for Identifier");
         final String ident;
         if (Pos.ALLOWAUTOIDENT.get()) {
