@@ -155,6 +155,11 @@
             <artifactId>sales</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
+          <dependency>
+            <groupId>org.efaps.apps</groupId>
+            <artifactId>promotions</artifactId>
+            <version>${efaps.app.dependencies}</version>
+        </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
             <artifactId>humanresource</artifactId>

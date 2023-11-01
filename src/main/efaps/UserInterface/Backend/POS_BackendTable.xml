@@ -17,16 +17,18 @@
 
 
 -->
-<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-table xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>10852e33-2ecf-41a6-8ebf-e8e21f76a546</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_BackendTable</name>
-         <field name="type">
+        <field name="type">
             <property name="Select">type.label</property>
             <property name="Label">POS_Backend/Type.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
         </field>
         <field name="identifier">
             <property name="Select">attribute[Identifier]</property>
