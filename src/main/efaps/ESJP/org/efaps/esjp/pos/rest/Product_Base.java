@@ -173,7 +173,8 @@ public abstract class Product_Base
                                 .up();
                 final var catRelQuery = EQL.builder().nestedQuery(CIPOS.Category2Product)
                                 .where()
-                                .attribute(CIPOS.Category2Product.FromLink).in(categoryQuery).up();
+                                .attribute(CIPOS.Category2Product.FromLink).in(categoryQuery).up()
+                                .selectable(Selectables.attribute(CIPOS.Category2Product.ToLink));
 
                 final var textPosQuery = EQL.builder().nestedQuery(CIProducts.ProductTextPosition)
                                 .where()

@@ -30,6 +30,7 @@ import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.util.Sales;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,18 +53,13 @@ public abstract class Config_Base
         final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()
                         .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
         LOG.debug("Request for Configs: {}", config);
-
-        FieldUtils.getAllFieldsList(Pos.class).stream().filter(field -> {
-            return Modifier.isStatic(field.getModifiers());
-        }).filter(field -> {
-            return !StringUtils.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID");
-        }).forEach(field -> {
+        final var mapper = new ObjectMapper();
+        FieldUtils.getAllFieldsList(Pos.class).stream().filter(field -> Modifier.isStatic(field.getModifiers())).filter(field -> !StringUtils.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID")).forEach(field -> {
             try {
                 final var fieldObject = FieldUtils.readStaticField(field);
-                if (fieldObject instanceof PropertiesSysConfAttribute) {
-                  final var sysConfAttr = (PropertiesSysConfAttribute) fieldObject;
+                if (fieldObject instanceof final PropertiesSysConfAttribute sysConfAttr) {
                   final var properties = sysConfAttr.get();
-                  final var mapper = new ObjectMapper();
+
                   try {
                     config.put(sysConfAttr.getKey(), mapper.writeValueAsString(properties));
                   } catch (final JsonProcessingException e1) {
@@ -89,6 +85,14 @@ public abstract class Config_Base
         config.put(ERP.COMPANY_CITY.getKey(), ERP.COMPANY_CITY.get());
         config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
         config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
+
+        if (Sales.CALCULATOR_CONFIG.exists()) {
+            try {
+                config.put(Sales.CALCULATOR_CONFIG.getKey(), mapper.writeValueAsString(Sales.CALCULATOR_CONFIG.get()));
+            } catch (JsonProcessingException | EFapsException e1) {
+                LOG.error("Catched", e1);
+            }
+        }
 
         final Response ret = Response.ok()
                         .entity(config)

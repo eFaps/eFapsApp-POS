@@ -180,15 +180,6 @@ public class Pos
                     .key(BASE + "Contact.ActivateEmail")
                     .description("Activate the handling of categories.");
 
-    @EFapsSysConfAttribute
-    public static final PropertiesSysConfAttribute CALCULATOR_CONFIG = new PropertiesSysConfAttribute()
-                    .sysConfUUID(SYSCONFUUID)
-                    .key(BASE + "Calculator.Config")
-                    .addDefaultValue("NetPriceScale", "4")
-                    .addDefaultValue("ItemTaxScale", "2")
-                    .addDefaultValue("CrossPriceScale", "4")
-                    .description("Configuration for Calculators.");
-
     /** See description. */
     @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute PAYMENT_REQUIRE = new BooleanSysConfAttribute()
@@ -213,8 +204,6 @@ public class Pos
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "POS.AssignDepartment")
                     .description("Be able to assign a department to a POS");
-
-
 
     public enum Role implements IBitEnum
     {
