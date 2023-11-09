@@ -430,10 +430,13 @@ public abstract class AbstractDocument_Base
                         insert.add(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
                     }
                     insert.add(CISales.PaymentElectronic.ServiceProvider, paymentDto.getServiceProvider());
+                    insert.add(CISales.PaymentElectronic.EquipmentIdent, paymentDto.getEquipmentIdent());
                     insert.add(CISales.PaymentElectronic.Authorization, paymentDto.getAuthorization());
                     insert.add(CISales.PaymentElectronic.OperationId, paymentDto.getOperationId());
                     insert.add(CISales.PaymentElectronic.OperationDateTime, paymentDto.getOperationDateTime());
                     insert.add(CISales.PaymentElectronic.Info, paymentDto.getInfo());
+                    insert.add(CISales.PaymentElectronic.CardLabel, paymentDto.getCardLabel());
+                    insert.add(CISales.PaymentElectronic.CardNumber, paymentDto.getCardNumber());
                 }
 
                 final String code = posPayment.getCode4CreateDoc(parameter);
