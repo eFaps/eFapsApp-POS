@@ -166,7 +166,7 @@ public abstract class Product_Base
                         .query(CIProducts.ProductAbstract);
 
         if (after == null) {
-            if (Pos.CATEGORY_ACTIVATE.get()) {
+            if (Pos.CATEGORY_ACTIVATE.get() && Pos.CATEGORY_PRODFILTER.get()) {
                 final var categoryQuery = EQL.builder().nestedQuery(CIPOS.Category)
                                 .where()
                                 .attribute(CIPOS.Category.Status).eq(CIPOS.CategoryStatus.Active)
@@ -185,7 +185,6 @@ public abstract class Product_Base
                                 .or()
                                 .attribute(CIProducts.ProductAbstract.ID)
                                 .in(textPosQuery);
-
             } else {
                 query.where().attribute(CIProducts.ProductAbstract.Active).eq("true").up();
             }

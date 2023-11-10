@@ -90,6 +90,13 @@ public class Pos
                     .key(BASE + "Category.ActivateImage")
                     .description("Activate the image mechanism for categories.");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute CATEGORY_PRODFILTER = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Category.ActivateProductFilter")
+                    .defaultValue(true)
+                    .description("Activate the image mechanism for categories.");
+
     /** See description. */
     @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute FLOOR_ACIVATE = new BooleanSysConfAttribute()
