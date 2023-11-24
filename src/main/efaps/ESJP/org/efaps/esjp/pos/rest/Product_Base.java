@@ -231,8 +231,9 @@ public abstract class Product_Base
     {
         final List<ProductDto> products = new ArrayList<>();
 
-        print.attribute(CIProducts.ProductAbstract.Name, CIProducts.ProductAbstract.Description,
-                        CIProducts.ProductAbstract.Note, CIProducts.ProductAbstract.DefaultUoM)
+        print.attribute(CIProducts.ProductAbstract.ID, CIProducts.ProductAbstract.Name,
+                        CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.Note,
+                        CIProducts.ProductAbstract.DefaultUoM)
                         .linkfrom(CIPOS.Category2Product.ToLink).linkto(CIPOS.Category2Product.FromLink).oid()
                         .as("selCat")
                         .linkfrom(CIPOS.Category2Product.ToLink).attribute(CIPOS.Category2Product.SortWeight)
