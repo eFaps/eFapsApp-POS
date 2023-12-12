@@ -198,12 +198,14 @@ public abstract class Product_Base
             final var listQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
                             .where()
                             .attribute(CIProducts.ProductPricelistAbstract.ID).in(posQuery)
-                            .up();
+                            .up()
+                            .selectable(Selectables.attribute(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
 
             final var listQuery2 = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
                             .where()
                             .attribute(CIProducts.ProductPricelistAbstract.Modified).greater(String.valueOf(after))
-                            .up();
+                            .up()
+                            .selectable(Selectables.attribute(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
 
             query.where()
                             .attribute(CIProducts.ProductAbstract.ID).in(listQuery)
