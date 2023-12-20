@@ -17,14 +17,18 @@
 
 package org.efaps.esjp.pos.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.ReportToBaseDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("488b32a8-c2c1-4bcf-aca4-4093b9dfb9fc")
@@ -33,6 +37,7 @@ import org.efaps.util.EFapsException;
 public class Backend
     extends Backend_Base
 {
+
     @Override
     @Path("/identifier")
     @GET
@@ -41,5 +46,16 @@ public class Backend
         throws EFapsException
     {
         return super.getIdentifier();
+    }
+
+    @Override
+    @Path("/{identifier}/report-to-base")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response reportToBase(@PathParam("identifier") final String _identifier,
+                                 final ReportToBaseDto dto)
+        throws EFapsException
+    {
+        return super.reportToBase(_identifier, dto);
     }
 }

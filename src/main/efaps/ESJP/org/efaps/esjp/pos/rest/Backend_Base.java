@@ -23,8 +23,10 @@ import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.pos.dto.ReportToBaseDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public abstract class Backend_Base
     extends AbstractRest
 {
+
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Backend.class);
 
@@ -58,5 +61,24 @@ public abstract class Backend_Base
                         .entity(ident)
                         .build();
         return ret;
+    }
+
+    public Response reportToBase(final String identifier,
+                                 final ReportToBaseDto dto)
+        throws EFapsException
+    {
+        checkAccess(identifier, ACCESSROLE.BE);
+        LOG.debug("Recieved request for report to base");
+        final var eval = EQL.builder()
+                        .print().query(CIPOS.BackendAbstract)
+                        .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
+                        .select().instance()
+                        .evaluate();
+        EQL.builder()
+                        .insert(CIPOS.MonitoringReportToBase)
+                        .set(CIPOS.MonitoringReportToBase.BackendLink, eval.inst())
+                        .set(CIPOS.MonitoringReportToBase.Version, identifier)
+                        .execute();
+        return Response.ok().build();
     }
 }
