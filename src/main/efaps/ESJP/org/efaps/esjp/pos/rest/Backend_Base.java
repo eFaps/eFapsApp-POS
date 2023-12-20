@@ -77,7 +77,7 @@ public abstract class Backend_Base
         EQL.builder()
                         .insert(CIPOS.MonitoringReportToBase)
                         .set(CIPOS.MonitoringReportToBase.BackendLink, eval.inst())
-                        .set(CIPOS.MonitoringReportToBase.Version, identifier)
+                        .set(CIPOS.MonitoringReportToBase.Version, dto.getVersion())
                         .execute();
         return Response.ok().build();
     }

@@ -33,13 +33,13 @@ import org.efaps.util.EFapsException;
 
 @EFapsUUID("488b32a8-c2c1-4bcf-aca4-4093b9dfb9fc")
 @EFapsApplication("eFapsApp-POS")
-@Path("/pos/backend")
+@Path("/pos")
 public class Backend
     extends Backend_Base
 {
 
     @Override
-    @Path("/identifier")
+    @Path("/backend/identifier")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response getIdentifier()
