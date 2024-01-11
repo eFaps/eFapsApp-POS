@@ -30,6 +30,7 @@
             <column name="COMPANYID"        type="INTEGER"      not-null="true"/>
             <column name="BEID"             type="INTEGER"/>
             <column name="STR1"             type="STRING_SHORT"                   length="256"/>
+            <column name="STR2"             type="STRING_SHORT"                   length="1024"/>
             <column name="CREATOR"          type="INTEGER"      not-null="true"/>
             <column name="CREATED"          type="DATETIME"     not-null="true"/>
             <column name="MODIFIER"         type="INTEGER"      not-null="true"/>

@@ -29,5 +29,11 @@
             <sqltable>POS_MonitoringSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>InstalationId</name>
+            <type>String</type>
+            <sqltable>POS_MonitoringSQLTable</sqltable>
+            <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>

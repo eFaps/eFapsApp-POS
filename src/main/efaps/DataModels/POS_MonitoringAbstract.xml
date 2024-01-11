@@ -60,6 +60,12 @@
             <sqltable>POS_MonitoringSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>String2</name>
+            <type>String</type>
+            <sqltable>POS_MonitoringSQLTable</sqltable>
+            <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>

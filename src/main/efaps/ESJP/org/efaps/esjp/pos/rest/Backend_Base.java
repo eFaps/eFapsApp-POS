@@ -74,6 +74,7 @@ public abstract class Backend_Base
                         .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
                         .select().instance()
                         .evaluate();
+        eval.next();
         EQL.builder()
                         .insert(CIPOS.MonitoringReportToBase)
                         .set(CIPOS.MonitoringReportToBase.BackendLink, eval.inst())
