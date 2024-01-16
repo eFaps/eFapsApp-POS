@@ -34,14 +34,17 @@
             <property name="Select">attribute[Identifier]</property>
             <property name="Label">POS_Backend/Identifier.Label</property>
             <property name="HRef">TREE</property>
+            <property name="ModeSearch">READONLY</property>
         </field>
         <field name="name">
             <property name="Select">attribute[Name]</property>
             <property name="Label">POS_Backend/Name.Label</property>
+            <property name="ModeSearch">READONLY</property>
         </field>
         <field name="description">
             <property name="Select">attribute[Description]</property>
             <property name="Label">POS_Backend/Description.Label</property>
+            <property name="ModeSearch">READONLY</property>
         </field>
         <field name="status">
             <property name="Select">attribute[Status]</property>
