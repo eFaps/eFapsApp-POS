@@ -107,20 +107,12 @@ public abstract class Contact_Base
                 if (StringUtils.isBlank(doiType)) {
                     idType = IdentificationType.OTHER;
                 } else {
-                    switch (doiType) {
-                        case "01":
-                            idType = IdentificationType.DNI;
-                            break;
-                        case "02":
-                            idType = IdentificationType.PASSPORT;
-                            break;
-                        case "04":
-                            idType = IdentificationType.CE;
-                            break;
-                        default:
-                            idType = IdentificationType.OTHER;
-                            break;
-                    }
+                    idType = switch (doiType) {
+                        case "01" -> IdentificationType.DNI;
+                        case "02" -> IdentificationType.PASSPORT;
+                        case "04" -> IdentificationType.CE;
+                        default -> IdentificationType.OTHER;
+                    };
                 }
             }
             String email = null;
@@ -160,11 +152,11 @@ public abstract class Contact_Base
                             .print(contactInstance)
                             .attribute(CIContacts.Contact.Name)
                             .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
-                                .as("taxNumber")
+                            .as("taxNumber")
                             .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
-                                .as("identityCard")
+                            .as("identityCard")
                             .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
-                                .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
+                            .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
                             .evaluate();
             if (eval.next()) {
                 String idNumber = eval.get("taxNumber");
@@ -177,20 +169,12 @@ public abstract class Contact_Base
                     if (StringUtils.isBlank(doiType)) {
                         idType = IdentificationType.OTHER;
                     } else {
-                        switch (doiType) {
-                            case "01":
-                                idType = IdentificationType.DNI;
-                                break;
-                            case "02":
-                                idType = IdentificationType.PASSPORT;
-                                break;
-                            case "04":
-                                idType = IdentificationType.CE;
-                                break;
-                            default:
-                                idType = IdentificationType.OTHER;
-                                break;
-                        }
+                        idType = switch (doiType) {
+                            case "01" -> IdentificationType.DNI;
+                            case "02" -> IdentificationType.PASSPORT;
+                            case "04" -> IdentificationType.CE;
+                            default -> IdentificationType.OTHER;
+                        };
                     }
                 }
                 ret = Response.ok().entity(ContactDto.builder()
@@ -248,20 +232,12 @@ public abstract class Contact_Base
                 classInsert.add(CIContacts.ClassPerson.Forename, " ");
                 classInsert.add(CIContacts.ClassPerson.FirstLastName, " ");
 
-                String doiType;
-                switch (_contactDto.getIdType()) {
-                    case DNI:
-                        doiType = "01";
-                        break;
-                    case PASSPORT:
-                        doiType = "02";
-                        break;
-                    case CE:
-                        doiType = "04";
-                        break;
-                    default:
-                        doiType = null;
-                }
+                final String doiType = switch (_contactDto.getIdType()) {
+                    case DNI -> "01";
+                    case PASSPORT -> "02";
+                    case CE -> "04";
+                    default -> null;
+                };
                 if (doiType != null) {
                     final QueryBuilder queryBldr = new QueryBuilder(CIContacts.AttributeDefinitionDOIType);
                     queryBldr.addWhereAttrEqValue(CIContacts.AttributeDefinitionDOIType.Value, doiType);
@@ -310,6 +286,68 @@ public abstract class Contact_Base
         }
         final Response ret = Response.ok()
                         .entity(dto)
+                        .build();
+        return ret;
+    }
+
+    public Response updateContact(final String identifier,
+                                  final String oid,
+                                  final ContactDto contactDto)
+        throws EFapsException
+    {
+        LOG.debug("Recieved update contact for : {}", contactDto);
+        checkAccess(identifier);
+        if (contactDto.getOid() != null && contactDto.getOid().equals(oid)) {
+            EQL.builder().update(oid)
+                            .set(CIContacts.Contact.Name, contactDto.getName())
+                            .set(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active))
+                            .execute();
+
+            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
+                final var contactInst = Instance.get(oid);
+                final var classification = (Classification) CIContacts.Class.getType();
+                final var eval = EQL.builder().print().query(CIContacts.Class)
+                                .where()
+                                .attribute(classification.getLinkAttributeName()).eq(contactInst)
+                                .select()
+                                .instance()
+                                .evaluate();
+                Instance classInst;
+                final var attrSet = AttributeSet.find(CIContacts.Class.getType().getName(),
+                                CIContacts.Class.EmailSet.name);
+                if (eval.next()) {
+                    classInst = eval.inst();
+
+                    final var emailEval = EQL.builder().print().query(attrSet.getUUID().toString())
+                                    .where()
+                                    .attribute(attrSet.getAttribute(CIContacts.Class.EmailSet.name).getName())
+                                    .eq(classInst)
+                                    .select()
+                                    .instance()
+                                    .evaluate();
+                    while (emailEval.next()) {
+                        EQL.builder().delete(emailEval.inst()).stmt().execute();
+                    }
+                } else {
+                    EQL.builder().insert(classification.getClassifyRelationType())
+                                    .set(classification.getRelLinkAttributeName(), String.valueOf(contactInst.getId()))
+                                    .set(classification.getRelTypeAttributeName(),
+                                                    String.valueOf(classification.getId()))
+                                    .execute();
+
+                    classInst = EQL.builder().insert(classification)
+                                    .set(classification.getLinkAttributeName(), String.valueOf(contactInst.getId()))
+                                    .execute();
+                }
+                EQL.builder().insert(attrSet)
+                    .set(CIContacts.Class.EmailSet, classInst.getId())
+                    .set("Email", contactDto.getEmail())
+                    .set("ElectronicBilling", "true")
+                    .execute();
+            }
+        }
+
+        final Response ret = Response.ok()
                         .build();
         return ret;
     }

@@ -33,12 +33,15 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.util.EFapsException;
 
+import jakarta.ws.rs.PUT;
+
 @EFapsUUID("c36628f2-d679-4b4e-ab45-a0bedb83468f")
 @EFapsApplication("eFapsApp-POS")
 @Path("/pos")
 public class Contact
     extends Contact_Base
 {
+
     @Override
     @Path("/{identifier}/contacts")
     @GET
@@ -68,9 +71,22 @@ public class Contact
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addContact(@PathParam("identifier") final String _identifier, final ContactDto _contact)
+    public Response addContact(@PathParam("identifier") final String _identifier,
+                               final ContactDto _contact)
         throws EFapsException
     {
         return super.addContact(_identifier, _contact);
+    }
+
+    @Override
+    @Path("/{identifier}/contacts/{oid}")
+    @PUT
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response updateContact(@PathParam("identifier") final String identifier,
+                                  @PathParam("oid") final String oid,
+                                  final ContactDto contact)
+        throws EFapsException
+    {
+        return super.updateContact(identifier, oid, contact);
     }
 }
