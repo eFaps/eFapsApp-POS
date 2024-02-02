@@ -171,7 +171,7 @@ public abstract class Contact_Base
                     } else {
                         idType = switch (doiType) {
                             case "01" -> IdentificationType.DNI;
-                            case "02" -> IdentificationType.PASSPORT;
+                            case "07" -> IdentificationType.PASSPORT;
                             case "04" -> IdentificationType.CE;
                             default -> IdentificationType.OTHER;
                         };
@@ -234,8 +234,9 @@ public abstract class Contact_Base
 
                 final String doiType = switch (_contactDto.getIdType()) {
                     case DNI -> "01";
-                    case PASSPORT -> "02";
+                    case PASSPORT -> "07";
                     case CE -> "04";
+                    case OTHER -> "00";
                     default -> null;
                 };
                 if (doiType != null) {
