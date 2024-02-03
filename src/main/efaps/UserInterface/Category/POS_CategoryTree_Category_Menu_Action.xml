@@ -24,7 +24,7 @@
 >
     <uuid>ec6a25aa-03fa-4b2b-98cf-b4fb1b7c92ba</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
+    
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_CategoryTree_Category_Menu_Action</name>

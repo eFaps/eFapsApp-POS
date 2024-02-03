@@ -19,7 +19,7 @@
 
 
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.2.xsd">
     <uuid>5aef8988-00e7-42e1-8f2b-07127a829241</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
@@ -77,10 +77,10 @@
         <attribute>
             <name>SpotConfig</name>
             <type>Enum</type>
-            <defaultvalue>0</defaultvalue>
             <className>org.efaps.esjp.pos.util.Pos$SpotConfig</className>
             <sqltable>POS_WorkspaceSQLTable</sqltable>
             <sqlcolumn>SPOTCONF</sqlcolumn>
+            <defaultvalue>0</defaultvalue>
         </attribute>
         <attribute>
             <name>SpotCount</name>

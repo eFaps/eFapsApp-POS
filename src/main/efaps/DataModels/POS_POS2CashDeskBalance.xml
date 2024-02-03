@@ -19,7 +19,7 @@
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>54208531-92c2-4d8f-a545-3e45202d888a</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev: 7748 $</file-revision>
+    
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_POS2CashDeskBalance</name>

@@ -19,7 +19,7 @@
 
 
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.2.xsd">
     <uuid>8526925b-d91e-469c-8be0-049d707eefe1</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
@@ -75,9 +75,9 @@
         <attribute>
             <name>Weight</name>
             <type>Integer</type>
-            <defaultvalue>0</defaultvalue>
             <sqltable>POS_CategorySQLTable</sqltable>
             <sqlcolumn>WEIGHT</sqlcolumn>
+            <defaultvalue>0</defaultvalue>
         </attribute>
         <attribute>
             <name>Creator</name>

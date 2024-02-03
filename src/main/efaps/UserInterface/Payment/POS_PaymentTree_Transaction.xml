@@ -20,7 +20,7 @@
 
     <uuid>deda574a-d409-463b-85e0-2989ada85dd8</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
+    
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_PaymentTree_Transaction</name>

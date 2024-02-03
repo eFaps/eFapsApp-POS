@@ -20,7 +20,7 @@
 
     <uuid>c8646796-bcb5-42e4-a3a7-9f247dc1bb3f</uuid>
     <file-application>eFapsApp-POS</file-application>
-    <file-revision>$Rev$</file-revision>
+    
 
     <definition>
         <version-expression>(version==latest)</version-expression>
