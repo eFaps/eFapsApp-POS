@@ -35,6 +35,7 @@ import org.efaps.db.Update;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.DocumentUtils;
@@ -86,7 +87,8 @@ public abstract class Order_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addOrder(final String _identifier, final OrderDto _orderDto)
+    public Response addOrder(final String _identifier,
+                             final OrderDto _orderDto)
         throws EFapsException
     {
         checkAccess(_identifier);
@@ -141,7 +143,6 @@ public abstract class Order_Base
         return ret;
     }
 
-
     public Response createOrder(final String identifier,
                                 final CreateDocumentDto dto)
         throws EFapsException
@@ -156,28 +157,65 @@ public abstract class Order_Base
                         .evaluate();
         evalBackend.next();
 
-        final var currencyInst =  DocumentUtils.getCurrencyInst(dto.getCurrency());
+        final var currencyInst = DocumentUtils.getCurrencyInst(dto.getCurrency());
         final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
 
         final var name = NumberGenerator.get(UUID.fromString(Pos.ORDER_NUMGEN.get())).getNextVal();
 
-        EQL.builder().insert(CIPOS.Order)
-            .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
-            .set(CIPOS.Order.Name, name)
-            .set(CIPOS.Order.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
-            .set(CIPOS.Order.BackendLink, evalBackend.inst())
-            .set(CIPOS.Order.CurrencyId, currencyInst.getInstance())
-            .set(CIPOS.Order.RateCurrencyId, currencyInst.getInstance())
-            .set(CIPOS.Order.NetTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.RateNetTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.CrossTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.RateCrossTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.DiscountTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.RateDiscountTotal, BigDecimal.ZERO)
-            .set(CIPOS.Order.Rate, rateObj)
-            .set(CIPOS.Order.Taxes, new Taxes())
-            .set(CIPOS.Order.RateTaxes, new Taxes())
-            .execute();
+        final var orderInst = EQL.builder().insert(CIPOS.Order)
+                        .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
+                        .set(CIPOS.Order.Name, name)
+                        .set(CIPOS.Order.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
+                        .set(CIPOS.Order.BackendLink, evalBackend.inst())
+                        .set(CIPOS.Order.CurrencyId, currencyInst.getInstance())
+                        .set(CIPOS.Order.RateCurrencyId, currencyInst.getInstance())
+                        .set(CIPOS.Order.NetTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.RateNetTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.CrossTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.RateCrossTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.DiscountTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.RateDiscountTotal, BigDecimal.ZERO)
+                        .set(CIPOS.Order.Rate, rateObj)
+                        .set(CIPOS.Order.Taxes, new Taxes())
+                        .set(CIPOS.Order.RateTaxes, new Taxes())
+                        .execute();
+
+        int idx = 0;
+        for (final var item : dto.getItems()) {
+            final var prodEval = EQL.builder().print(item.getProductOid())
+                            .attribute(CIProducts.ProductAbstract.Description)
+                            .attribute(CIProducts.ProductAbstract.TaxCategory)
+                            .evaluate();
+            if (prodEval.next()) {
+                EQL.builder().insert(CIPOS.OrderPosition)
+                                .set(CIPOS.OrderPosition.OrderLink, orderInst)
+                                .set(CIPOS.OrderPosition.CrossPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.CrossUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.CurrencyId, currencyInst.getInstance())
+                                .set(CIPOS.OrderPosition.Discount, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.DiscountNetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.NetPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.NetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.PositionNumber, idx++)
+                                .set(CIPOS.OrderPosition.Product, prodEval.inst())
+                                .set(CIPOS.OrderPosition.ProductDesc,
+                                                prodEval.get(CIProducts.ProductAbstract.Description))
+                                .set(CIPOS.OrderPosition.Quantity, item.getQuantity())
+                                .set(CIPOS.OrderPosition.Rate, rateObj)
+                                .set(CIPOS.OrderPosition.RateCrossPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.RateCrossUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.RateCurrencyId, currencyInst.getInstance())
+                                .set(CIPOS.OrderPosition.RateDiscountNetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.RateNetPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.RateTaxes, new Taxes())
+                                .set(CIPOS.OrderPosition.RateNetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.Remark, "")
+                                .set(CIPOS.OrderPosition.Tax, prodEval.get(CIProducts.ProductAbstract.TaxCategory))
+                                .set(CIPOS.OrderPosition.Taxes, new Taxes())
+                                .set(CIPOS.OrderPosition.UoM, orderInst)
+                                .execute();
+            }
+        }
         return null;
     }
 }
