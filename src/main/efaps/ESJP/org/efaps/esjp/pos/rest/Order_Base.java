@@ -15,21 +15,32 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
+
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.common.NumberGenerator;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
+import org.efaps.db.Context;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.Update;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.pos.util.DocumentUtils;
+import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.tax.xml.Taxes;
+import org.efaps.pos.dto.CreateDocumentDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
@@ -128,5 +139,45 @@ public abstract class Order_Base
                         .entity(dto)
                         .build();
         return ret;
+    }
+
+
+    public Response createOrder(final String identifier,
+                                final CreateDocumentDto dto)
+        throws EFapsException
+    {
+        checkAccess(ACCESSROLE.MOBILE);
+        LOG.debug("Create Order from : {}", dto);
+
+        final var evalBackend = EQL.builder()
+                        .print().query(CIPOS.BackendAbstract)
+                        .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
+                        .select().instance()
+                        .evaluate();
+        evalBackend.next();
+
+        final var currencyInst =  DocumentUtils.getCurrencyInst(dto.getCurrency());
+        final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
+
+        final var name = NumberGenerator.get(UUID.fromString(Pos.ORDER_NUMGEN.get())).getNextVal();
+
+        EQL.builder().insert(CIPOS.Order)
+            .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
+            .set(CIPOS.Order.Name, name)
+            .set(CIPOS.Order.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
+            .set(CIPOS.Order.BackendLink, evalBackend.inst())
+            .set(CIPOS.Order.CurrencyId, currencyInst.getInstance())
+            .set(CIPOS.Order.RateCurrencyId, currencyInst.getInstance())
+            .set(CIPOS.Order.NetTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.RateNetTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.CrossTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.RateCrossTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.DiscountTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.RateDiscountTotal, BigDecimal.ZERO)
+            .set(CIPOS.Order.Rate, rateObj)
+            .set(CIPOS.Order.Taxes, new Taxes())
+            .set(CIPOS.Order.RateTaxes, new Taxes())
+            .execute();
+        return null;
     }
 }

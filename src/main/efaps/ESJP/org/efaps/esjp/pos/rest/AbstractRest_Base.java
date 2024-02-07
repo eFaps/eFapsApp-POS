@@ -27,6 +27,7 @@ import org.efaps.db.Context;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EFapsApplication("eFapsApp-POS")
 public abstract class AbstractRest_Base
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRest.class);
 
     /**
@@ -70,7 +72,8 @@ public abstract class AbstractRest_Base
      * @param _identifier the identifier
      * @throws EFapsException the eFaps exception
      */
-    protected void checkAccess(final String _identifier, final ACCESSROLE... roles)
+    protected void checkAccess(final String _identifier,
+                               final ACCESSROLE... roles)
         throws EFapsException
     {
         if (ArrayUtils.isEmpty(roles)) {
@@ -83,9 +86,25 @@ public abstract class AbstractRest_Base
                         Status.find(CIPOS.BackendStatus.Active));
         queryBldr.addWhereAttrEqValue(CIPOS.BackendAbstract.Identifier, _identifier);
         final InstanceQuery query = queryBldr.getQuery();
-        if (CollectionUtils.isEmpty(query.execute())) {
+        final var backendInsts = query.execute();
+        if (CollectionUtils.isEmpty(backendInsts)) {
             LOG.error("Access denied due to Backend registration");
             throw new ForbiddenException("No valid Backend registered.");
+        }
+        if (backendInsts.size() > 1) {
+            LOG.error("Access denied due to having more than one Backend with the same identifier");
+            throw new ForbiddenException("Duplicated identifier");
+        }
+        final var backendInst = backendInsts.get(0);
+        if (InstanceUtils.isType(backendInst, CIPOS.Backend) && ArrayUtils.isNotEmpty(roles)
+                        && !ArrayUtils.contains(roles, ACCESSROLE.BE)) {
+            LOG.error("Access denied due to being a BE only endpoint");
+            throw new ForbiddenException("BE only endpoint");
+        }
+        if (InstanceUtils.isType(backendInst, CIPOS.BackendMobile) && ArrayUtils.isNotEmpty(roles)
+                        && !ArrayUtils.contains(roles, ACCESSROLE.MOBILE)) {
+            LOG.error("Access denied due to being a Mobile only endpoint");
+            throw new ForbiddenException("Mobile only endpoint");
         }
     }
 

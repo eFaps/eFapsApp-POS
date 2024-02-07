@@ -210,6 +210,14 @@ public class Pos
                     .key(BASE + "POS.AssignDepartment")
                     .description("Be able to assign a department to a POS");
 
+    @EFapsSysConfAttribute
+    public static final StringSysConfAttribute ORDER_NUMGEN = new StringSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Order.NumberGenerator")
+                    .defaultValue(CINumGenPOS.OrderSequence.uuid.toString())
+                    .description("NumberGenerator for Order.");
+
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;

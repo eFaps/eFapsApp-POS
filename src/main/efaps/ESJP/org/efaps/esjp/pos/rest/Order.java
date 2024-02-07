@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.CreateDocumentDto;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
 
@@ -34,14 +35,28 @@ import org.efaps.util.EFapsException;
 public class Order
     extends Order_Base
 {
+
     @Override
     @Path("/{identifier}/orders")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addOrder(@PathParam("identifier") final String _identifier, final OrderDto _order)
+    public Response addOrder(@PathParam("identifier") final String _identifier,
+                             final OrderDto _order)
         throws EFapsException
     {
         return super.addOrder(_identifier, _order);
+    }
+
+    @Override
+    @Path("/{identifier}/documents/orders")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createOrder(@PathParam("identifier") final String identifier,
+                                final CreateDocumentDto dto)
+        throws EFapsException
+    {
+        return super.createOrder(identifier, dto);
     }
 }

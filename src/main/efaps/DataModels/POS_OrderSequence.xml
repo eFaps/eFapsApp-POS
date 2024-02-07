@@ -16,25 +16,17 @@
     limitations under the License.
 
 -->
-
-
-<datamodel-statusgroup xmlns="http://www.efaps.org/xsd"
+<numbergenerator
+    xmlns="http://www.efaps.org/xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>af252732-c4d7-4035-97fa-43e4d9568e28</uuid>
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd"
+>
+    <uuid>aa8c9beb-5cea-4d55-9c9f-05552901f423</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_OrderStatus</name>
-        <parent>Sales_DocumentStatus</parent>
-         <status key="Open">
-            <description>Order is open (Pendiente)</description>
-        </status>
-        <status key="Closed">
-            <description>Order was closed (Cerado)</description>
-        </status>
-        <status key="Canceled">
-            <description>Order was canceled (Anulado)</description>
-        </status>
+        <name>POS_OrderSequence</name>
+        <format>PO-%05d</format>
+        <startvalue>1</startvalue>
     </definition>
-</datamodel-statusgroup>
+</numbergenerator>
