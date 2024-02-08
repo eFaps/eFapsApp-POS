@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.rest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -29,7 +30,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.pos.dto.CreateDocumentDto;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
-
 
 @EFapsUUID("658ee4d2-25db-4146-b928-873e9e70f77f")
 @EFapsApplication("eFapsApp-POS")
@@ -60,6 +60,19 @@ public class Order
         throws EFapsException
     {
         return super.createOrder(identifier, dto);
+    }
+
+    @Override
+    @Path("/{identifier}/documents/orders/{oid}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateOrder(@PathParam("identifier") final String identifier,
+                                @PathParam("oid") final String oid,
+                                final CreateDocumentDto dto)
+        throws EFapsException
+    {
+        return super.updateOrder(identifier, oid, dto);
     }
 
     @Override

@@ -151,7 +151,7 @@ public abstract class Order_Base
         throws EFapsException
     {
         checkAccess(ACCESSROLE.MOBILE);
-        LOG.debug("Create Order from : {}", dto);
+        LOG.info("Create Order from : {}", dto);
 
         final var evalBackend = EQL.builder()
                         .print().query(CIPOS.BackendAbstract)
@@ -182,6 +182,26 @@ public abstract class Order_Base
                         .set(CIPOS.Order.Taxes, new Taxes())
                         .set(CIPOS.Order.RateTaxes, new Taxes())
                         .execute();
+
+        upsertItems(dto, orderInst);
+        new CalculatorService().recalculate(orderInst);
+        return Response.ok(getOrder(orderInst)).build();
+    }
+
+    protected void upsertItems(final CreateDocumentDto dto,
+                               final Instance orderInst)
+        throws EFapsException
+    {
+        final var posEval = EQL.builder().print().query(CIPOS.OrderPosition)
+                        .where().attribute(CIPOS.OrderPosition.OrderLink).eq(orderInst)
+                        .select().instance()
+                        .evaluate();
+        while (posEval.next()) {
+            EQL.builder().delete(posEval.inst()).stmt().execute();
+        }
+
+        final var currencyInst = DocumentUtils.getCurrencyInst(dto.getCurrency());
+        final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
 
         int idx = 0;
         for (final var item : dto.getItems()) {
@@ -219,6 +239,21 @@ public abstract class Order_Base
                                 .execute();
             }
         }
+    }
+
+    public Response updateOrder(final String identifier,
+                                final String oid,
+                                final CreateDocumentDto dto)
+        throws EFapsException
+    {
+        checkAccess(ACCESSROLE.MOBILE);
+        LOG.info("Update Order from : {}", dto);
+
+        //TODO check correct identifier, check status
+
+        final var orderInst = Instance.get(oid);
+        upsertItems(dto, orderInst);
+
         new CalculatorService().recalculate(orderInst);
         return Response.ok(getOrder(orderInst)).build();
     }
@@ -228,6 +263,7 @@ public abstract class Order_Base
         throws EFapsException
     {
         checkAccess(identifier);
+        LOG.info("GET Order for : {}", oid);
         return Response.ok(getOrder(Instance.get(oid))).build();
     }
 
