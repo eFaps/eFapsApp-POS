@@ -17,6 +17,7 @@ package org.efaps.esjp.pos.rest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -40,8 +41,10 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.CalculatorService;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.CreateDocumentDto;
+import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
@@ -183,8 +186,8 @@ public abstract class Order_Base
         int idx = 0;
         for (final var item : dto.getItems()) {
             final var prodEval = EQL.builder().print(item.getProductOid())
-                            .attribute(CIProducts.ProductAbstract.Description)
-                            .attribute(CIProducts.ProductAbstract.TaxCategory)
+                            .attribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.TaxCategory,
+                                            CIProducts.ProductAbstract.DefaultUoM)
                             .evaluate();
             if (prodEval.next()) {
                 EQL.builder().insert(CIPOS.OrderPosition)
@@ -212,10 +215,58 @@ public abstract class Order_Base
                                 .set(CIPOS.OrderPosition.Remark, "")
                                 .set(CIPOS.OrderPosition.Tax, prodEval.get(CIProducts.ProductAbstract.TaxCategory))
                                 .set(CIPOS.OrderPosition.Taxes, new Taxes())
-                                .set(CIPOS.OrderPosition.UoM, orderInst)
+                                .set(CIPOS.OrderPosition.UoM, prodEval.get(CIProducts.ProductAbstract.DefaultUoM))
                                 .execute();
             }
         }
-        return null;
+        new CalculatorService().recalculate(orderInst);
+        return Response.ok(getOrder(orderInst)).build();
+    }
+
+    public Response getOrder(final String identifier,
+                             final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        return Response.ok(getOrder(Instance.get(oid))).build();
+    }
+
+    protected OrderDto getOrder(final Instance instance)
+        throws EFapsException
+    {
+        final var docEval = EQL.builder().print(instance)
+                        .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
+                                        CISales.DocumentSumAbstract.RateCrossTotal,
+                                        CISales.DocumentSumAbstract.RateCurrencyId)
+                        .evaluate();
+        docEval.next();
+
+        final var posEval = EQL.builder().print().query(CISales.PositionSumAbstract)
+                        .where()
+                        .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
+                        .select()
+                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity)
+                        .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
+                        .orderBy(CISales.PositionSumAbstract.PositionNumber)
+                        .evaluate();
+        final var items = new ArrayList<DocItemDto>();
+        while (posEval.next()) {
+            items.add(DocItemDto.builder()
+                            .withProductOid(posEval.get("productOid"))
+                            .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
+                            .build());
+        }
+
+        return OrderDto.builder()
+                        .withOID(instance.getOid())
+                        .withId(instance.getOid())
+                        .withNumber(docEval.get(CISales.DocumentAbstract.Name))
+                        .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
+                        .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
+                        .withCurrency(DocumentUtils
+                                        .getCurrency(docEval.get(CISales.DocumentSumAbstract.RateCurrencyId)))
+                        .withStatus(DocStatus.OPEN)
+                        .withItems(items)
+                        .build();
     }
 }

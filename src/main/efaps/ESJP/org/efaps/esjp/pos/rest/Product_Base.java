@@ -96,9 +96,9 @@ public abstract class Product_Base
         Response response = null;
         if (OIDUtil.isOID(oid)) {
             final var prodInstance = Instance.get(oid);
-            if (InstanceUtils.isType(prodInstance, CIProducts.ProductAbstract)) {
+            if (InstanceUtils.isKindOf(prodInstance, CIProducts.ProductAbstract)) {
                 final var print = EQL.builder().print(prodInstance);
-                response = Response.ok(evalProducts(identifier, print)).build();
+                response = Response.ok(evalProducts(identifier, print).get(0)).build();
             }
         }
         if (response == null) {

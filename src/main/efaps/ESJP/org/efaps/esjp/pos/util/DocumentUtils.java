@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.erp.Currency;
@@ -41,6 +42,13 @@ public class DocumentUtils
             }
             return null;
         });
+    }
+
+    public static org.efaps.pos.dto.Currency getCurrency(final Long currencyId)
+        throws EFapsException
+    {
+        final var currencyInst = CurrencyInst.get(currencyId);
+        return EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
     }
 
     public static BigDecimal exchange(final BigDecimal amount,
