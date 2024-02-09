@@ -72,13 +72,13 @@
         </field>
         <field name="headingClient" character="Heading">
             <property name="Level">2</property>
-            <property name="Label">Sales_CreditNoteForm.headingClient.Heading</property>
+            <property name="Label">POS_OrderForm.headingClient.Heading</property>
             <property name="ModeCreate">EDITABLE</property>
         </field>
         <field name="contact">
             <property name="SelectAlternateOID">linkto[Contact].oid</property>
             <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
-            <property name="Label">Sales_CreditNoteForm.contact.Label</property>
+            <property name="Label">POS_OrderForm.contact.Label</property>
             <property name="Select">linkto[Contact].attribute[Name]</property>
         </field>
         <field character="Heading" name="headingPositon">
