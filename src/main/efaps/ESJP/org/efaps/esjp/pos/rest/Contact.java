@@ -48,10 +48,11 @@ public class Contact
     public Response getContacts(@PathParam("identifier") final String _identifier,
                                 @QueryParam("limit") final int limit,
                                 @QueryParam("offset") final int offset,
-                                @QueryParam("after") final OffsetDateTime after)
+                                @QueryParam("after") final OffsetDateTime after,
+                                @QueryParam("doi-number") final String doiNumber)
         throws EFapsException
     {
-        return super.getContacts(_identifier, limit, offset, after);
+        return super.getContacts(_identifier, limit, offset, after,doiNumber);
     }
 
     @Override

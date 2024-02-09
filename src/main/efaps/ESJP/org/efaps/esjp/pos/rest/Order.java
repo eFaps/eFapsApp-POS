@@ -76,6 +76,19 @@ public class Order
     }
 
     @Override
+    @Path("/{identifier}/documents/orders/{oid}/contact/{contactOid}")
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateOrderWithContact(@PathParam("identifier") final String identifier,
+                                           @PathParam("oid") final String oid,
+                                           @PathParam("contactOid") final String contactOid)
+        throws EFapsException
+    {
+        return super.updateOrderWithContact(identifier, oid, contactOid);
+    }
+
+    @Override
     @Path("/{identifier}/documents/orders/{oid}")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)

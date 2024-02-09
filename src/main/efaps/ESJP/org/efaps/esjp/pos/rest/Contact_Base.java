@@ -56,10 +56,11 @@ public abstract class Contact_Base
     public Response getContacts(final String _identifier,
                                 final int limit,
                                 final int offset,
-                                final OffsetDateTime after)
+                                final OffsetDateTime after,
+                                final String doiNumber)
         throws EFapsException
     {
-        checkAccess(_identifier);
+        checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         final List<ContactDto> contacts = new ArrayList<>();
         final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
         queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
@@ -73,6 +74,19 @@ public abstract class Contact_Base
         }
         if (after != null) {
             queryBldr.addWhereAttrGreaterValue(CIContacts.Contact.Modified, after);
+        }
+        if (StringUtils.isNotEmpty(doiNumber)) {
+            if (doiNumber.length() == 11) {
+                final var attrQueryBldr = new QueryBuilder(CIContacts.ClassOrganisation);
+                attrQueryBldr.addWhereAttrEqValue(CIContacts.ClassOrganisation.TaxNumber, doiNumber);
+                final var attrQuery = attrQueryBldr.getAttributeQuery(CIContacts.ClassOrganisation.ContactLink);
+                queryBldr.addWhereAttrInQuery(CIContacts.Contact.ID, attrQuery);
+            } else {
+                final var attrQueryBldr = new QueryBuilder(CIContacts.ClassPerson);
+                attrQueryBldr.addWhereAttrEqValue(CIContacts.ClassPerson.IdentityCard, doiNumber);
+                final var attrQuery = attrQueryBldr.getAttributeQuery(CIContacts.ClassPerson.ContactLink);
+                queryBldr.addWhereAttrInQuery(CIContacts.Contact.ID, attrQuery);
+            }
         }
         final MultiPrintQuery multi = queryBldr.getPrint();
         final SelectBuilder selTaxNumber = SelectBuilder.get()
@@ -142,7 +156,7 @@ public abstract class Contact_Base
                                final String oid)
         throws EFapsException
     {
-        checkAccess(_identifier);
+        checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         Response ret = null;
         final var contactInstance = Instance.get(oid);
         if (InstanceUtils.isType(contactInstance, CIContacts.Contact)) {
@@ -197,7 +211,7 @@ public abstract class Contact_Base
         throws EFapsException
     {
         LOG.debug("Recieved: {}", _contactDto);
-        checkAccess(_identifier);
+        checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         final ContactDto dto;
         if (_contactDto.getOid() == null) {
             final Insert insert = new Insert(CIContacts.Contact);
@@ -296,7 +310,7 @@ public abstract class Contact_Base
         throws EFapsException
     {
         LOG.debug("Recieved update contact for : {}", contactDto);
-        checkAccess(identifier);
+        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         if (contactDto.getOid() != null && contactDto.getOid().equals(oid)) {
             EQL.builder().update(oid)
                             .set(CIContacts.Contact.Name, contactDto.getName())

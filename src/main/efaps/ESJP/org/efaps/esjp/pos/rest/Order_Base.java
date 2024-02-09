@@ -34,6 +34,7 @@ import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.db.Update;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
@@ -249,12 +250,33 @@ public abstract class Order_Base
         checkAccess(ACCESSROLE.MOBILE);
         LOG.info("Update Order from : {}", dto);
 
-        //TODO check correct identifier, check status
+        // TODO check correct identifier, check status
 
         final var orderInst = Instance.get(oid);
         upsertItems(dto, orderInst);
 
         new CalculatorService().recalculate(orderInst);
+        return Response.ok(getOrder(orderInst)).build();
+    }
+
+    public Response updateOrderWithContact(final String identifier,
+                                           final String oid,
+                                           final String contactOid)
+        throws EFapsException
+    {
+        checkAccess(ACCESSROLE.MOBILE);
+        LOG.info("Update Order oid: {} with contactOid: {}", oid, contactOid);
+
+        // TODO check correct identifier, check status
+
+        final var orderInst = Instance.get(oid);
+        final var contactInst = Instance.get(contactOid);
+
+        if (InstanceUtils.isType(orderInst, CIPOS.Order) && InstanceUtils.isType(contactInst, CIContacts.Contact)) {
+            EQL.builder().update(orderInst)
+                            .set(CIPOS.Order.Contact, contactInst)
+                            .execute();
+        }
         return Response.ok(getOrder(orderInst)).build();
     }
 
