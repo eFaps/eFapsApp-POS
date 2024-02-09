@@ -25,10 +25,6 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_OrderForm</name>
-        <field character="Group" name="dateGroup">
-            <property name="GroupCount">2</property>
-            <property name="ModeCreate">READONLY</property>
-        </field>
         <field name="date">
             <property name="Columns">12</property>
             <property name="ModeCreate">EDITABLE</property>
@@ -73,6 +69,17 @@
             <property name="Width">15</property>
             <property name="Required">true</property>
             <property name="ModeEdit">NONE</property>
+        </field>
+        <field name="headingClient" character="Heading">
+            <property name="Level">2</property>
+            <property name="Label">Sales_CreditNoteForm.headingClient.Heading</property>
+            <property name="ModeCreate">EDITABLE</property>
+        </field>
+        <field name="contact">
+            <property name="SelectAlternateOID">linkto[Contact].oid</property>
+            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
+            <property name="Label">Sales_CreditNoteForm.contact.Label</property>
+            <property name="Select">linkto[Contact].attribute[Name]</property>
         </field>
         <field character="Heading" name="headingPositon">
             <property name="Level">2</property>
