@@ -40,6 +40,13 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
         </field>
+         <field name="accountLink">
+            <property name="Attribute">AccountLink</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Required">true</property>
+        </field>
         <field name="receiptSerial">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>

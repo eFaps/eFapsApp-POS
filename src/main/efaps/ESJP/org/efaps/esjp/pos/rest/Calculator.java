@@ -15,6 +15,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -100,7 +101,7 @@ public class Calculator
 
                                     return (ITax) new org.efaps.abacus.pojo.Tax()
                                                     .setKey(tax.getName())
-                                                    .setPercentage(tax.getFactor())
+                                                    .setPercentage(tax.getFactor().multiply(new BigDecimal("100")))
                                                     .setAmount(tax.getAmount())
                                                     .setType(EnumUtils.getEnum(TaxType.class, tax.getTaxType().name()));
                                 } catch (final EFapsException e) {

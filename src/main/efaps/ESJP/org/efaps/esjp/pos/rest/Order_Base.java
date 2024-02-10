@@ -284,9 +284,16 @@ public abstract class Order_Base
                              final String oid)
         throws EFapsException
     {
-        checkAccess(identifier);
+        checkAccess(identifier, ACCESSROLE.MOBILE, ACCESSROLE.BE);
         LOG.info("GET Order for : {}", oid);
-        return Response.ok(getOrder(Instance.get(oid))).build();
+        final var orderInst = Instance.get(oid);
+        Response response = null;
+        if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
+            response = Response.ok(getOrder(Instance.get(oid))).build();
+        } else {
+            response = Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return response;
     }
 
     protected OrderDto getOrder(final Instance instance)

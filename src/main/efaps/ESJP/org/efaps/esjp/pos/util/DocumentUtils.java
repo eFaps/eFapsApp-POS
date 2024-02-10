@@ -19,11 +19,16 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
+import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
+import org.efaps.pos.dto.PaymentType;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.jfree.util.Log;
 
 @EFapsUUID("8ea293cf-3e64-4e2d-85ec-1d28cbd1592b")
@@ -84,4 +89,35 @@ public class DocumentUtils
         return currencyInst.isInvert() ? new Object[] { rate, 1 }
                         : new Object[] { 1, rate };
     }
+
+    public static CIType getPaymentDocType(final PaymentType paymentType,
+                                           final boolean negate)
+    {
+        final CIType ret = switch (paymentType) {
+            case ELECTRONIC -> CISales.PaymentElectronic;
+            case CARD -> CISales.PaymentCard;
+            case CASH -> negate ? CISales.PaymentCashOut : CISales.PaymentCash;
+            case CHANGE -> negate ? CISales.PaymentCash : CISales.PaymentCashOut;
+            case FREE -> CISales.PaymentInternal;
+            default -> CISales.PaymentInternal;
+        };
+        return ret;
+    }
+
+    public static Status getPaymentDocStatus(final PaymentType paymentType,
+                                             final boolean negate)
+        throws CacheReloadException
+    {
+        return switch (paymentType) {
+            case ELECTRONIC -> Status.find(CISales.PaymentElectronicStatus.Closed);
+            case CARD -> Status.find(CISales.PaymentCardStatus.Closed);
+            case CASH -> negate ? Status.find(CISales.PaymentCashOutStatus.Closed)
+                            : Status.find(CISales.PaymentCashStatus.Closed);
+            case CHANGE -> negate ? Status.find(CISales.PaymentCashStatus.Closed)
+                            : Status.find(CISales.PaymentCashOutStatus.Closed);
+            case FREE -> Status.find(CISales.PaymentInternalStatus.Closed);
+            default -> Status.find(CISales.PaymentInternalStatus.Closed);
+        };
+    }
+
 }

@@ -84,6 +84,12 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>Long1</name>
+            <type>Long</type>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+        </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>

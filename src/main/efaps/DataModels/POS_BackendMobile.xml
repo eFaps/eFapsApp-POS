@@ -43,5 +43,17 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>AccountLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>Sales_AccountAbstract</typelink>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_BackendMobile.AccountLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Name</property>
+                <property name="Type">Sales_AccountAbstract</property>
+            </trigger>
+        </attribute>
     </definition>
 </datamodel-type>

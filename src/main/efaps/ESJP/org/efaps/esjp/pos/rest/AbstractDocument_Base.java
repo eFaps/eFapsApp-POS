@@ -407,7 +407,7 @@ public abstract class AbstractDocument_Base
                 final var rateCurrencyInst = DocumentUtils.getCurrencyInst(paymentDto.getCurrency());
                 LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
                 final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
-                final CIType docType = getPaymentDocType(paymentDto.getType(), negate);
+                final CIType docType = DocumentUtils.getPaymentDocType(paymentDto.getType(), negate);
                 final Insert insert = new Insert(docType);
                 final PosPayment posPayment = new PosPayment(docType);
                 insert.add(CISales.PaymentDocumentAbstract.Name,
@@ -454,7 +454,8 @@ public abstract class AbstractDocument_Base
                 final var rate = DocumentUtils.getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
                 insert.add(CISales.PaymentDocumentAbstract.Rate, rate);
 
-                insert.add(docType.getType().getStatusAttribute(), getPaymentDocStatus(paymentDto.getType(), negate));
+                insert.add(docType.getType().getStatusAttribute(),
+                                DocumentUtils.getPaymentDocStatus(paymentDto.getType(), negate));
                 insert.execute();
 
                 final Insert payInsert = new Insert(CISales.Payment);
@@ -509,57 +510,6 @@ public abstract class AbstractDocument_Base
         print.addSelect(selAccountInst);
         print.execute();
         return print.getSelect(selAccountInst);
-    }
-
-    protected Status getPaymentDocStatus(final PaymentType _paymentType, final boolean negate)
-        throws CacheReloadException
-    {
-        Status ret;
-        switch (_paymentType) {
-            case ELECTRONIC:
-                ret = Status.find(CISales.PaymentElectronicStatus.Closed);
-                break;
-            case CARD:
-                ret = Status.find(CISales.PaymentCardStatus.Closed);
-                break;
-            case CASH:
-                ret = negate ? Status.find(CISales.PaymentCashOutStatus.Closed)
-                                : Status.find(CISales.PaymentCashStatus.Closed);
-                break;
-            case CHANGE:
-                ret = negate ? Status.find(CISales.PaymentCashStatus.Closed)
-                                : Status.find(CISales.PaymentCashOutStatus.Closed);
-                break;
-            case FREE:
-            default:
-                ret = Status.find(CISales.PaymentInternalStatus.Closed);
-                break;
-        }
-        return ret;
-    }
-
-    protected CIType getPaymentDocType(final PaymentType _paymentType, final boolean negate)
-    {
-        CIType ret;
-        switch (_paymentType) {
-            case ELECTRONIC:
-                ret = CISales.PaymentElectronic;
-                break;
-            case CARD:
-                ret = CISales.PaymentCard;
-                break;
-            case CASH:
-                ret = negate ? CISales.PaymentCashOut : CISales.PaymentCash;
-                break;
-            case CHANGE:
-                ret = negate ? CISales.PaymentCash : CISales.PaymentCashOut;
-                break;
-            case FREE:
-            default:
-                ret = CISales.PaymentInternal;
-                break;
-        }
-        return ret;
     }
 
     public static class PosPayment
