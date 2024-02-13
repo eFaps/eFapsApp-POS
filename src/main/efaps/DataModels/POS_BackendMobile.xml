@@ -44,6 +44,12 @@
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
          <attribute>
+            <name>InvoiceSerial</name>
+            <type>String</type>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
+         <attribute>
             <name>AccountLink</name>
             <type>LinkWithRanges</type>
             <typelink>Sales_AccountAbstract</typelink>

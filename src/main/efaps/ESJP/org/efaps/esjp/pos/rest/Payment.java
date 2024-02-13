@@ -45,6 +45,7 @@ import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Insert;
+import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
@@ -88,12 +89,24 @@ public class Payment
         final var orderInst = Instance.get(orderOid);
         if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
             final var orderEval = EQL.builder().print(orderInst)
-                            .attribute(CIPOS.Order.Contact)
+                            .linkto(CIPOS.Order.Contact)
+                                .clazz(CIContacts.ClassOrganisation)
+                                .attribute(CIContacts.ClassOrganisation.TaxNumber)
+                                .as("TaxNumber")
                             .evaluate();
             if (orderEval.next()) {
-                final var documentType = CISales.Receipt;
-                final var positionType = CISales.ReceiptPosition;
-                final var connectType = CIPOS.Order2Receipt;
+                final CIType documentType;
+                final CIType positionType;
+                final CIType connectType;
+                if (orderEval.get("TaxNumber") != null) {
+                    documentType = CISales.Invoice;
+                    positionType = CISales.InvoicePosition;
+                    connectType = CIPOS.Order2Invoice;
+                } else {
+                    documentType = CISales.Receipt;
+                    positionType = CISales.ReceiptPosition;
+                    connectType = CIPOS.Order2Receipt;
+                }
                 final var targetDocInst = cloneDoc(identifier, orderInst, documentType);
                 clonePositions(orderInst, targetDocInst, positionType);
                 connect(orderInst, targetDocInst, connectType);
@@ -378,7 +391,7 @@ public class Payment
         String serialNumber = null;
         CIAttribute attr;
         if (documentType.equals(CISales.Invoice)) {
-            attr = null;
+            attr = CIPOS.BackendMobile.InvoiceSerial;
         } else {
             attr = CIPOS.BackendMobile.ReceiptSerial;
         }

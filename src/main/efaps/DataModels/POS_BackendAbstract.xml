@@ -84,6 +84,12 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>String2</name>
+            <type>String</type>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
          <attribute>
             <name>Long1</name>
             <type>Long</type>
