@@ -217,6 +217,13 @@ public class Pos
                     .defaultValue(CINumGenPOS.OrderSequence.uuid.toString())
                     .description("NumberGenerator for Order.");
 
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute MOBILECONFIG = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "mobile.Configurations")
+                    .addDefaultValue("cloud.cache.product.MaxAge", "30")
+                    .description("Configurations that will be forwarded to the mobile POS.");
+
 
     public enum Role implements IBitEnum
     {
