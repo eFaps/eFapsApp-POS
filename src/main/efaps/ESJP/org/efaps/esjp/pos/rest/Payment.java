@@ -32,6 +32,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.StringUtils;
 import org.efaps.admin.common.NumberGenerator;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -98,7 +99,7 @@ public class Payment
                 final CIType documentType;
                 final CIType positionType;
                 final CIType connectType;
-                if (orderEval.get("TaxNumber") != null) {
+                if (StringUtils.isNotEmpty(orderEval.get("TaxNumber"))) {
                     documentType = CISales.Invoice;
                     positionType = CISales.InvoicePosition;
                     connectType = CIPOS.Order2Invoice;
