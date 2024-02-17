@@ -218,12 +218,17 @@ public class Pos
                     .description("NumberGenerator for Order.");
 
     @EFapsSysConfAttribute
-    public static final PropertiesSysConfAttribute MOBILECONFIG = new PropertiesSysConfAttribute()
+    public static final PropertiesSysConfAttribute MOBILE_CONFIG = new PropertiesSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "mobile.Configurations")
                     .addDefaultValue("cloud.cache.product.MaxAge", "30")
                     .description("Configurations that will be forwarded to the mobile POS.");
 
+    @EFapsSysConfAttribute
+    public static final StringSysConfAttribute MOBILE_LOGO = new StringSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "mobile.Logo")
+                    .description("Base64 encoded image");
 
     public enum Role implements IBitEnum
     {

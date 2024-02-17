@@ -62,8 +62,12 @@ public abstract class Config_Base
         beEval.next();
 
         if (InstanceUtils.isType(beEval.inst(), CIPOS.BackendMobile)) {
-            final Map<String, String> config = Pos.MOBILECONFIG.get().entrySet().stream()
+            final Map<String, String> config = Pos.MOBILE_CONFIG.get().entrySet().stream()
                             .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+
+            if (Pos.MOBILE_LOGO.exists()) {
+                config.put("logo", Pos.MOBILE_LOGO.get());
+            }
             ret = Response.ok()
                             .entity(config)
                             .build();

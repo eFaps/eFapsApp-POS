@@ -272,9 +272,10 @@ public abstract class Order_Base
         final var orderInst = Instance.get(oid);
         final var contactInst = Instance.get(contactOid);
 
-        if (InstanceUtils.isType(orderInst, CIPOS.Order) && InstanceUtils.isType(contactInst, CIContacts.Contact)) {
+        if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
             EQL.builder().update(orderInst)
-                            .set(CIPOS.Order.Contact, contactInst)
+                            .set(CIPOS.Order.Contact,
+                                            InstanceUtils.isType(contactInst, CIContacts.Contact) ? contactInst : null)
                             .execute();
         }
         return Response.ok(getOrder(orderInst)).build();

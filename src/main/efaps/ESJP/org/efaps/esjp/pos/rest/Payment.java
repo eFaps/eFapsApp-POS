@@ -44,12 +44,14 @@ import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Insert;
 import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.contacts.util.Contacts;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.SerialNumbers;
@@ -355,14 +357,15 @@ public class Payment
                                         CISales.DocumentSumAbstract.CurrencyId,
                                         CISales.DocumentSumAbstract.Rate,
                                         CISales.DocumentSumAbstract.RateCurrencyId)
+                        .linkto(CISales.DocumentSumAbstract.Contact).instance().as("contactInst")
                         .evaluate();
         docEval.next();
-
+        final var contactInst = evalContactInstance(docEval);
         return EQL.builder().insert(documentType)
                         .set(CISales.DocumentSumAbstract.Name, evaluateDocName(identifier, documentType, false))
                         .set(CISales.DocumentSumAbstract.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
                         .set(CISales.DocumentSumAbstract.StatusAbstract, status)
-                        .set(CISales.DocumentSumAbstract.Contact, docEval.get(CISales.DocumentSumAbstract.Contact))
+                        .set(CISales.DocumentSumAbstract.Contact, contactInst)
                         .set(CISales.DocumentSumAbstract.RateCrossTotal,
                                         docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
                         .set(CISales.DocumentSumAbstract.CrossTotal,
@@ -382,6 +385,20 @@ public class Payment
                         .set(CISales.DocumentSumAbstract.RateCurrencyId,
                                         docEval.get(CISales.DocumentSumAbstract.RateCurrencyId))
                         .execute();
+    }
+
+    protected Instance evalContactInstance(final Evaluator docEval)
+        throws EFapsException
+    {
+        Instance ret = docEval.get("contactInst");
+        if (!InstanceUtils.isValid(ret)) {
+            final BigDecimal crossTotal = docEval.get(CISales.DocumentSumAbstract.CrossTotal);
+            if (crossTotal.compareTo(new BigDecimal(700)) > 0) {
+                throw new EFapsException(this.getClass(), "invalid");
+            }
+            ret = Contacts.STRAYCOSTUMER.get();
+        }
+        return ret;
     }
 
     protected String evaluateDocName(final String identifier,
