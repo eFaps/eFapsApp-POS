@@ -445,7 +445,8 @@ public class Payment
                         .where()
                         .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
                         .select()
-                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity)
+                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity,
+                                        CISales.PositionSumAbstract.CrossPrice)
                         .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
                         .orderBy(CISales.PositionSumAbstract.PositionNumber)
                         .evaluate();
@@ -454,6 +455,7 @@ public class Payment
             items.add(DocItemDto.builder()
                             .withProductOid(posEval.get("productOid"))
                             .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
+                            .withCrossPrice(posEval.get(CISales.PositionSumAbstract.CrossPrice))
                             .build());
         }
 

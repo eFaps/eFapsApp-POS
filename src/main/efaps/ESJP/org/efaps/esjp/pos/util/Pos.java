@@ -230,6 +230,13 @@ public class Pos
                     .key(BASE + "mobile.Logo")
                     .description("Base64 encoded image");
 
+    @EFapsSysConfAttribute
+    public static final StringSysConfAttribute MOBILE_TEMPLATE = new StringSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "mobile.Template")
+                    .description("Template");
+
+
     public enum Role implements IBitEnum
     {
         ADMIN, USER;

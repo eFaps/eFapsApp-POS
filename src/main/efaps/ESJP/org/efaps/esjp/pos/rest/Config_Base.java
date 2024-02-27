@@ -68,6 +68,9 @@ public abstract class Config_Base
             if (Pos.MOBILE_LOGO.exists()) {
                 config.put("logo", Pos.MOBILE_LOGO.get());
             }
+            if (Pos.MOBILE_TEMPLATE.exists()) {
+                config.put("template", Pos.MOBILE_TEMPLATE.get());
+            }
             ret = Response.ok()
                             .entity(config)
                             .build();
