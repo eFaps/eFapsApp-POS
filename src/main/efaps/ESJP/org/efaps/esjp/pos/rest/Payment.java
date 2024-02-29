@@ -56,11 +56,13 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.SerialNumbers;
 import org.efaps.esjp.pos.rest.AbstractDocument_Base.PosPayment;
+import org.efaps.esjp.pos.rest.dto.PayAndEmitResponseDto;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
 import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.DocStatus;
+import org.efaps.pos.dto.DocType;
 import org.efaps.pos.dto.PaymentDto;
 import org.efaps.pos.dto.PaymentType;
 import org.efaps.pos.dto.ReceiptDto;
@@ -89,13 +91,14 @@ public class Payment
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         LOG.debug("Create Payable for Order: {} and {}", orderOid, dto);
         AbstractPayableDocumentDto payableDto = null;
+        var docType = DocType.RECEIPT;
         final var orderInst = Instance.get(orderOid);
         if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
             final var orderEval = EQL.builder().print(orderInst)
                             .linkto(CIPOS.Order.Contact)
-                                .clazz(CIContacts.ClassOrganisation)
-                                .attribute(CIContacts.ClassOrganisation.TaxNumber)
-                                .as("TaxNumber")
+                            .clazz(CIContacts.ClassOrganisation)
+                            .attribute(CIContacts.ClassOrganisation.TaxNumber)
+                            .as("TaxNumber")
                             .evaluate();
             if (orderEval.next()) {
                 final CIType documentType;
@@ -105,6 +108,7 @@ public class Payment
                     documentType = CISales.Invoice;
                     positionType = CISales.InvoicePosition;
                     connectType = CIPOS.Order2Invoice;
+                    docType = DocType.INVOICE;
                 } else {
                     documentType = CISales.Receipt;
                     positionType = CISales.ReceiptPosition;
@@ -119,7 +123,12 @@ public class Payment
                 EQL.builder().update(orderInst).set(CIPOS.Order.Status, CIPOS.OrderStatus.Closed).execute();
             }
         }
-        return payableDto == null ? Response.noContent().build() : Response.ok(payableDto).build();
+        return payableDto == null
+                        ? Response.noContent().build()
+                        : Response.ok(PayAndEmitResponseDto.builder()
+                                        .withPayable(payableDto)
+                                        .withPayableType(docType)
+                                        .build()).build();
     }
 
     protected void addPayments(final String identifier,
@@ -438,6 +447,7 @@ public class Payment
                         .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
                                         CISales.DocumentSumAbstract.RateCrossTotal,
                                         CISales.DocumentSumAbstract.RateCurrencyId)
+                        .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
                         .evaluate();
         docEval.next();
 
@@ -458,13 +468,15 @@ public class Payment
                             .withCrossPrice(posEval.get(CISales.PositionSumAbstract.CrossPrice))
                             .build());
         }
-
+        final var payableAmount = docEval.<BigDecimal>get(CISales.DocumentSumAbstract.RateCrossTotal);
         return ReceiptDto.builder()
                         .withOID(instance.getOid())
                         .withId(instance.getOid())
                         .withNumber(docEval.get(CISales.DocumentAbstract.Name))
+                        .withContactOid(docEval.get("contactOid"))
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
+                        .withPayableAmount(payableAmount)
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.get(CISales.DocumentSumAbstract.RateCurrencyId)))
                         .withStatus(DocStatus.OPEN)
