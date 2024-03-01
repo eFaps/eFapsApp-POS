@@ -19,7 +19,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +61,8 @@ import org.efaps.esjp.pos.rest.AbstractDocument_Base.PosPayment;
 import org.efaps.esjp.pos.rest.dto.PayAndEmitResponseDto;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.sales.tax.Tax_Base;
+import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
 import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.DocStatus;
@@ -66,6 +70,7 @@ import org.efaps.pos.dto.DocType;
 import org.efaps.pos.dto.PaymentDto;
 import org.efaps.pos.dto.PaymentType;
 import org.efaps.pos.dto.ReceiptDto;
+import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -446,7 +451,8 @@ public class Payment
         final var docEval = EQL.builder().print(instance)
                         .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
                                         CISales.DocumentSumAbstract.RateCrossTotal,
-                                        CISales.DocumentSumAbstract.RateCurrencyId)
+                                        CISales.DocumentSumAbstract.RateCurrencyId,
+                                        CISales.DocumentSumAbstract.RateTaxes)
                         .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
                         .evaluate();
         docEval.next();
@@ -477,11 +483,27 @@ public class Payment
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
                         .withPayableAmount(payableAmount)
+                        .withTaxes(getTaxes(docEval.get(CISales.DocumentSumAbstract.RateTaxes)))
                         .withCurrency(DocumentUtils
-                                        .getCurrency(docEval.get(CISales.DocumentSumAbstract.RateCurrencyId)))
+                                        .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
                         .withStatus(DocStatus.OPEN)
                         .withItems(items)
                         .build();
+    }
+
+    public Collection<TaxEntryDto> getTaxes(final Taxes docTaxes)
+        throws EFapsException
+    {
+        final var taxes = new HashSet<TaxEntryDto>();
+        for (final var taxEntry : docTaxes.getEntries()) {
+            taxes.add(TaxEntryDto.builder()
+                            .withAmount(taxEntry.getAmount())
+                            .withBase(taxEntry.getBase())
+                            .withCurrency(DocumentUtils.getCurrency(taxEntry.getCurrencyUUID()))
+                            .withTax(Calculator.toDto(Tax_Base.get(taxEntry.getCatUUID(), taxEntry.getUUID())))
+                            .build());
+        }
+        return taxes;
     }
 
 }

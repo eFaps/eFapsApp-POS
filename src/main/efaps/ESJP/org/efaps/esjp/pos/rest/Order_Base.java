@@ -330,7 +330,7 @@ public abstract class Order_Base
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
                         .withCurrency(DocumentUtils
-                                        .getCurrency(docEval.get(CISales.DocumentSumAbstract.RateCurrencyId)))
+                                        .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
                         .withStatus(DocStatus.OPEN)
                         .withItems(items)
                         .build();

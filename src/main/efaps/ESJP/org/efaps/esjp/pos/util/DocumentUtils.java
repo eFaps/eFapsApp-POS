@@ -17,6 +17,7 @@ package org.efaps.esjp.pos.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.UUID;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.datamodel.Status;
@@ -53,6 +54,13 @@ public class DocumentUtils
         throws EFapsException
     {
         final var currencyInst = CurrencyInst.get(currencyId);
+        return EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
+    }
+
+    public static org.efaps.pos.dto.Currency getCurrency(final UUID currencyUUID)
+        throws EFapsException
+    {
+        final var currencyInst = CurrencyInst.get(currencyUUID);
         return EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
     }
 

@@ -178,7 +178,7 @@ public class Calculator
                             .withCatKey(tax.getTaxCat().getName())
                             .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class, tax.getTaxType().name()))
                             .withName(tax.getName())
-                            .withPercent(tax.getFactor())
+                            .withPercent(tax.getFactor() == null ? null : tax.getFactor().multiply(new BigDecimal(100)))
                             .withAmount(tax.getAmount())
                             .build();
         } catch (final EFapsException e) {
