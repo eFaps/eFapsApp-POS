@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang.StringUtils;
 import org.efaps.admin.common.NumberGenerator;
 import org.efaps.admin.event.Parameter;
+import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIAttribute;
@@ -55,6 +56,7 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.contacts.util.Contacts;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.electronicbilling.EBillingDocument;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.SerialNumbers;
 import org.efaps.esjp.pos.rest.AbstractDocument_Base.PosPayment;
@@ -98,6 +100,7 @@ public class Payment
         AbstractPayableDocumentDto payableDto = null;
         var docType = DocType.RECEIPT;
         final var orderInst = Instance.get(orderOid);
+        String ublHhash = null;
         if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
             final var orderEval = EQL.builder().print(orderInst)
                             .linkto(CIPOS.Order.Contact)
@@ -126,6 +129,12 @@ public class Payment
                 payableDto = toPayableDto(targetDocInst);
 
                 EQL.builder().update(orderInst).set(CIPOS.Order.Status, CIPOS.OrderStatus.Closed).execute();
+
+                final var parameter = ParameterUtil.instance();
+                parameter.put(ParameterValues.CALL_INSTANCE, targetDocInst);
+                final var edoc = new EBillingDocument();
+                edoc.createDocument(parameter);
+                ublHhash = edoc.getHash(targetDocInst);
             }
         }
         return payableDto == null
@@ -133,6 +142,7 @@ public class Payment
                         : Response.ok(PayAndEmitResponseDto.builder()
                                         .withPayable(payableDto)
                                         .withPayableType(docType)
+                                        .withUblHash(ublHhash)
                                         .build()).build();
     }
 

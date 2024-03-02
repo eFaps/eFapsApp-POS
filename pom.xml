@@ -162,6 +162,11 @@
             <artifactId>sales</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
+        <dependency>
+            <groupId>org.efaps.apps</groupId>
+            <artifactId>electronicbilling</artifactId>
+            <version>${efaps.app.dependencies}</version>
+        </dependency>
           <dependency>
             <groupId>org.efaps.apps</groupId>
             <artifactId>promotions</artifactId>

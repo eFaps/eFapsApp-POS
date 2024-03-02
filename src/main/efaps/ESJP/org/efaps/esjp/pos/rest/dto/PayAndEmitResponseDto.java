@@ -18,10 +18,13 @@ public class PayAndEmitResponseDto
 
     private final AbstractPayableDocumentDto payable;
 
+    private final String ublHash;
+
     private PayAndEmitResponseDto(Builder builder)
     {
         this.payableType = builder.payableType;
         this.payable = builder.payable;
+        this.ublHash = builder.ublHash;
     }
 
     public DocType getPayableType()
@@ -32,6 +35,11 @@ public class PayAndEmitResponseDto
     public AbstractPayableDocumentDto getPayable()
     {
         return payable;
+    }
+
+    public String getUblHash()
+    {
+        return ublHash;
     }
 
     @Override
@@ -50,6 +58,7 @@ public class PayAndEmitResponseDto
 
         private DocType payableType;
         private AbstractPayableDocumentDto payable;
+        private String ublHash;
 
         private Builder()
         {
@@ -64,6 +73,12 @@ public class PayAndEmitResponseDto
         public Builder withPayable(AbstractPayableDocumentDto payable)
         {
             this.payable = payable;
+            return this;
+        }
+
+        public Builder withUblHash(String ublHash)
+        {
+            this.ublHash = ublHash;
             return this;
         }
 
