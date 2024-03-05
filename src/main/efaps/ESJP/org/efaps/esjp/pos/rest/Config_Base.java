@@ -71,6 +71,9 @@ public abstract class Config_Base
             if (Pos.MOBILE_TEMPLATE.exists()) {
                 config.put("template", Pos.MOBILE_TEMPLATE.get());
             }
+
+            config.put(ERP.COMPANY_TAX.getKey(), ERP.COMPANY_TAX.get());
+
             ret = Response.ok()
                             .entity(config)
                             .build();
