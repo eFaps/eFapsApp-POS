@@ -169,7 +169,10 @@ public class Payment
             insert.set(CISales.PaymentDocumentAbstract.Name,
                             NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
             if (PaymentType.CARD.equals(paymentDto.getType())) {
-                insert.set(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
+                final Instance epayInst = evalCardPaymentType(paymentDto.getCardLabel());
+                if (InstanceUtils.isValid(epayInst)) {
+                    insert.set(CISales.PaymentCard.CardType, epayInst);
+                }
                 insert.set(CISales.PaymentCard.CardNumber, paymentDto.getCardNumber());
                 insert.set(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
                 insert.set(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
@@ -245,6 +248,22 @@ public class Payment
         query.executeWithoutAccessCheck();
         if (query.next()) {
             ret = query.getCurrentValue();
+        }
+        return ret;
+    }
+
+    protected Instance evalCardPaymentType(final String mappingKey)
+        throws EFapsException
+    {
+        Instance ret = null;
+        if (mappingKey != null) {
+            final QueryBuilder queryBldr = new QueryBuilder(CISales.AttributeDefinitionPaymentCardType);
+            queryBldr.addWhereAttrEqValue(CISales.AttributeDefinitionPaymentCardType.MappingKey, mappingKey);
+            final InstanceQuery query = queryBldr.getQuery();
+            query.executeWithoutAccessCheck();
+            if (query.next()) {
+                ret = query.getCurrentValue();
+            }
         }
         return ret;
     }
