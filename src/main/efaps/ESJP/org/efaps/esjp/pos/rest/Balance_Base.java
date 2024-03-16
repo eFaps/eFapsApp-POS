@@ -22,8 +22,6 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
-import org.efaps.db.InstanceQuery;
-import org.efaps.db.QueryBuilder;
 import org.efaps.db.Update;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
@@ -41,18 +39,14 @@ public abstract class Balance_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Balance.class);
 
-    public Response addBalance(final String _identifier, final BalanceDto _balanceDto)
+    public Response addBalance(final String identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
-        checkAccess(_identifier);
+        checkAccess(identifier);
         LOG.debug("Recieved: {}", _balanceDto);
         final BalanceDto dto;
         if (_balanceDto.getOid() == null) {
-            final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
-            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
-            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
-            final InstanceQuery query = queryBldr.getQuery();
-            final Instance backendInst = query.execute().get(0);
+            final Instance backendInst = getBackendInstance(identifier);
 
             final Insert insert = new Insert(CIPOS.Balance);
             insert.add(CIPOS.Balance.Status, Status.find(CIPOS.BalanceStatus.Open));

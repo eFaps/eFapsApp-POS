@@ -154,12 +154,7 @@ public abstract class Order_Base
         checkAccess(ACCESSROLE.MOBILE);
         LOG.info("Create Order from : {}", dto);
 
-        final var evalBackend = EQL.builder()
-                        .print().query(CIPOS.BackendAbstract)
-                        .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
-                        .select().instance()
-                        .evaluate();
-        evalBackend.next();
+        final var beInst = getBackendInstance(identifier);
 
         final var currencyInst = DocumentUtils.getCurrencyInst(dto.getCurrency());
         final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
@@ -170,7 +165,7 @@ public abstract class Order_Base
                         .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
                         .set(CIPOS.Order.Name, name)
                         .set(CIPOS.Order.Date, LocalDate.now(Context.getThreadContext().getZoneId()))
-                        .set(CIPOS.Order.BackendLink, evalBackend.inst())
+                        .set(CIPOS.Order.BackendLink, beInst)
                         .set(CIPOS.Order.CurrencyId, currencyInst.getInstance())
                         .set(CIPOS.Order.RateCurrencyId, currencyInst.getInstance())
                         .set(CIPOS.Order.NetTotal, BigDecimal.ZERO)

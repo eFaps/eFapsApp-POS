@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.eql.EQL;
 import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.ci.CIPOS;
@@ -55,13 +54,9 @@ public abstract class Config_Base
         Response ret = null;
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
 
-        final var beEval = EQL.builder().print().query(CIPOS.BackendAbstract)
-                        .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
-                        .select().instance()
-                        .evaluate();
-        beEval.next();
+        final var beInst = getBackendInstance(identifier);
 
-        if (InstanceUtils.isType(beEval.inst(), CIPOS.BackendMobile)) {
+        if (InstanceUtils.isType(beInst, CIPOS.BackendMobile)) {
             final Map<String, String> config = Pos.MOBILE_CONFIG.get().entrySet().stream()
                             .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
 

@@ -17,15 +17,14 @@ package org.efaps.esjp.pos.rest;
 
 import java.util.UUID;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Role;
 import org.efaps.db.Context;
-import org.efaps.db.InstanceQuery;
-import org.efaps.db.QueryBuilder;
+import org.efaps.db.Instance;
+import org.efaps.eql.EQL;
+import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.util.EFapsException;
@@ -72,7 +71,7 @@ public abstract class AbstractRest_Base
      * @param _identifier the identifier
      * @throws EFapsException the eFaps exception
      */
-    protected void checkAccess(final String _identifier,
+    protected void checkAccess(final String identifier,
                                final ACCESSROLE... roles)
         throws EFapsException
     {
@@ -81,21 +80,28 @@ public abstract class AbstractRest_Base
         } else {
             checkAccess(roles);
         }
-        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.BackendAbstract);
-        queryBldr.addWhereAttrEqValue(CIPOS.BackendAbstract.StatusAbstract,
-                        Status.find(CIPOS.BackendStatus.Active));
-        queryBldr.addWhereAttrEqValue(CIPOS.BackendAbstract.Identifier, _identifier);
-        final InstanceQuery query = queryBldr.getQuery();
-        final var backendInsts = query.execute();
-        if (CollectionUtils.isEmpty(backendInsts)) {
+        final var backendEval = EQL.builder()
+                        .with(StmtFlag.REQCACHED)
+                        .print().query(CIPOS.BackendAbstract)
+                        .where()
+                        .attribute(CIPOS.BackendAbstract.StatusAbstract).eq(CIPOS.BackendStatus.Active)
+                        .and()
+                        .attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
+                        .select()
+                        .instance()
+                        .evaluate();
+        final var backendInstsCount = backendEval.count();
+
+        if (backendInstsCount == 0) {
             LOG.error("Access denied due to Backend registration");
             throw new ForbiddenException("No valid Backend registered.");
         }
-        if (backendInsts.size() > 1) {
+        if (backendInstsCount > 1) {
             LOG.error("Access denied due to having more than one Backend with the same identifier");
             throw new ForbiddenException("Duplicated identifier");
         }
-        final var backendInst = backendInsts.get(0);
+        backendEval.next();
+        final var backendInst = backendEval.inst();
         if (InstanceUtils.isType(backendInst, CIPOS.Backend) && ArrayUtils.isNotEmpty(roles)
                         && !ArrayUtils.contains(roles, ACCESSROLE.BE)) {
             LOG.error("Access denied due to being a BE only endpoint");
@@ -106,6 +112,23 @@ public abstract class AbstractRest_Base
             LOG.error("Access denied due to being a Mobile only endpoint");
             throw new ForbiddenException("Mobile only endpoint");
         }
+    }
+
+    protected Instance getBackendInstance(final String identifier)
+        throws EFapsException
+    {
+        final var backendEval = EQL.builder()
+                        .with(StmtFlag.REQCACHED)
+                        .print().query(CIPOS.BackendAbstract)
+                        .where()
+                        .attribute(CIPOS.BackendAbstract.StatusAbstract).eq(CIPOS.BackendStatus.Active)
+                        .and()
+                        .attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
+                        .select()
+                        .instance()
+                        .evaluate();
+        backendEval.next();
+        return backendEval.inst();
     }
 
     protected ObjectMapper getObjectMapper()

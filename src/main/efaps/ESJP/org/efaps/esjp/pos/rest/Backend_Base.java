@@ -67,15 +67,11 @@ public abstract class Backend_Base
     {
         checkAccess(identifier, ACCESSROLE.BE);
         LOG.debug("Recieved request for report to base");
-        final var eval = EQL.builder()
-                        .print().query(CIPOS.BackendAbstract)
-                        .where().attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
-                        .select().instance()
-                        .evaluate();
-        eval.next();
+
+        final var beInst = getBackendInstance(identifier);
         EQL.builder()
                         .insert(CIPOS.MonitoringReportToBase)
-                        .set(CIPOS.MonitoringReportToBase.BackendLink, eval.inst())
+                        .set(CIPOS.MonitoringReportToBase.BackendLink, beInst)
                         .set(CIPOS.MonitoringReportToBase.Version, dto.getVersion())
                         .execute();
         return Response.ok().build();
