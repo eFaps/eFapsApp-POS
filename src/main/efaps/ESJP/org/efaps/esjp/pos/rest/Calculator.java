@@ -157,7 +157,7 @@ public class Calculator
     protected List<TaxEntryDto> toDto(final Map<String, Tax> taxMap,
                                       final List<ITax> list)
     {
-        return list.stream().map(itax -> toDto(taxMap, itax)).toList();
+        return list == null ? new ArrayList<>() : list.stream().map(itax -> toDto(taxMap, itax)).toList();
     }
 
     protected TaxEntryDto toDto(final Map<String, Tax> taxMap,

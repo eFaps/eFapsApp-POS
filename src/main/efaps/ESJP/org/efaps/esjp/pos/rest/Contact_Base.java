@@ -314,7 +314,7 @@ public abstract class Contact_Base
         if (contactDto.getOid() != null && contactDto.getOid().equals(oid)) {
             EQL.builder().update(oid)
                             .set(CIContacts.Contact.Name, contactDto.getName())
-                            .set(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active))
+                            .set(CIContacts.Contact.Status, CIContacts.ContactStatus.Active)
                             .execute();
 
             if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
