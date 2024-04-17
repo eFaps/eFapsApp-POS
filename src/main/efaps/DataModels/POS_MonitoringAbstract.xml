@@ -70,6 +70,12 @@
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
         <attribute>
+            <name>DateTime1</name>
+            <type>DateTime</type>
+            <sqltable>POS_MonitoringSQLTable</sqltable>
+            <sqlcolumn>DATE1</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>
             <sqltable>POS_MonitoringSQLTable</sqltable>

@@ -73,6 +73,8 @@ public abstract class Backend_Base
                         .insert(CIPOS.MonitoringReportToBase)
                         .set(CIPOS.MonitoringReportToBase.BackendLink, beInst)
                         .set(CIPOS.MonitoringReportToBase.Version, dto.getVersion())
+                        .set(CIPOS.MonitoringReportToBase.InstalationId, dto.getInstalationId())
+                        .set(CIPOS.MonitoringReportToBase.RegisteredAt, dto.getCreatedAt())
                         .execute();
         return Response.ok().build();
     }
