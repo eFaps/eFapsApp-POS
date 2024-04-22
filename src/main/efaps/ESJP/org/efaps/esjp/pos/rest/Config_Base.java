@@ -31,6 +31,7 @@ import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.promotions.utils.Promotions;
 import org.efaps.esjp.sales.util.Sales;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -116,6 +117,15 @@ public abstract class Config_Base
                 try {
                     config.put(Sales.CALCULATOR_CONFIG.getKey(),
                                     mapper.writeValueAsString(Sales.CALCULATOR_CONFIG.get()));
+                } catch (JsonProcessingException | EFapsException e1) {
+                    LOG.error("Catched", e1);
+                }
+            }
+
+            if (Promotions.ENGINE_CONFIG.exists()) {
+                try {
+                    config.put(Promotions.ENGINE_CONFIG.getKey(),
+                                    mapper.writeValueAsString(Promotions.ENGINE_CONFIG.get()));
                 } catch (JsonProcessingException | EFapsException e1) {
                     LOG.error("Catched", e1);
                 }
