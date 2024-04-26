@@ -474,6 +474,10 @@ public abstract class Product_Base
             ret = ProductType.TEXT;
         } else if (InstanceUtils.isType(_instance, CIProducts.ProductSalesPartList)) {
             ret = ProductType.PARTLIST;
+        } else if (InstanceUtils.isType(_instance, CIProducts.ProductBatch)) {
+            ret = ProductType.BATCH;
+        } else if (InstanceUtils.isType(_instance, CIProducts.ProductIndividual)) {
+            ret = ProductType.INDIVIDUAL;
         } else {
             ret = ProductType.OTHER;
         }
