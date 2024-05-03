@@ -55,6 +55,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.products.util.Products;
+import org.efaps.esjp.products.util.Products.ProductIndividual;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.pos.dto.BOMGroupConfigDto;
@@ -122,8 +123,8 @@ public abstract class Product_Base
                             .attribute("Code").eq(barcode).up()
                             .selectable(Selectables.attribute("Barcodes"));
             query.where()
-                .attribute(CIProducts.ProductAbstract.ID)
-                .in(barcodeQuery);
+                            .attribute(CIProducts.ProductAbstract.ID)
+                            .in(barcodeQuery);
         }
         final var select = query.select();
         return Response.ok(evalProducts(identifier, select)).build();
@@ -234,7 +235,7 @@ public abstract class Product_Base
 
         print.attribute(CIProducts.ProductAbstract.ID, CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.Note,
-                        CIProducts.ProductAbstract.DefaultUoM)
+                        CIProducts.ProductAbstract.DefaultUoM, CIProducts.ProductAbstract.Individual)
                         .linkfrom(CIPOS.Category2Product.ToLink).linkto(CIPOS.Category2Product.FromLink).oid()
                         .as("selCat")
                         .linkfrom(CIPOS.Category2Product.ToLink).attribute(CIPOS.Category2Product.SortWeight)
@@ -430,6 +431,9 @@ public abstract class Product_Base
                 }
             }
 
+            final ProductIndividual productIndividual = productEval.get(CIProducts.ProductAbstract.Individual);
+            evalIndividual(productEval.inst(), productIndividual, relations);
+
             final UoM uoM = Dimension.getUoM(productEval.get(CIProducts.ProductAbstract.DefaultUoM));
 
             final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
@@ -437,6 +441,7 @@ public abstract class Product_Base
             if (currency == null) {
                 currency = org.efaps.pos.dto.Currency.PEN;
             }
+
             final ProductDto dto = ProductDto.builder()
                             .withSKU(productEval.get(CIProducts.ProductAbstract.Name))
                             .withType(getProductType(productEval.inst()))
@@ -456,11 +461,61 @@ public abstract class Product_Base
                             .withBarcodes(barcodes)
                             .withBomGroupConfigs(bomGroupConfigs)
                             .withConfigurationBOMs(configurationBOMs)
+                            .withIndividual(EnumUtils.getEnum(org.efaps.pos.dto.ProductIndividual.class,
+                                            productIndividual == null ? null : productIndividual.name()))
                             .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
         }
         return products;
+    }
+
+    protected void evalIndividual(final Instance prodInst,
+                                  final ProductIndividual productIndividual,
+                                  final Set<ProductRelationDto> relations)
+        throws EFapsException
+    {
+        if (productIndividual != null && (productIndividual.equals(ProductIndividual.BATCH) ||
+                        productIndividual.equals(ProductIndividual.INDIVIDUAL))) {
+
+            if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductIndividualAbstract)) {
+                final var eval = EQL.builder()
+                                .print()
+                                .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
+                                .where()
+                                .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
+                                .eq(prodInst)
+                                .select()
+                                .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
+                                .oid()
+                                .as("parentOid")
+                                .evaluate();
+                while (eval.next()) {
+                    relations.add(ProductRelationDto.builder()
+                                    .withProductOid(eval.get("parentOid"))
+                                    .withType(ProductRelationType.BATCH)
+                                    .build());
+                }
+            } else {
+                final var eval = EQL.builder()
+                                .print()
+                                .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
+                                .where()
+                                .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
+                                .eq(prodInst)
+                                .select()
+                                .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
+                                .oid()
+                                .as("individualOid")
+                                .evaluate();
+                while (eval.next()) {
+                    relations.add(ProductRelationDto.builder()
+                                    .withProductOid(eval.get("individualOid"))
+                                    .withType(ProductRelationType.BATCH)
+                                    .build());
+                }
+            }
+        }
     }
 
     protected ProductType getProductType(final Instance _instance)
