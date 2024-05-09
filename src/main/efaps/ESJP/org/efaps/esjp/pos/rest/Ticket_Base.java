@@ -78,7 +78,7 @@ public abstract class Ticket_Base
             final Instance docInst = createDocument(Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
             createPositions(docInst, _ticketDto);
             addPayments(docInst, _ticketDto);
-            createTransactionDocument(_ticketDto, docInst);
+            createTransactions(_ticketDto, docInst);
 
             dto = TicketDto.builder()
                             .withId(_ticketDto.getId())

@@ -80,7 +80,7 @@ public abstract class CreditNote_Base
             insert.add(CISales.Document2DocumentAbstract.ToAbstractLink, sourceDocInst);
             insert.executeWithoutAccessCheck();
 
-            createTransactionDocument(_creditNoteDto, docInst);
+            createTransactions(_creditNoteDto, docInst);
 
             // createTransactionDocument(_creditNoteDto, docInst);
             dto = CreditNoteDto.builder()

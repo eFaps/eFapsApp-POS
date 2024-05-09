@@ -82,7 +82,7 @@ public abstract class Receipt_Base
             final Instance docInst = createDocument(Status.find(CISales.ReceiptStatus.Paid), _receiptDto);
             createPositions(docInst, _receiptDto);
             addPayments(docInst, _receiptDto);
-            createTransactionDocument(_receiptDto, docInst);
+            createTransactions(_receiptDto, docInst);
             dto = ReceiptDto.builder()
                             .withId(_receiptDto.getId())
                             .withOID(docInst.getOid())

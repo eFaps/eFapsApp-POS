@@ -78,7 +78,7 @@ public abstract class Invoice_Base
             final Instance docInst = createDocument(Status.find(CISales.InvoiceStatus.Paid), _invoiceDto);
             createPositions(docInst, _invoiceDto);
             addPayments(docInst, _invoiceDto);
-            createTransactionDocument(_invoiceDto, docInst);
+            createTransactions(_invoiceDto, docInst);
             dto = ReceiptDto.builder()
                             .withId(_invoiceDto.getId())
                             .withOID(docInst.getOid())

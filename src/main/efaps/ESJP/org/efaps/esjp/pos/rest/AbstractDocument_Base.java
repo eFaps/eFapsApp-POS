@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.rest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,19 +39,18 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql2.StmtFlag;
+import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
-import org.efaps.esjp.erp.CommonDocument_Base.CreatedDoc;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
-import org.efaps.esjp.sales.document.TransactionDocument;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
 import org.efaps.esjp.sales.tax.Tax;
 import org.efaps.esjp.sales.tax.TaxCat;
@@ -58,6 +58,7 @@ import org.efaps.esjp.sales.tax.TaxCat_Base;
 import org.efaps.esjp.sales.tax.Tax_Base;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
+import org.efaps.esjp.sales.util.Sales;
 import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
@@ -69,7 +70,7 @@ import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
-import org.efaps.util.cache.CacheReloadException;
+import org.efaps.util.UUIDUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,15 +175,12 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-
-
-
-    protected void createTransactionDocument(final AbstractDocumentDto _dto,
-                                             final Instance _docInstance)
+    protected void createTransactions(final AbstractDocumentDto documentDto,
+                                      final Instance docInstance)
         throws EFapsException
     {
         Instance warehouseInst = null;
-        final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
+        final Instance workspaceInst = Instance.get(documentDto.getWorkspaceOid());
         if (InstanceUtils.isValid(workspaceInst)) {
             final Evaluator evaluator = EQL.builder()
                             .print(workspaceInst)
@@ -192,71 +190,99 @@ public abstract class AbstractDocument_Base
                 warehouseInst = evaluator.get(1);
             }
         }
+
         if (InstanceUtils.isKindOf(warehouseInst, CIProducts.Warehouse)) {
-            final TransactionDocument transactionDocument = new TransactionDocument()
-            {
 
-                @Override
-                protected Type getType4DocCreate(final Parameter _parameter)
-                    throws EFapsException
-                {
-                    return _dto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowIn.getType()
-                                    : CISales.TransactionDocumentShadowOut.getType();
+            // create shadow document
+            final var docShadowCiType = documentDto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowIn
+                            : CISales.TransactionDocumentShadowOut;
+            final var positionCiType = documentDto instanceof CreditNoteDto
+                            ? CISales.TransactionDocumentShadowInPosition
+                            : CISales.TransactionDocumentShadowOutPosition;
+
+            final var status = documentDto instanceof CreditNoteDto
+                            ? CISales.TransactionDocumentShadowInStatus.Closed
+                            : CISales.TransactionDocumentShadowOutStatus.Closed;
+
+            final var seqKey = docShadowCiType.equals(CISales.TransactionDocumentShadowOut)
+                            ? Sales.TRANSDOCSHADOWOUT_REVSEQ.get()
+                            : Sales.TRANSDOCSHADOWIN_REVSEQ.get();
+            final var numgen = UUIDUtil.isUUID(seqKey)
+                            ? NumberGenerator.get(UUID.fromString(seqKey))
+                            : NumberGenerator.get(seqKey);
+            String revision = null;
+            if (numgen != null) {
+                revision = numgen.getNextVal();
+            }
+            final var docShadowInst = EQL.builder().insert(docShadowCiType)
+                            .set(CIERP.DocumentAbstract.Name, documentDto.getNumber())
+                            .set(CIERP.DocumentAbstract.Date, documentDto.getDate())
+                            .set(CIERP.DocumentAbstract.Revision, revision)
+                            .set(CIERP.DocumentAbstract.Contact, Instance.get(documentDto.getContactOid()))
+                            .set(CIERP.DocumentAbstract.StatusAbstract, status)
+                            .execute();
+
+            for (final var item : documentDto.getItems()) {
+                final var productInfo = getProductInfo(item.getProductOid());
+                EQL.builder().insert(positionCiType)
+                                .set(CISales.PositionAbstract.PositionNumber, item.getIndex())
+                                .set(CISales.PositionAbstract.DocumentAbstractLink, docShadowInst)
+                                .set(CISales.PositionAbstract.Product, Instance.get(item.getProductOid()))
+                                .set(CISales.PositionAbstract.ProductDesc, productInfo[0])
+                                .set(CISales.PositionAbstract.UoM, productInfo[1])
+                                .set(CISales.PositionAbstract.Quantity, item.getQuantity())
+                                .execute();
+
+                final var transactionCIType = docShadowCiType.equals(CISales.TransactionDocumentShadowOut)
+                                ? CIProducts.TransactionOutbound.getType()
+                                : CIProducts.TransactionInbound.getType();
+                EQL.builder().insert(transactionCIType)
+                                .set(CIProducts.TransactionAbstract.Quantity, item.getQuantity())
+                                .set(CIProducts.TransactionAbstract.Storage, warehouseInst)
+                                .set(CIProducts.TransactionAbstract.Product, Instance.get(item.getProductOid()))
+                                .set(CIProducts.TransactionAbstract.UoM, productInfo[1])
+                                .set(CIProducts.TransactionAbstract.Description, "Descr")
+                                .set(CIProducts.TransactionAbstract.Date, documentDto.getDate())
+                                .set(CIProducts.TransactionAbstract.Document, docShadowInst);
+
+                if (item.getStandInOid() != null) {
+
+                    final var transactionIndividualCIType = docShadowCiType.equals(CISales.TransactionDocumentShadowOut)
+                                    ? CIProducts.TransactionIndividualOutbound.getType()
+                                    : CIProducts.TransactionIndividualInbound.getType();
+
+                    EQL.builder().insert(transactionIndividualCIType)
+                                    .set(CIProducts.TransactionAbstract.Quantity, item.getQuantity())
+                                    .set(CIProducts.TransactionAbstract.Storage, warehouseInst)
+                                    .set(CIProducts.TransactionAbstract.Product, Instance.get(item.getStandInOid()))
+                                    .set(CIProducts.TransactionAbstract.UoM, productInfo[1])
+                                    .set(CIProducts.TransactionAbstract.Description, "Descr")
+                                    .set(CIProducts.TransactionAbstract.Date, documentDto.getDate())
+                                    .set(CIProducts.TransactionAbstract.Document, docShadowInst);
                 }
+            }
 
-                @Override
-                protected void addStatus2DocCreate(final Parameter _parameter,
-                                                   final Insert _insert,
-                                                   final CreatedDoc _createdDoc)
-                    throws EFapsException
-                {
-                    _insert.add(CISales.DocumentAbstract.StatusAbstract,
-                                    _dto instanceof CreditNoteDto
-                                                    ? Status.find(CISales.TransactionDocumentShadowInStatus.Closed)
-                                                    : Status.find(CISales.TransactionDocumentShadowOutStatus.Closed));
-                }
-
-                @Override
-                protected void connect2ProductDocumentType(final Parameter _parameter,
-                                                           final CreatedDoc _createdDoc)
-                    throws EFapsException
-                {
-                    final Instance instDocType = Pos.PRODDOCTYPE4DOC.get();
-                    if (instDocType.isValid() && _createdDoc.getInstance().isValid()) {
-                        insert2DocumentTypeAbstract(CISales.Document2ProductDocumentType, _createdDoc, instDocType);
-                    }
-                }
-
-                @Override
-                protected Type getType4PositionCreate(final Parameter _parameter)
-                    throws EFapsException
-                {
-                    return _dto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowInPosition.getType()
-                                    : CISales.TransactionDocumentShadowOutPosition.getType();
-                }
-            };
-            final Parameter parameter = ParameterUtil.instance();
-            ParameterUtil.setParameterValues(parameter, "storage", warehouseInst.getOid());
-            final CreatedDoc createdDoc = transactionDocument.createDocumentShadow(parameter, _docInstance);
-
+            // connect shadow to original document
             CIType relType = null;
-            if (_dto instanceof InvoiceDto) {
+            if (documentDto instanceof InvoiceDto) {
                 relType = CISales.Invoice2TransactionDocumentShadowOut;
-            } else if (_dto instanceof ReceiptDto) {
+            } else if (documentDto instanceof ReceiptDto) {
                 relType = CISales.Receipt2TransactionDocumentShadowOut;
-            } else if (_dto instanceof TicketDto) {
+            } else if (documentDto instanceof TicketDto) {
                 relType = CIPOS.Ticket2TransactionDocumentShadowOut;
-            } else if (_dto instanceof CreditNoteDto) {
+            } else if (documentDto instanceof CreditNoteDto) {
                 relType = CISales.CreditNote2TransactionDocumentShadowIn;
             }
             if (relType != null) {
                 final Insert insert = new Insert(relType);
-                insert.add(CISales.Document2TransactionDocumentShadowAbstract.FromAbstractLink, _docInstance);
-                insert.add(CISales.Document2TransactionDocumentShadowAbstract.ToAbstractLink, createdDoc.getInstance());
+                insert.add(CISales.Document2TransactionDocumentShadowAbstract.FromAbstractLink, docInstance);
+                insert.add(CISales.Document2TransactionDocumentShadowAbstract.ToAbstractLink, docShadowInst);
                 insert.execute();
             }
         }
+
     }
+
 
     protected void createPositions(final Instance docInstance,
                                    final AbstractDocumentDto documentDto)
@@ -284,7 +310,7 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.ConfigurationPosition.PositionAbstractLink, parentPositionInstance);
         insert.add(CISales.PositionAbstract.PositionNumber, itemDto.getIndex());
         insert.add(CISales.PositionAbstract.DocumentAbstractLink, docInstance);
-        insert.add(CISales.PositionAbstract.Product,  Instance.get(itemDto.getProductOid()));
+        insert.add(CISales.PositionAbstract.Product, Instance.get(itemDto.getProductOid()));
         final var productInfo = getProductInfo(itemDto.getProductOid());
         insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
         insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
