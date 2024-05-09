@@ -80,14 +80,19 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDocument_Base
     extends AbstractRest
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDocument.class);
 
     protected abstract CIType getDocumentType();
+
     protected abstract CIType getPositionType();
+
     protected abstract CIType getEmployee2DocumentType();
+
     protected abstract CIType getDepartment2DocumentType();
 
-    protected Instance createDocument(final Status _status, final AbstractDocumentDto _dto)
+    protected Instance createDocument(final Status _status,
+                                      final AbstractDocumentDto _dto)
         throws EFapsException
     {
         final Insert insert = new Insert(getDocumentType());
@@ -113,7 +118,8 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.DocumentSumAbstract.RateCrossTotal, rateCrossTotal);
         insert.add(CISales.DocumentSumAbstract.RateDiscountTotal, BigDecimal.ZERO);
         insert.add(CISales.DocumentSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.DocumentSumAbstract.RateCurrencyId, DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
+        insert.add(CISales.DocumentSumAbstract.RateCurrencyId,
+                        DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
         insert.add(CISales.DocumentSumAbstract.Rate, DocumentUtils.getRate(_dto.getCurrency(), _dto.getExchangeRate()));
         insert.add(CISales.DocumentSumAbstract.Taxes,
                         getTaxes(_dto.getDate(), _dto.getTaxes(), _dto.getCurrency(), _dto.getExchangeRate()));
@@ -125,16 +131,16 @@ public abstract class AbstractDocument_Base
         final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
         if (InstanceUtils.isValid(workspaceInst)) {
             final var eval = EQL.builder().with(StmtFlag.TRIGGEROFF)
-                .print(workspaceInst)
-                .linkto(CIPOS.Workspace.POSLink).instance().as("POSInst")
-                .linkto(CIPOS.Workspace.POSLink).linkto(CIPOS.POS.DepartmentLink).instance().as("depInst")
-                .evaluate();
+                            .print(workspaceInst)
+                            .linkto(CIPOS.Workspace.POSLink).instance().as("POSInst")
+                            .linkto(CIPOS.Workspace.POSLink).linkto(CIPOS.POS.DepartmentLink).instance().as("depInst")
+                            .evaluate();
             eval.next();
 
             EQL.builder().insert(CIPOS.POS2Document)
-                .set(CIPOS.POS2Document.FromLink, eval.get("POSInst"))
-                .set(CIPOS.POS2Document.ToLink, ret)
-                .execute();
+                            .set(CIPOS.POS2Document.FromLink, eval.get("POSInst"))
+                            .set(CIPOS.POS2Document.ToLink, ret)
+                            .execute();
 
             if (Pos.POS_ASSIGNDEPARTMENT.get()) {
                 final Instance depInst = eval.get("depInst");
@@ -264,14 +270,19 @@ public abstract class AbstractDocument_Base
 
             // connect shadow to original document
             CIType relType = null;
+            Instance productDocumentTypeInst = null;
             if (documentDto instanceof InvoiceDto) {
                 relType = CISales.Invoice2TransactionDocumentShadowOut;
+                productDocumentTypeInst = Sales.INVOICE_DEFAULTPRODDOCTYPE.get();
             } else if (documentDto instanceof ReceiptDto) {
                 relType = CISales.Receipt2TransactionDocumentShadowOut;
+                productDocumentTypeInst = Sales.RECEIPT_DEFAULTPRODDOCTYPE.get();
             } else if (documentDto instanceof TicketDto) {
                 relType = CIPOS.Ticket2TransactionDocumentShadowOut;
+                productDocumentTypeInst = Sales.RECEIPT_DEFAULTPRODDOCTYPE.get();
             } else if (documentDto instanceof CreditNoteDto) {
                 relType = CISales.CreditNote2TransactionDocumentShadowIn;
+                productDocumentTypeInst = Sales.CREDITNOTE_DEFAULTPRODDOCTYPE.get();
             }
             if (relType != null) {
                 final Insert insert = new Insert(relType);
@@ -279,17 +290,24 @@ public abstract class AbstractDocument_Base
                 insert.add(CISales.Document2TransactionDocumentShadowAbstract.ToAbstractLink, docShadowInst);
                 insert.execute();
             }
+
+            // connect to ProductDocumentType if configured
+            if (InstanceUtils.isValid(productDocumentTypeInst)) {
+                EQL.builder().insert(CISales.Document2ProductDocumentType)
+                                .set(CIERP.Document2DocumentTypeAbstract.DocumentLinkAbstract, docShadowInst)
+                                .set(CIERP.Document2DocumentTypeAbstract.DocumentTypeLinkAbstract,
+                                                productDocumentTypeInst)
+                                .execute();
+            }
         }
-
     }
-
 
     protected void createPositions(final Instance docInstance,
                                    final AbstractDocumentDto documentDto)
         throws EFapsException
     {
-        final var sortedItems = documentDto.getItems().stream().sorted((item0,
-                                                       item1) -> item0.getIndex().compareTo(item1.getIndex()))
+        final var sortedItems = documentDto.getItems().stream()
+                        .sorted(Comparator.comparing(AbstractDocItemDto::getIndex))
                         .collect(Collectors.toList());
         Instance parentInstance = null;
         for (final var item : sortedItems) {
@@ -329,7 +347,6 @@ public abstract class AbstractDocument_Base
                         eval.get(CIProducts.ProductAbstract.DefaultUoM) };
     }
 
-
     protected Instance createPosition(final Instance _docInstance,
                                       final AbstractDocItemDto _dto,
                                       final LocalDate _date)
@@ -338,7 +355,7 @@ public abstract class AbstractDocument_Base
         final Insert insert = new Insert(getPositionType());
         insert.add(CISales.PositionAbstract.PositionNumber, _dto.getIndex());
         insert.add(CISales.PositionAbstract.DocumentAbstractLink, _docInstance);
-        insert.add(CISales.PositionAbstract.Product,  Instance.get(_dto.getProductOid()));
+        insert.add(CISales.PositionAbstract.Product, Instance.get(_dto.getProductOid()));
         final var productInfo = getProductInfo(_dto.getProductOid());
         insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
         insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
@@ -356,7 +373,8 @@ public abstract class AbstractDocument_Base
                         DocumentUtils.exchange(_dto.getNetPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
         insert.add(CISales.PositionSumAbstract.Rate, DocumentUtils.getRate(_dto.getCurrency(), _dto.getExchangeRate()));
-        insert.add(CISales.PositionSumAbstract.RateCurrencyId, DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
+        insert.add(CISales.PositionSumAbstract.RateCurrencyId,
+                        DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
         insert.add(CISales.PositionSumAbstract.RateNetUnitPrice, _dto.getNetUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossUnitPrice, _dto.getCrossUnitPrice());
         insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, _dto.getCrossUnitPrice());
@@ -371,7 +389,8 @@ public abstract class AbstractDocument_Base
         return insert.getInstance();
     }
 
-    protected Taxes getTaxes(final LocalDate _date, final Collection<TaxEntryDto> _taxes,
+    protected Taxes getTaxes(final LocalDate _date,
+                             final Collection<TaxEntryDto> _taxes,
                              final org.efaps.pos.dto.Currency currency,
                              final BigDecimal exchangeRate)
         throws EFapsException
@@ -391,7 +410,8 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Taxes getRateTaxes(final LocalDate _date, final Collection<TaxEntryDto> _taxes)
+    protected Taxes getRateTaxes(final LocalDate _date,
+                                 final Collection<TaxEntryDto> _taxes)
         throws EFapsException
     {
         final Taxes ret = new Taxes();
@@ -422,7 +442,8 @@ public abstract class AbstractDocument_Base
         return TaxCat_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()));
     }
 
-    protected void addPayments(final Instance _docInst, final AbstractPayableDocumentDto _dto)
+    protected void addPayments(final Instance _docInst,
+                               final AbstractPayableDocumentDto _dto)
         throws EFapsException
     {
         if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
