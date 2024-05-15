@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.Response;
 
@@ -72,6 +73,7 @@ import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.OIDUtil;
 import org.efaps.util.cache.CacheReloadException;
+import org.efaps.util.cache.InfinispanCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,10 +86,19 @@ public abstract class Product_Base
     extends AbstractRest
 {
 
+    public static String INDIVIDUAL_CACHE = Product.class.getName() + ".Individual.Cache";
+
     /**
      * Logging instance used in this class.
      */
     private static final Logger LOG = LoggerFactory.getLogger(Product.class);
+
+    public Product_Base()
+    {
+        if (!InfinispanCache.get().exists(INDIVIDUAL_CACHE)) {
+            InfinispanCache.get().initCache(INDIVIDUAL_CACHE);
+        }
+    }
 
     public Response getProduct(final String identifier,
                                final String oid)
@@ -325,7 +336,7 @@ public abstract class Product_Base
 
                     if (relation instanceof List) {
                         if (quantity == null) {
-                            quantity = Arrays.asList(new Object[((List) relation).size()]);
+                            quantity = Arrays.asList(new Object[((List<?>) relation).size()]);
                         }
                         final var quantities = ((List<? extends BigDecimal>) quantity).iterator();
                         ((Collection<? extends String>) relation).forEach(oid -> {
@@ -478,42 +489,50 @@ public abstract class Product_Base
         if (productIndividual != null && (productIndividual.equals(ProductIndividual.BATCH) ||
                         productIndividual.equals(ProductIndividual.INDIVIDUAL))) {
 
-            if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductIndividualAbstract)) {
-                final var eval = EQL.builder()
-                                .print()
-                                .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
-                                .where()
-                                .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
-                                .eq(prodInst)
-                                .select()
-                                .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
-                                .oid()
-                                .as("parentOid")
-                                .evaluate();
-                while (eval.next()) {
-                    relations.add(ProductRelationDto.builder()
-                                    .withProductOid(eval.get("parentOid"))
-                                    .withType(ProductRelationType.BATCH)
-                                    .build());
-                }
+            final var cache = InfinispanCache.get().<String, Set<ProductRelationDto>>getCache(INDIVIDUAL_CACHE);
+            if (cache.containsKey(prodInst.getOid())) {
+                relations.addAll(cache.get(prodInst.getOid()));
             } else {
-                final var eval = EQL.builder()
-                                .print()
-                                .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
-                                .where()
-                                .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
-                                .eq(prodInst)
-                                .select()
-                                .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
-                                .oid()
-                                .as("individualOid")
-                                .evaluate();
-                while (eval.next()) {
-                    relations.add(ProductRelationDto.builder()
-                                    .withProductOid(eval.get("individualOid"))
-                                    .withType(ProductRelationType.BATCH)
-                                    .build());
+                final Set<ProductRelationDto> individuals = new HashSet<>();
+                if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductIndividualAbstract)) {
+                    final var eval = EQL.builder()
+                                    .print()
+                                    .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
+                                    .where()
+                                    .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
+                                    .eq(prodInst)
+                                    .select()
+                                    .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
+                                    .oid()
+                                    .as("parentOid")
+                                    .evaluate();
+                    while (eval.next()) {
+                        individuals.add(ProductRelationDto.builder()
+                                        .withProductOid(eval.get("parentOid"))
+                                        .withType(ProductRelationType.BATCH)
+                                        .build());
+                    }
+                } else {
+                    final var eval = EQL.builder()
+                                    .print()
+                                    .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
+                                    .where()
+                                    .attribute(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract)
+                                    .eq(prodInst)
+                                    .select()
+                                    .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract)
+                                    .oid()
+                                    .as("individualOid")
+                                    .evaluate();
+                    while (eval.next()) {
+                        individuals.add(ProductRelationDto.builder()
+                                        .withProductOid(eval.get("individualOid"))
+                                        .withType(ProductRelationType.BATCH)
+                                        .build());
+                    }
                 }
+                cache.put(prodInst.getOid(), individuals, 5, TimeUnit.MINUTES);
+                relations.addAll(individuals);
             }
         }
     }
