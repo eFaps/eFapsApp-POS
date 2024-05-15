@@ -41,12 +41,12 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Print;
 import org.efaps.eql.builder.Selectables;
+import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -88,6 +88,8 @@ public abstract class Product_Base
 
     public static String INDIVIDUAL_CACHE = Product.class.getName() + ".Individual.Cache";
 
+    public static String BARCODE_CACHE = Product.class.getName() + ".Barcode.Cache";
+
     /**
      * Logging instance used in this class.
      */
@@ -97,6 +99,9 @@ public abstract class Product_Base
     {
         if (!InfinispanCache.get().exists(INDIVIDUAL_CACHE)) {
             InfinispanCache.get().initCache(INDIVIDUAL_CACHE);
+        }
+        if (!InfinispanCache.get().exists(BARCODE_CACHE)) {
+            InfinispanCache.get().initCache(BARCODE_CACHE);
         }
     }
 
@@ -359,26 +364,7 @@ public abstract class Product_Base
                     }
                 }
             }
-            final var barcodes = new HashSet<BarcodeDto>();
-            if (Products.STANDART_ACTBARCODES.get()) {
-                final var attrSet = AttributeSet.find(CIProducts.ProductAbstract.getType().getName(),
-                                CIProducts.ProductAbstract.Barcodes.name);
-                // attrSet.getType();
-                final QueryBuilder barcodeQueryBldr = new QueryBuilder(attrSet);
-                barcodeQueryBldr.addWhereAttrEqValue(attrSet.getAttributeName(), productEval.inst());
 
-                final var barcodePrint = barcodeQueryBldr.getPrint();
-                barcodePrint.addAttribute("Code");
-                final SelectBuilder selBarcodeType = SelectBuilder.get().linkto("BarcodeType").attribute("Value");
-                barcodePrint.addSelect(selBarcodeType);
-                barcodePrint.executeWithoutAccessCheck();
-                while (barcodePrint.next()) {
-                    barcodes.add(BarcodeDto.builder()
-                                    .withCode(barcodePrint.getAttribute("Code"))
-                                    .withType(barcodePrint.getSelect(selBarcodeType))
-                                    .build());
-                }
-            }
 
             final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
             final var configurationBOMs = new HashSet<ConfigurationBOMDto>();
@@ -442,6 +428,8 @@ public abstract class Product_Base
                 }
             }
 
+            final var barcodes = evalBarcodes(productEval.inst());
+
             final ProductIndividual productIndividual = productEval.get(CIProducts.ProductAbstract.Individual);
             evalIndividual(productEval.inst(), productIndividual, relations);
 
@@ -479,6 +467,42 @@ public abstract class Product_Base
             products.add(dto);
         }
         return products;
+    }
+
+    protected Set<BarcodeDto> evalBarcodes(final Instance prodInst)
+        throws EFapsException
+    {
+        final Set<BarcodeDto> barcodes;
+        if (Products.STANDART_ACTBARCODES.get()) {
+            final var cache = InfinispanCache.get().<String, Set<BarcodeDto>>getCache(BARCODE_CACHE);
+            if (cache.containsKey(prodInst.getOid())) {
+                barcodes = cache.get(prodInst.getOid());
+            } else {
+                barcodes = new HashSet<>();
+                final var attrSet = AttributeSet.find(CIProducts.ProductAbstract.getType().getName(),
+                                CIProducts.ProductAbstract.Barcodes.name);
+                final var barcodeEval = EQL.builder()
+                                .with(StmtFlag.TRIGGEROFF)
+                                .print()
+                                .query(attrSet.getUUID().toString())
+                                .where()
+                                .attribute(attrSet.getAttributeName()).eq(prodInst)
+                                .select()
+                                .attribute("Code").as("Code")
+                                .linkto("BarcodeType").attribute("Value").as("BarcodeType")
+                                .evaluate();
+                while (barcodeEval.next()) {
+                    barcodes.add(BarcodeDto.builder()
+                                    .withCode(barcodeEval.get("Code"))
+                                    .withType(barcodeEval.get("BarcodeType"))
+                                    .build());
+                }
+                cache.put(prodInst.getOid(), barcodes, 5, TimeUnit.MINUTES);
+            }
+        } else {
+            barcodes = new HashSet<>();
+        }
+        return barcodes;
     }
 
     protected void evalIndividual(final Instance prodInst,
