@@ -41,6 +41,8 @@
         <type>Sales_CreditNote</type>
         <type>Products_TransactionInbound</type>
         <type>Products_TransactionOutbound</type>
+        <type>Products_TransactionIndividualInbound</type>
+        <type>Products_TransactionIndividualOutbound</type>
 
         <status group="Contacts_ContactStatus">
             <key>Active</key>

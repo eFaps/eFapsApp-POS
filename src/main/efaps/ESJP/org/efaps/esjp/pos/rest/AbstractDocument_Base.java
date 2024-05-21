@@ -249,7 +249,8 @@ public abstract class AbstractDocument_Base
                                 .set(CIProducts.TransactionAbstract.UoM, productInfo[1])
                                 .set(CIProducts.TransactionAbstract.Description, "Descr")
                                 .set(CIProducts.TransactionAbstract.Date, documentDto.getDate())
-                                .set(CIProducts.TransactionAbstract.Document, docShadowInst);
+                                .set(CIProducts.TransactionAbstract.Document, docShadowInst)
+                                .execute();
 
                 if (item.getStandInOid() != null) {
 
@@ -264,7 +265,8 @@ public abstract class AbstractDocument_Base
                                     .set(CIProducts.TransactionAbstract.UoM, productInfo[1])
                                     .set(CIProducts.TransactionAbstract.Description, "Descr")
                                     .set(CIProducts.TransactionAbstract.Date, documentDto.getDate())
-                                    .set(CIProducts.TransactionAbstract.Document, docShadowInst);
+                                    .set(CIProducts.TransactionAbstract.Document, docShadowInst)
+                                    .execute();
                 }
             }
 
