@@ -50,6 +50,7 @@
             <property name="Label">POS_CategoryForm.image.Label</property>
             <property name="ModeEdit">NONE</property>
             <property name="UIType">SNIPPLET</property>
+            <property name="ValueType">IMAGE</property>
             <trigger event="UI_FIELD_VALUE" method="getViewFieldValueUI"
                 name="POS_CategoryForm.image.UI_FIELD_VALUE"
                 program="org.efaps.esjp.common.file.ImageField">
@@ -58,8 +59,6 @@
             </trigger>
             <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI" method="configCheck"
                 name="POS_CategoryForm.image.UI_ACCESSCHECK" event="UI_ACCESSCHECK">
-                
-
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
                 <property name="Attribute">org.efaps.pos.Category.ActivateImage</property>
             </trigger>

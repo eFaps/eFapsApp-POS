@@ -33,6 +33,8 @@
         <childs>
             <child>POS_CategoryTree_Product</child>
             <child>POS_CategoryTree_Category</child>
+            <child>Common_History_ObjectTree_StatusLog</child>
+            <child>Common_History_ObjectTree_HistoryLog</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>

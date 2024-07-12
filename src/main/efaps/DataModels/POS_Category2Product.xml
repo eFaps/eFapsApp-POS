@@ -46,5 +46,19 @@
             <sqltable>POS_Object2ObjectSQLTable</sqltable>
             <sqlcolumn>INT1</sqlcolumn>
         </attribute>
+        <trigger program="org.efaps.esjp.common.history.ConnectHistoryTrigger"
+            name="POS_Category2Product.INSERT_POST"
+            event="INSERT_POST">
+            <property name="Select4HistoryInstance">linkto[FromLink].instance</property>
+            <property name="Select4ConnectInstance">linkto[ToLink].instance</property>
+            <property name="Select4ConnectAttribute">linkto[ToLink].attribute[Name]</property>
+        </trigger>
+        <trigger program="org.efaps.esjp.common.history.DisconnectHistoryTrigger"
+            name="POS_Category2Product.DELETE_PRE"
+            event="DELETE_PRE">
+            <property name="Select4HistoryInstance">linkto[FromLink].instance</property>
+            <property name="Select4ConnectInstance">linkto[ToLink].instance</property>
+            <property name="Select4ConnectAttribute">linkto[ToLink].attribute[Name]</property>
+        </trigger>
     </definition>
 </datamodel-type>

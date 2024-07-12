@@ -109,10 +109,12 @@
         <trigger program="org.efaps.esjp.common.trigger.PreDeleteTrigger"
             method="deleteConnections"
             name="POS_Category.DELETE_PRE" event="DELETE_PRE">
-            
-
             <property name="Type">370448f7-6936-452f-85cb-3651ef5445e8</property>
             <property name="LinkFrom">FromLink</property>
+        </trigger>
+        <trigger program="org.efaps.esjp.common.history.UpdateHistoryTrigger"
+            name="POS_Category.UPDATE_POST"
+            event="UPDATE_POST">
         </trigger>
         <store name="ERP_DocumentVFSStore"/>
     </definition>
