@@ -70,6 +70,7 @@ import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
+import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.efaps.util.OIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -173,15 +174,14 @@ public abstract class Product_Base
     public Response getProducts(final String _identifier,
                                 final int limit,
                                 final int offset,
-                                final OffsetDateTime after)
+                                final OffsetDateTime afterParameter)
         throws EFapsException
     {
-
         LOG.debug("Received request for product sync from {}", _identifier);
         final var query = EQL.builder().print()
                         .query(CIProducts.ProductAbstract);
 
-        if (after == null) {
+        if (afterParameter == null) {
             if (Pos.CATEGORY_ACTIVATE.get() && Pos.CATEGORY_PRODFILTER.get()) {
                 final var categoryQuery = EQL.builder().nestedQuery(CIPOS.Category)
                                 .where()
@@ -205,6 +205,8 @@ public abstract class Product_Base
                 query.where().attribute(CIProducts.ProductAbstract.Active).eq("true").up();
             }
         } else {
+            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
+
             final var posQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistPosition)
                             .where()
                             .attribute(CIProducts.ProductPricelistPosition.Modified).greater(String.valueOf(after))
@@ -364,7 +366,6 @@ public abstract class Product_Base
                     }
                 }
             }
-
 
             final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
             final var configurationBOMs = new HashSet<ConfigurationBOMDto>();

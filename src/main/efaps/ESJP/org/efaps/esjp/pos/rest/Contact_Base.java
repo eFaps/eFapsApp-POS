@@ -39,6 +39,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.pos.dto.IdentificationType;
+import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public abstract class Contact_Base
     public Response getContacts(final String _identifier,
                                 final int limit,
                                 final int offset,
-                                final OffsetDateTime after,
+                                final OffsetDateTime afterParameter,
                                 final String doiNumber)
         throws EFapsException
     {
@@ -72,7 +73,8 @@ public abstract class Contact_Base
         if (offset > 0) {
             queryBldr.setOffset(offset);
         }
-        if (after != null) {
+        if (afterParameter != null) {
+            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
             queryBldr.addWhereAttrGreaterValue(CIContacts.Contact.Modified, after);
         }
         if (StringUtils.isNotEmpty(doiNumber)) {
@@ -354,10 +356,10 @@ public abstract class Contact_Base
                                     .execute();
                 }
                 EQL.builder().insert(attrSet)
-                    .set(CIContacts.Class.EmailSet, classInst.getId())
-                    .set("Email", contactDto.getEmail())
-                    .set("ElectronicBilling", "true")
-                    .execute();
+                                .set(CIContacts.Class.EmailSet, classInst.getId())
+                                .set("Email", contactDto.getEmail())
+                                .set("ElectronicBilling", "true")
+                                .execute();
             }
         }
 
