@@ -116,7 +116,7 @@ public abstract class Product_Base
             final var prodInstance = Instance.get(oid);
             if (InstanceUtils.isKindOf(prodInstance, CIProducts.ProductAbstract)) {
                 final var print = EQL.builder().print(prodInstance);
-                response = Response.ok(evalProducts(identifier, print).get(0)).build();
+                response = Response.ok(evalProducts(identifier, print, false).get(0)).build();
             }
         }
         if (response == null) {
@@ -144,7 +144,7 @@ public abstract class Product_Base
                             .in(barcodeQuery);
         }
         final var select = query.select();
-        return Response.ok(evalProducts(identifier, select)).build();
+        return Response.ok(evalProducts(identifier, select, false)).build();
     }
 
     public Response getProducts(final String identifier,
@@ -241,12 +241,13 @@ public abstract class Product_Base
             select.offset(offset);
         }
 
-        return Response.ok(evalProducts(_identifier, select)).build();
+        return Response.ok(evalProducts(_identifier, select, afterParameter == null)).build();
     }
 
     @SuppressWarnings("unchecked")
     protected List<ProductDto> evalProducts(final String identifier,
-                                            final Print print)
+                                            final Print print,
+                                            final boolean caching)
         throws CacheReloadException, EFapsException
     {
         final List<ProductDto> products = new ArrayList<>();
@@ -429,10 +430,10 @@ public abstract class Product_Base
                 }
             }
 
-            final var barcodes = evalBarcodes(productEval.inst());
+            final var barcodes = evalBarcodes(productEval.inst(), caching);
 
             final ProductIndividual productIndividual = productEval.get(CIProducts.ProductAbstract.Individual);
-            evalIndividual(productEval.inst(), productIndividual, relations);
+            evalIndividual(productEval.inst(), productIndividual, relations, caching);
 
             final UoM uoM = Dimension.getUoM(productEval.get(CIProducts.ProductAbstract.DefaultUoM));
 
@@ -470,13 +471,40 @@ public abstract class Product_Base
         return products;
     }
 
-    protected Set<BarcodeDto> evalBarcodes(final Instance prodInst)
+    protected Set<BarcodeDto> evalBarcodes(final Instance prodInst,
+                                           final boolean caching)
         throws EFapsException
     {
-        final Set<BarcodeDto> barcodes;
+        Set<BarcodeDto> barcodes;
         if (Products.STANDART_ACTBARCODES.get()) {
-            final var cache = InfinispanCache.get().<String, Set<BarcodeDto>>getCache(BARCODE_CACHE);
-            if (cache.containsKey(prodInst.getOid())) {
+            if (caching) {
+                final var cache = InfinispanCache.get().<String, Set<BarcodeDto>>getCache(BARCODE_CACHE);
+                if (cache.isEmpty()) {
+                    LOG.debug("Loading all barcodes into cache");
+                    final var attrSet = AttributeSet.find(CIProducts.ProductAbstract.getType().getName(),
+                                    CIProducts.ProductAbstract.Barcodes.name);
+                    final var barcodeEval = EQL.builder()
+                                    .with(StmtFlag.TRIGGEROFF)
+                                    .print()
+                                    .query(attrSet.getUUID().toString())
+                                    .select()
+                                    .attribute("Code").as("Code")
+                                    .linkto(attrSet.getAttributeName()).oid().as("prodOid")
+                                    .linkto("BarcodeType").attribute("Value").as("BarcodeType")
+                                    .evaluate();
+                    while (barcodeEval.next()) {
+                        final String prodOid = barcodeEval.get("prodOid");
+                        if (!cache.containsKey(prodOid)) {
+                            cache.put(prodOid, new HashSet<>(), 30, TimeUnit.MINUTES);
+                        }
+                        final var currentBarCodes = cache.get(prodOid);
+                        currentBarCodes.add(BarcodeDto.builder()
+                                        .withCode(barcodeEval.get("Code"))
+                                        .withType(barcodeEval.get("BarcodeType"))
+                                        .build());
+                        cache.put(prodOid, currentBarCodes, 30, TimeUnit.MINUTES);
+                    }
+                }
                 barcodes = cache.get(prodInst.getOid());
             } else {
                 barcodes = new HashSet<>();
@@ -498,8 +526,8 @@ public abstract class Product_Base
                                     .withType(barcodeEval.get("BarcodeType"))
                                     .build());
                 }
-                cache.put(prodInst.getOid(), barcodes, 5, TimeUnit.MINUTES);
             }
+
         } else {
             barcodes = new HashSet<>();
         }
@@ -508,15 +536,58 @@ public abstract class Product_Base
 
     protected void evalIndividual(final Instance prodInst,
                                   final ProductIndividual productIndividual,
-                                  final Set<ProductRelationDto> relations)
+                                  final Set<ProductRelationDto> relations,
+                                  final boolean caching)
         throws EFapsException
     {
         if (productIndividual != null && (productIndividual.equals(ProductIndividual.BATCH) ||
                         productIndividual.equals(ProductIndividual.INDIVIDUAL))) {
 
-            final var cache = InfinispanCache.get().<String, Set<ProductRelationDto>>getCache(INDIVIDUAL_CACHE);
-            if (cache.containsKey(prodInst.getOid())) {
-                relations.addAll(cache.get(prodInst.getOid()));
+            if (caching) {
+                LOG.debug("using cache for individual");
+                final var cache = InfinispanCache.get().<String, Set<ProductRelationDto>>getCache(INDIVIDUAL_CACHE);
+                if (cache.isEmpty()) {
+                    final var eval = EQL.builder()
+                                    .print()
+                                    .query(CIProducts.StoreableProductAbstract2IndividualAbstract)
+                                    .select()
+                                    .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.FromAbstract).oid()
+                                    .as("productOid")
+                                    .linkto(CIProducts.StoreableProductAbstract2IndividualAbstract.ToAbstract).oid()
+                                    .as("individualOid")
+                                    .evaluate();
+
+                    while (eval.next()) {
+                        final String productOid = eval.get("productOid");
+                        final String individualOid = eval.get("individualOid");
+                        if (!cache.containsKey(productOid)) {
+                            cache.put(productOid, new HashSet<>(), 30, TimeUnit.MINUTES);
+                        }
+                        if (!cache.containsKey(individualOid)) {
+                            cache.put(individualOid, new HashSet<>(), 30, TimeUnit.MINUTES);
+                        }
+
+                        final var current4productOid = cache.get(productOid);
+                        current4productOid.add(ProductRelationDto.builder()
+                                        .withProductOid(individualOid)
+                                        .withType(ProductRelationType.BATCH)
+                                        .build());
+                        cache.put(productOid, current4productOid, 30, TimeUnit.MINUTES);
+
+                        final var current4individualOid = cache.get(individualOid);
+                        current4individualOid.add(ProductRelationDto.builder()
+                                        .withProductOid(productOid)
+                                        .withType(ProductRelationType.BATCH)
+                                        .build());
+                        cache.put(individualOid, current4individualOid, 30, TimeUnit.MINUTES);
+
+                        LOG.info("Updated entries for productOid {} with {}", productOid, current4productOid);
+                        LOG.info("Updated entries for individualOid {} with {}", individualOid, current4individualOid);
+                    }
+                }
+                if (cache.containsKey(prodInst.getOid())) {
+                    relations.addAll(cache.get(prodInst.getOid()));
+                }
             } else {
                 final Set<ProductRelationDto> individuals = new HashSet<>();
                 if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductIndividualAbstract)) {
@@ -556,7 +627,6 @@ public abstract class Product_Base
                                         .build());
                     }
                 }
-                cache.put(prodInst.getOid(), individuals, 5, TimeUnit.MINUTES);
                 relations.addAll(individuals);
             }
         }
