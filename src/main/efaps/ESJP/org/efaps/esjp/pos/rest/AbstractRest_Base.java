@@ -93,11 +93,11 @@ public abstract class AbstractRest_Base
         final var backendInstsCount = backendEval.count();
 
         if (backendInstsCount == 0) {
-            LOG.error("Access denied due to Backend registration");
+            LOG.error("Access denied due to no Backend registration for: {}", identifier);
             throw new ForbiddenException("No valid Backend registered.");
         }
         if (backendInstsCount > 1) {
-            LOG.error("Access denied due to having more than one Backend with the same identifier");
+            LOG.error("Access denied due to having more than one Backend with the same identifier: {}", identifier);
             throw new ForbiddenException("Duplicated identifier");
         }
         backendEval.next();
