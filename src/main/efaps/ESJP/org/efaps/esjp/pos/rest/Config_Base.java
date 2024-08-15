@@ -113,6 +113,8 @@ public abstract class Config_Base
             config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
             config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
 
+            config.put(Promotions.ACTIVATE.getKey(), String.valueOf(Promotions.ACTIVATE.get()));
+
             if (Sales.CALCULATOR_CONFIG.exists()) {
                 try {
                     config.put(Sales.CALCULATOR_CONFIG.getKey(),
