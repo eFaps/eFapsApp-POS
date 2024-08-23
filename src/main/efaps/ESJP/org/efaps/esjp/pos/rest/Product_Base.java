@@ -15,6 +15,10 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -29,15 +33,22 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
 import org.efaps.admin.event.Parameter;
+import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Checkin;
+import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
@@ -50,15 +61,18 @@ import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.common.file.FileUtil;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.CurrencyInst;
+import org.efaps.esjp.pos.rest.dto.DumpDto;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.products.util.Products;
 import org.efaps.esjp.products.util.Products.ProductIndividual;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
+import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.pos.dto.BOMGroupConfigDto;
 import org.efaps.pos.dto.BarcodeDto;
 import org.efaps.pos.dto.ConfigurationBOMDto;
@@ -125,9 +139,9 @@ public abstract class Product_Base
         return response;
     }
 
-    public Response findProducts(final String identifier,
-                                 final String term,
-                                 final String barcode)
+    public List<ProductDto> findProducts(final String identifier,
+                                         final String term,
+                                         final String barcode)
         throws EFapsException
     {
         final var query = EQL.builder().print()
@@ -144,13 +158,13 @@ public abstract class Product_Base
                             .in(barcodeQuery);
         }
         final var select = query.select();
-        return Response.ok(evalProducts(identifier, select, false)).build();
+        return evalProducts(identifier, select, false);
     }
 
     public Response getProducts(final String identifier,
                                 final int limit,
                                 final int offset,
-                                final OffsetDateTime after,
+                                final OffsetDateTime afterParameter,
                                 final String term,
                                 final String barcode)
         throws EFapsException
@@ -158,9 +172,9 @@ public abstract class Product_Base
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         Response ret;
         if (term == null && barcode == null) {
-            ret = getProducts(identifier, limit, offset, after);
+            ret = Response.ok(getProducts(identifier, limit, offset, afterParameter, afterParameter == null)).build();
         } else {
-            ret = findProducts(identifier, term, barcode);
+            ret = Response.ok(findProducts(identifier, term, barcode)).build();
         }
         return ret;
     }
@@ -171,10 +185,11 @@ public abstract class Product_Base
      * @return the products
      * @throws EFapsException the eFaps exception
      */
-    public Response getProducts(final String _identifier,
-                                final int limit,
-                                final int offset,
-                                final OffsetDateTime afterParameter)
+    public List<ProductDto> getProducts(final String _identifier,
+                                        final int limit,
+                                        final int offset,
+                                        final OffsetDateTime afterParameter,
+                                        final boolean caching)
         throws EFapsException
     {
         LOG.debug("Received request for product sync from {}", _identifier);
@@ -241,7 +256,7 @@ public abstract class Product_Base
             select.offset(offset);
         }
 
-        return Response.ok(evalProducts(_identifier, select, afterParameter == null)).build();
+        return evalProducts(_identifier, select, caching);
     }
 
     @SuppressWarnings("unchecked")
@@ -750,5 +765,99 @@ public abstract class Product_Base
                 return false;
             }
         };
+    }
+
+    public Return prepareProductDump(final Parameter parameter)
+        throws EFapsException
+    {
+        LOG.info("Preparing dump");
+        final var allFiles = new ArrayList<File>();
+        final var limit = 1500;
+        var next = true;
+        var i = 0;
+        while (next) {
+            final var offset = i * limit;
+            LOG.info("- Products Batch {} - {}", offset, offset + limit);
+            final var products = getProducts("TODO", limit, offset, null, false);
+            i++;
+            next = !(products.size() < limit);
+            final var fileName = String.format("products_%03d", i);
+            LOG.info("Preparing file ");
+            final var objectMapper = ValueUtils.getObjectMapper();
+            final var jsonFile = new FileUtil().getFile(fileName, "json");
+            try {
+                objectMapper.writeValue(jsonFile, products);
+                LOG.info("Json file: {}", jsonFile);
+                allFiles.add(jsonFile);
+            } catch (final IOException e) {
+                LOG.error("Catched", e);
+            }
+            Context.save();
+        }
+        LOG.info("All files: {}", allFiles);
+
+        final var zipFile = new FileUtil().getFile("products", "zip");
+        LOG.info("Creating zipfile: {}", zipFile);
+        try (ZipArchiveOutputStream archive = new ZipArchiveOutputStream(new FileOutputStream(zipFile))) {
+            for (final var file : allFiles) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    final var entry = new ZipArchiveEntry(file, file.getName());
+                    archive.putArchiveEntry(entry);
+                    IOUtils.copy(fis, archive);
+                    archive.closeArchiveEntry();
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            archive.finish();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+
+        Instance dumpInst;
+        final var eval = EQL.builder().print().query(CIPOS.ProductDump).select().instance().evaluate();
+        if (eval.next()) {
+            dumpInst = eval.inst();
+            EQL.builder().update(dumpInst).set(CIPOS.ProductDump.UpdatedAt, OffsetDateTime.now()).execute();
+        } else {
+            dumpInst = EQL.builder().insert(CIPOS.ProductDump)
+                            .set(CIPOS.ProductDump.UpdatedAt, OffsetDateTime.now())
+                            .execute();
+        }
+        LOG.info("Checkin for: {}", dumpInst.getOid());
+        final var checkin = new Checkin(dumpInst);
+        try {
+            final var inputStream = new FileInputStream(zipFile);
+            checkin.execute(zipFile.getName(), inputStream, Long.valueOf(zipFile.length()).intValue());
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+        LOG.info("deleting files");
+        for (final var file : allFiles) {
+            file.delete();
+        }
+        return new Return();
+    }
+
+    public Response getProductDump(@PathParam("identifier") final String _identifier)
+        throws EFapsException
+    {
+        Response ret;
+        final var eval = EQL.builder().print()
+                        .query(CIPOS.ProductDump)
+                        .select()
+                        .attribute(CIPOS.ProductDump.UpdatedAt)
+                        .evaluate();
+        if (eval.next()) {
+            ret = Response.ok().entity(
+                            DumpDto.builder()
+                                            .withOid(eval.inst().getOid())
+                                            .withUpdateAt(eval.get(CIPOS.ProductDump.UpdatedAt))
+                                            .build())
+                            .build();
+        } else {
+            ret = Response.noContent().build();
+        }
+        return ret;
     }
 }

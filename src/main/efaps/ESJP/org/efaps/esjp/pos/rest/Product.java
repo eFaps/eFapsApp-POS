@@ -64,4 +64,15 @@ public class Product
     {
         return super.getProduct(_identifier, oid);
     }
+
+    @Override
+    @Path("/{identifier}/products/dump")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getProductDump(@PathParam("identifier") final String _identifier)
+        throws EFapsException
+    {
+        return super.getProductDump(_identifier);
+    }
+
 }
