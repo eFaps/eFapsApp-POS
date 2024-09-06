@@ -40,6 +40,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
@@ -73,6 +74,8 @@ import org.efaps.esjp.products.util.Products.ProductIndividual;
 import org.efaps.esjp.sales.Calculator;
 import org.efaps.esjp.sales.ICalculatorConfig;
 import org.efaps.esjp.ui.util.ValueUtils;
+import org.efaps.pos.dto.BOMActionDto;
+import org.efaps.pos.dto.BOMActionType;
 import org.efaps.pos.dto.BOMGroupConfigDto;
 import org.efaps.pos.dto.BarcodeDto;
 import org.efaps.pos.dto.ConfigurationBOMDto;
@@ -383,67 +386,7 @@ public abstract class Product_Base
                 }
             }
 
-            final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
-            final var configurationBOMs = new HashSet<ConfigurationBOMDto>();
-            if (Products.STANDART_ACTCONFBOM.get()) {
-                final var eval = EQL.builder()
-                                .print()
-                                .query(CIProducts.BOMGroupConfiguration)
-                                .where()
-                                .attribute(CIProducts.BOMGroupConfiguration.ProductLink)
-                                .eq(productEval.inst())
-                                .select()
-                                .attribute(CIProducts.BOMGroupConfiguration.Name,
-                                                CIProducts.BOMGroupConfiguration.Description,
-                                                CIProducts.BOMGroupConfiguration.Weight,
-                                                CIProducts.BOMGroupConfiguration.Config)
-                                .evaluate();
-                while (eval.next()) {
-                    final Collection<Products.BOMGroupConfig> flags = eval.get(CIProducts.BOMGroupConfiguration.Config);
-                    final var flagsBitValue = flags == null ? 0
-                                    : flags.stream().filter(Objects::nonNull)
-                                                    .map(Products.BOMGroupConfig::getInt)
-                                                    .reduce(0, Integer::sum);
-
-                    bomGroupConfigs.add(BOMGroupConfigDto.builder()
-                                    .withOID(eval.inst().getOid())
-                                    .withName(eval.get(CIProducts.BOMGroupConfiguration.Name))
-                                    .withDescription(eval.get(CIProducts.BOMGroupConfiguration.Description))
-                                    .withWeight(eval.get(CIProducts.BOMGroupConfiguration.Weight))
-                                    .withFlags(flagsBitValue)
-                                    .withProductOid(productEval.inst().getOid())
-                                    .build());
-                }
-
-                final var eval2 = EQL.builder()
-                                .print()
-                                .query(CIProducts.ConfigurationBOM)
-                                .where()
-                                .attribute(CIProducts.ConfigurationBOM.From)
-                                .eq(productEval.inst())
-                                .select()
-                                .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
-                                                CIProducts.ConfigurationBOM.UoM)
-                                .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink)
-                                .oid()
-                                .as("bomGroupOid")
-                                .linkto(CIProducts.ConfigurationBOM.To)
-                                .oid()
-                                .as("toOid")
-                                .evaluate();
-                while (eval2.next()) {
-                    final var uoMId = eval2.<Long>get(CIProducts.ConfigurationBOM.UoM);
-                    final String uoM = uoMId == null ? null : Dimension.getUoM(uoMId).getCommonCode();
-                    configurationBOMs.add(ConfigurationBOMDto.builder()
-                                    .withOID(eval2.inst().getOid())
-                                    .withToProductOid(eval2.get("toOid"))
-                                    .withPosition(eval2.get(CIProducts.ConfigurationBOM.Position))
-                                    .withQuantity(eval2.get(CIProducts.ConfigurationBOM.Quantity))
-                                    .withBomGroupOid(eval2.get("bomGroupOid"))
-                                    .withUoM(uoM)
-                                    .build());
-                }
-            }
+            final var configBomPair = evalConfigurationBOM(productEval.inst());
 
             final var barcodes = evalBarcodes(productEval.inst(), caching);
 
@@ -475,8 +418,8 @@ public abstract class Product_Base
                             .withRelations(relations)
                             .withIndicationSets(getIndicationSets(productEval.inst()))
                             .withBarcodes(barcodes)
-                            .withBomGroupConfigs(bomGroupConfigs)
-                            .withConfigurationBOMs(configurationBOMs)
+                            .withBomGroupConfigs(configBomPair.getLeft())
+                            .withConfigurationBOMs(configBomPair.getRight())
                             .withIndividual(EnumUtils.getEnum(org.efaps.pos.dto.ProductIndividual.class,
                                             productIndividual == null ? null : productIndividual.name()))
                             .build();
@@ -484,6 +427,92 @@ public abstract class Product_Base
             products.add(dto);
         }
         return products;
+    }
+
+    protected Pair<Set<BOMGroupConfigDto>, Set<ConfigurationBOMDto>> evalConfigurationBOM(final Instance producInst)
+        throws EFapsException
+    {
+        final var bomGroupConfigs = new HashSet<BOMGroupConfigDto>();
+        final var configurationBOMs = new HashSet<ConfigurationBOMDto>();
+        if (Products.STANDART_ACTCONFBOM.get() || Products.SALESPARTLIST_ACTCONFBOM.get()) {
+            final var groupConfigEval = EQL.builder()
+                            .print()
+                            .query(CIProducts.BOMGroupConfiguration)
+                            .where()
+                            .attribute(CIProducts.BOMGroupConfiguration.ProductLink)
+                            .eq(producInst)
+                            .select()
+                            .attribute(CIProducts.BOMGroupConfiguration.Name,
+                                            CIProducts.BOMGroupConfiguration.Description,
+                                            CIProducts.BOMGroupConfiguration.Weight,
+                                            CIProducts.BOMGroupConfiguration.Config)
+                            .evaluate();
+            while (groupConfigEval.next()) {
+                final Collection<Products.BOMGroupConfig> flags = groupConfigEval
+                                .get(CIProducts.BOMGroupConfiguration.Config);
+                final var flagsBitValue = flags == null ? 0
+                                : flags.stream().filter(Objects::nonNull)
+                                                .map(Products.BOMGroupConfig::getInt)
+                                                .reduce(0, Integer::sum);
+
+                bomGroupConfigs.add(BOMGroupConfigDto.builder()
+                                .withOID(groupConfigEval.inst().getOid())
+                                .withName(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Name))
+                                .withDescription(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Description))
+                                .withWeight(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Weight))
+                                .withFlags(flagsBitValue)
+                                .withProductOid(producInst.getOid())
+                                .build());
+            }
+
+            final var configBomEval = EQL.builder()
+                            .print()
+                            .query(CIProducts.ConfigurationBOM)
+                            .where()
+                            .attribute(CIProducts.ConfigurationBOM.From).eq(producInst)
+                            .select()
+                            .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
+                                            CIProducts.ConfigurationBOM.UoM)
+                            .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink).oid().as("bomGroupOid")
+                            .linkto(CIProducts.ConfigurationBOM.To).oid().as("toOid")
+                            .evaluate();
+            while (configBomEval.next()) {
+                LOG.debug("Found Configuration BOM: {}", configBomEval.inst().getOid());
+
+                final var uoMId = configBomEval.<Long>get(CIProducts.ConfigurationBOM.UoM);
+                final String uoM = uoMId == null ? null : Dimension.getUoM(uoMId).getCommonCode();
+
+                final List<BOMActionDto> actions = new ArrayList<>();
+                final var actionEval = EQL.builder()
+                    .print()
+                    .query(CIProducts.ConfigurationBOMActionAbstract)
+                    .where()
+                    .attribute(CIProducts.ConfigurationBOMActionAbstract.ConfigurationBOMLink).eq(configBomEval.inst())
+                    .select()
+                    .attribute(CIProducts.ConfigurationBOMActionAbstract.Dec1)
+                    .evaluate();
+                while (actionEval.next()) {
+                    final var actionInst = actionEval.inst();
+                    LOG.debug("Found Action : {}", actionInst.getOid());
+                    if (InstanceUtils.isType(actionInst, CIProducts.ConfigurationBOMPriceAdjustmentAction)) {
+                        actions.add(BOMActionDto.builder()
+                                        .withType(BOMActionType.PRICEADJUSTMENT)
+                                        .withAmount(actionEval.get(CIProducts.ConfigurationBOMActionAbstract.Dec1))
+                                        .build());
+                    }
+                }
+                configurationBOMs.add(ConfigurationBOMDto.builder()
+                                .withOID(configBomEval.inst().getOid())
+                                .withToProductOid(configBomEval.get("toOid"))
+                                .withPosition(configBomEval.get(CIProducts.ConfigurationBOM.Position))
+                                .withQuantity(configBomEval.get(CIProducts.ConfigurationBOM.Quantity))
+                                .withBomGroupOid(configBomEval.get("bomGroupOid"))
+                                .withActions(actions)
+                                .withUoM(uoM)
+                                .build());
+            }
+        }
+        return Pair.of(bomGroupConfigs, configurationBOMs);
     }
 
     protected Set<BarcodeDto> evalBarcodes(final Instance prodInst,
