@@ -228,7 +228,11 @@ public abstract class AbstractDocument_Base
                             .set(CIERP.DocumentAbstract.StatusAbstract, status)
                             .execute();
 
-            for (final var item : documentDto.getItems()) {
+            final var sortedItems = documentDto.getItems().stream()
+                            .sorted(Comparator.comparing(AbstractDocItemDto::getIndex))
+                            .collect(Collectors.toList());
+
+            for (final var item : sortedItems) {
                 final var productInfo = getProductInfo(item.getProductOid());
                 EQL.builder().insert(positionCiType)
                                 .set(CISales.PositionAbstract.PositionNumber, item.getIndex())
