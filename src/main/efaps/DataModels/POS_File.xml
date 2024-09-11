@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
     Copyright © 2003 - 2024 The eFaps Team (-)
 
@@ -16,15 +15,13 @@
     limitations under the License.
 
 -->
-
-<datamodel-type xmlns="http://www.efaps.org/xsd"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>74bd92f2-9409-4be6-a5a6-c43dfee4b633</uuid>
+    <uuid>f0af1c48-86ec-477e-9c5a-80271baac91a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_IndicationSet</name>
+        <name>POS_File</name>
         <parent>POS_ObjectAbstract</parent>
         <attribute>
             <name>Association</name>
@@ -44,18 +41,32 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
-        <attribute>
-            <name>Required</name>
-            <type>Boolean</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>BOL1</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Multiple</name>
-            <type>Boolean</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>BOL2</sqlcolumn>
-        </attribute>
+         <attributeset>
+            <name>TagSet</name>
+            <type>MultiLineArray</type>
+            <parent>POS_AttributeSetAbstract</parent>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>RELID</sqlcolumn>
+            <uuid>4868189e-296d-401d-8ff7-77aec680353f</uuid>
+           <attribute>
+                <name>TagTypeLink</name>
+                <type>LinkWithRanges</type>
+                <typelink>POS_AttributeDefinitionFileTagType</typelink>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>INT1</sqlcolumn>
+                <trigger event="RANGE_VALUE" name="POS_File.TagSet.TagTypeLink.RANGE_VALUE"
+                    program="org.efaps.esjp.admin.datamodel.RangesValue">
+                    <property name="Value">Value</property>
+                    <property name="Type">POS_AttributeDefinitionFileTagType</property>
+                </trigger>
+            </attribute>
+            <attribute>
+                <name>Tag</name>
+                <type>String</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>STR1</sqlcolumn>
+            </attribute>
+        </attributeset>
         <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

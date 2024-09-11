@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
     Copyright © 2003 - 2024 The eFaps Team (-)
 
@@ -16,27 +15,23 @@
     limitations under the License.
 
 -->
-
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>50c1f5b4-da31-453d-8db0-8810cf361ed9</uuid>
+    <uuid>db578c0d-cfc2-40d6-bf9e-ba2d3d18ed77</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_Spot</name>
-        <parent>POS_ObjectAbstract</parent>
+        <name>POS_AttributeDefinitionFileTagType</name>
+        <parent>ERP_AttributeDefinitionAbstract</parent>
         <attribute>
-            <name>Label</name>
-            <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR1</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>FloorLink</name>
-            <type>Link</type>
-            <typelink>POS_Floor</typelink>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>INT1</sqlcolumn>
+            <name>Status</name>
+            <type>Status</type>
+            <typelink>ERP_AttributeDefinitionStatus</typelink>
+            <sqltable>ERP_AttributeDefinitionSQLTable</sqltable>
+            <sqlcolumn>STATUS</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_AttributeDefinitionFileTagType.Status.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.StatusValue">
+            </trigger>
         </attribute>
     </definition>
 </datamodel-type>

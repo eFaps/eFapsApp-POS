@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+    Copyright © 2003 - 2024 The eFaps Team (-)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>b3353207-95eb-47fd-807b-0b2f79ffaecb</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_FileTable</name>
+        <field name="name">
+            <property name="Attribute">Name</property>
+            <property name="HRef">MenuTree</property>
+            <property name="Label">POS_File/Name.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="description">
+            <property name="Attribute">Description</property>
+            <property name="Label">POS_File/Description.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="fileName">
+            <property name="Select">file.label</property>
+            <property name="Label">POS_FileForm.fileName.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+        </field>
+    </definition>
+</ui-table>

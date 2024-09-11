@@ -25,24 +25,7 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_Floor</name>
-        <attribute>
-            <name>Type</name>
-            <type>Type</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>TYPEID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>OID</name>
-            <type>OID</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>TYPEID,ID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>ID</name>
-            <type>Long</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>ID</sqlcolumn>
-        </attribute>
+        <parent>POS_ObjectAbstract</parent>
         <attribute>
             <name>Association</name>
             <type>AssociationLink</type>
@@ -61,30 +44,6 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
-        <attribute>
-            <name>Creator</name>
-            <type>CreatorLink</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>CREATOR</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Created</name>
-            <type>Created</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>CREATED</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Modifier</name>
-            <type>ModifierLink</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>MODIFIER</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Modified</name>
-            <type>Modified</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>MODIFIED</sqlcolumn>
-        </attribute>
-        <store name="ERP_DocumentVFSStore"/>
+        <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

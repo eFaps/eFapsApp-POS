@@ -97,6 +97,13 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute FILE_ACIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "File.Activate")
+                    .description("Activate the handling for files.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute FLOOR_ACIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Floor.Activate")
