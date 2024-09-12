@@ -53,10 +53,12 @@ public class File
         final var eval = EQL.builder().print()
                         .query(CIPOS.File)
                         .select()
-                        .attribute(CIPOS.File.Name, CIPOS.File.Description)
                         .file().label().as("fileName")
+                        .attribute(CIPOS.File.Name, CIPOS.File.Description)
                         .attributeSet(CIPOS.File.TagSet).attribute("Tag").as("TagValue")
-                        .attributeSet(CIPOS.File.TagSet).linkto("TagTypeLink").as("TagKey")
+                        .attributeSet(CIPOS.File.TagSet)
+                            .linkto("TagTypeLink")
+                            .attribute(CIPOS.AttributeDefinitionFileTagType.Value).as("TagKey")
                         .evaluate();
 
         while (eval.next()) {
