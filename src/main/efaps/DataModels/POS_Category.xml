@@ -116,6 +116,6 @@
             name="POS_Category.UPDATE_POST"
             event="UPDATE_POST">
         </trigger>
-        <store name="ERP_DocumentVFSStore"/>
+        <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>
