@@ -134,6 +134,7 @@ public abstract class Order_Base
                     insert.execute();
                 }
             }
+            afterCreate(docInst);
             dto = OrderDto.builder()
                             .withId(_orderDto.getId())
                             .withOID(docInst.getOid())

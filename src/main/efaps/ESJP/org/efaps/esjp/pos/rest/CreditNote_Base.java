@@ -81,7 +81,7 @@ public abstract class CreditNote_Base
             insert.executeWithoutAccessCheck();
 
             createTransactions(_creditNoteDto, docInst);
-
+            afterCreate(docInst);
             // createTransactionDocument(_creditNoteDto, docInst);
             dto = CreditNoteDto.builder()
                             .withId(_creditNoteDto.getId())

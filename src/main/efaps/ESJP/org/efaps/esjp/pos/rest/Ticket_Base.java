@@ -79,7 +79,7 @@ public abstract class Ticket_Base
             createPositions(docInst, _ticketDto);
             addPayments(docInst, _ticketDto);
             createTransactions(_ticketDto, docInst);
-
+            afterCreate(docInst);
             dto = TicketDto.builder()
                             .withId(_ticketDto.getId())
                             .withOID(docInst.getOid())

@@ -29,6 +29,7 @@ import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.Listener;
 import org.efaps.ci.CIType;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
@@ -49,6 +50,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
+import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
@@ -563,6 +565,14 @@ public abstract class AbstractDocument_Base
         print.addSelect(selAccountInst);
         print.execute();
         return print.getSelect(selAccountInst);
+    }
+
+    protected void afterCreate(final Instance docInst)
+        throws EFapsException
+    {
+        for (final var listener : Listener.get().<IOnDocument>invoke(IOnDocument.class)) {
+            listener.afterCreate(docInst);
+        }
     }
 
     public static class PosPayment
