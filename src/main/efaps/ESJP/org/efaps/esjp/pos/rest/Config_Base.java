@@ -17,6 +17,7 @@ package org.efaps.esjp.pos.rest;
 
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
@@ -29,6 +30,7 @@ import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.electronicbilling.util.ElectronicBilling;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.promotions.utils.Promotions;
@@ -48,6 +50,8 @@ public abstract class Config_Base
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
+
+    private final ObjectMapper mapper = getObjectMapper();
 
     public Response getConfig(final String identifier)
         throws EFapsException
@@ -78,7 +82,6 @@ public abstract class Config_Base
             final Map<String, String> config = Pos.CONFIG.get().entrySet().stream()
                             .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
             LOG.debug("Request for Configs: {}", config);
-            final var mapper = new ObjectMapper();
             FieldUtils.getAllFieldsList(Pos.class).stream().filter(field -> Modifier.isStatic(field.getModifiers()))
                             .filter(field -> !StringUtils.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID"))
                             .forEach(field -> {
@@ -101,6 +104,7 @@ public abstract class Config_Base
                                 }
                             });
 
+            // ERP
             config.put(ERP.COMPANY_NAME.getKey(), ERP.COMPANY_NAME.get());
             config.put(ERP.COMPANY_TAX.getKey(), ERP.COMPANY_TAX.get());
             config.put(ERP.COMPANY_ACTIVITY.getKey(), ERP.COMPANY_ACTIVITY.get());
@@ -113,29 +117,34 @@ public abstract class Config_Base
             config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
             config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
 
-            config.put(Promotions.ACTIVATE.getKey(), String.valueOf(Promotions.ACTIVATE.get()));
-
+            // Sales
             if (Sales.CALCULATOR_CONFIG.exists()) {
-                try {
-                    config.put(Sales.CALCULATOR_CONFIG.getKey(),
-                                    mapper.writeValueAsString(Sales.CALCULATOR_CONFIG.get()));
-                } catch (JsonProcessingException | EFapsException e1) {
-                    LOG.error("Catched", e1);
-                }
+                config.put(Sales.CALCULATOR_CONFIG.getKey(), propsToString(Sales.CALCULATOR_CONFIG.get()));
             }
-
+            // Promotions
+            config.put(Promotions.ACTIVATE.getKey(), String.valueOf(Promotions.ACTIVATE.get()));
             if (Promotions.ENGINE_CONFIG.exists()) {
-                try {
-                    config.put(Promotions.ENGINE_CONFIG.getKey(),
-                                    mapper.writeValueAsString(Promotions.ENGINE_CONFIG.get()));
-                } catch (JsonProcessingException | EFapsException e1) {
-                    LOG.error("Catched", e1);
-                }
+                config.put(Promotions.ENGINE_CONFIG.getKey(), propsToString(Promotions.ENGINE_CONFIG.get()));
             }
+            // ElectronicBilling
+            config.put(ElectronicBilling.TAXMAPPING.getKey(),
+                            propsToString(ElectronicBilling.TAXMAPPING.get()));
 
             ret = Response.ok()
                             .entity(config)
                             .build();
+        }
+        return ret;
+    }
+
+    protected String propsToString(final Properties properties)
+    {
+        String ret = null;
+        try {
+            ret = mapper.writeValueAsString(properties);
+        } catch (final JsonProcessingException e) {
+            LOG.error("Catched", e);
+            ret = "Could not convert to string";
         }
         return ret;
     }
