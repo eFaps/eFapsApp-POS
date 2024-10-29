@@ -47,8 +47,8 @@
             <name>OrderOptionLink</name>
             <type>LinkWithRanges</type>
             <typelink>POS_AttributeDefinitionOrderOption</typelink>
-            <sqltable>POS_AttributeSetSQLTable</sqltable>
-            <sqlcolumn>INT1</sqlcolumn>
+            <sqltable>Sales_DocumentExtendSQLTable</sqltable>
+            <sqlcolumn>INTEGER2</sqlcolumn>
             <trigger
                 event="RANGE_VALUE"
                 name="POS_Order.TOrderOptionLink.RANGE_VALUE"
