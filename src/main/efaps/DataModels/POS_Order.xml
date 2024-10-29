@@ -43,6 +43,22 @@
             <sqltable>Sales_DocumentExtendSQLTable</sqltable>
             <sqlcolumn>INTEGER1</sqlcolumn>
         </attribute>
-        <trigger program="org.efaps.esjp.pos.Order" name="POS_Order.DELETE_PRE" event="DELETE_PRE" method="preDeleteTrigger"/>
+        <attribute>
+            <name>OrderOptionLink</name>
+            <type>LinkWithRanges</type>
+            <typelink>POS_AttributeDefinitionOrderOption</typelink>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+            <trigger
+                event="RANGE_VALUE"
+                name="POS_Order.TOrderOptionLink.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.RangesValue">
+                <property name="Value">Value</property>
+                <property name="Type">POS_AttributeDefinitionOrderOption</property>
+            </trigger>
+        </attribute>
+        <trigger program="org.efaps.esjp.pos.Order" name="POS_Order.DELETE_PRE"
+            event="DELETE_PRE"
+            method="preDeleteTrigger"/>
     </definition>
 </datamodel-type>

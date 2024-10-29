@@ -32,7 +32,6 @@ import org.efaps.db.Insert;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.Update;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIERP;
@@ -91,35 +90,49 @@ public abstract class Order_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addOrder(final String _identifier,
-                             final OrderDto _orderDto)
+    public Response addOrder(final String identifier,
+                             final OrderDto orderDto)
         throws EFapsException
     {
-        checkAccess(_identifier);
-        LOG.debug("Recieved: {}", _orderDto);
+        checkAccess(identifier);
+        LOG.debug("Recieved: {}", orderDto);
         final OrderDto dto;
-        if (_orderDto.getOid() == null) {
+        if (orderDto.getOid() == null) {
             Status status;
-            if (DocStatus.CANCELED.equals(_orderDto.getStatus())) {
+            if (DocStatus.CANCELED.equals(orderDto.getStatus())) {
                 status = Status.find(CIPOS.OrderStatus.Canceled);
             } else {
                 status = Status.find(CIPOS.OrderStatus.Closed);
             }
 
-            final Instance docInst = createDocument(status, _orderDto);
-            createPositions(docInst, _orderDto);
+            final Instance docInst = createDocument(status, orderDto);
+            createPositions(docInst, orderDto);
             final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Backend);
             queryBldr.addWhereAttrEqValue(CIPOS.Backend.Status, Status.find(CIPOS.BackendStatus.Active));
-            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, _identifier);
+            queryBldr.addWhereAttrEqValue(CIPOS.Backend.Identifier, identifier);
             final InstanceQuery query = queryBldr.getQuery();
             final Instance backendInst = query.execute().get(0);
 
-            final Update update = new Update(docInst);
-            update.add(CIPOS.Order.BackendLink, backendInst);
-            update.execute();
+            Instance orderOptionInst = null;
+            if (orderDto.getOrderOptionKey() != null) {
+                final var eval = EQL.builder().print().query(CIPOS.AttributeDefinitionOrderOption)
+                                .where()
+                                .attribute(CIPOS.AttributeDefinitionOrderOption.MappingKey)
+                                .eq(orderDto.getOrderOptionKey())
+                                .select()
+                                .oid()
+                                .evaluate();
+                if (eval.next()) {
+                    orderOptionInst = eval.inst();
+                }
+            }
+            EQL.builder().update(docInst)
+                .set(CIPOS.Order.BackendLink, backendInst)
+                .set(CIPOS.Order.OrderOptionLink, orderOptionInst)
+                .execute();
 
-            if (_orderDto.getPayableOid() != null) {
-                final Instance payableInst = Instance.get(_orderDto.getPayableOid());
+            if (orderDto.getPayableOid() != null) {
+                final Instance payableInst = Instance.get(orderDto.getPayableOid());
                 Insert insert = null;
                 if (InstanceUtils.isType(payableInst, CISales.Invoice)) {
                     insert = new Insert(CIPOS.Order2Invoice);
@@ -134,9 +147,10 @@ public abstract class Order_Base
                     insert.execute();
                 }
             }
+
             afterCreate(docInst);
             dto = OrderDto.builder()
-                            .withId(_orderDto.getId())
+                            .withId(orderDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {

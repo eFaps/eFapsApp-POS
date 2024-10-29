@@ -15,19 +15,21 @@
     limitations under the License.
 
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>78732607-5155-470f-992a-fef8889bf3e6</uuid>
+    <uuid>a7be6cf3-56c0-4bd1-a463-c0fbf437c2d9</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_AttributeDefinitionMyDesk_Menu_Action</name>
-        <childs>
-            <child>POS_AttributeDefinitionMyDesk_Menu_Action_CreateFileTagType</child>
-            <child>POS_AttributeDefinitionMyDesk_Menu_Action_CreateOrderOption</child>
-        </childs>
-        <parents>
-            <parent>ERP_AttributeDefinitionMyDesk_Menu</parent>
-        </parents>
+        <name>POS_AttributeDefinitionMyDesk_Menu_Action_CreateOrderOption</name>
+        <target>
+            <form>ERP_AttributeDefinitionMappingForm</form>
+            <execute program="org.efaps.esjp.common.uiform.Create"/>
+        </target>
+        <property name="Target">modal</property>
+        <property name="TargetCreateType">POS_AttributeDefinitionOrderOption</property>
+        <property name="TargetMode">create</property>
+        <property name="WindowHeight">460</property>
+        <property name="WindowWidth">515</property>
     </definition>
-</ui-menu>
+</ui-command>
