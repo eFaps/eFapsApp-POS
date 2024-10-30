@@ -278,8 +278,8 @@ public abstract class Product_Base
                         .as("selCat")
                         .linkfrom(CIPOS.Category2Product.ToLink).attribute(CIPOS.Category2Product.SortWeight)
                         .as("selCatWeight")
-                        .linkfrom(CIProducts.Product2ImageThumbnail.ProductLink)
-                        .linkto(CIProducts.Product2ImageThumbnail.ImageLink)
+                        .linkfrom(CIProducts.Product2ImageAbstract.ProductAbstractLink)
+                        .linkto(CIProducts.Product2ImageAbstract.ImageAbstractLink)
                         .oid().as("selImageOid");
 
         if (Pos.PRODREL.exists()) {
