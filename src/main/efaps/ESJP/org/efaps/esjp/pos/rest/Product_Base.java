@@ -49,6 +49,7 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Checkin;
+import org.efaps.db.Checkout;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
@@ -296,6 +297,8 @@ public abstract class Product_Base
         final var productEval = print.evaluate();
 
         while (productEval.next()) {
+            final var productType = getProductType(productEval.inst());
+
             final Object cats = productEval.get("selCat");
             final Object catWeights = productEval.get("selCatWeight");
             final Set<Product2CategoryDto> prod2cats = new HashSet<>();
@@ -319,7 +322,15 @@ public abstract class Product_Base
             } else if (imageOids instanceof String) {
                 imageOid = (String) imageOids;
             } else {
-                imageOid = null;
+                imageOid = switch (productType) {
+                    case PARTLIST -> {
+                        if (new Checkout(productEval.inst().getOid()).exists()) {
+                            yield productEval.inst().getOid();
+                        }
+                        yield null;
+                    }
+                    default -> null;
+                };
             }
 
             final Parameter parameter = ParameterUtil.instance();
@@ -403,7 +414,7 @@ public abstract class Product_Base
 
             final ProductDto dto = ProductDto.builder()
                             .withSKU(productEval.get(CIProducts.ProductAbstract.Name))
-                            .withType(getProductType(productEval.inst()))
+                            .withType(productType)
                             .withDescription(productEval.get(CIProducts.ProductAbstract.Description))
                             .withNote(productEval.get(CIProducts.ProductAbstract.Note))
                             .withOID(productEval.inst().getOid())
@@ -676,20 +687,20 @@ public abstract class Product_Base
         }
     }
 
-    protected ProductType getProductType(final Instance _instance)
+    protected ProductType getProductType(final Instance instance)
     {
         ProductType ret;
-        if (InstanceUtils.isType(_instance, CIProducts.ProductStandart)) {
+        if (InstanceUtils.isType(instance, CIProducts.ProductStandart)) {
             ret = ProductType.STANDART;
-        } else if (InstanceUtils.isType(_instance, CIProducts.ProductService)) {
+        } else if (InstanceUtils.isType(instance, CIProducts.ProductService)) {
             ret = ProductType.SERVICE;
-        } else if (InstanceUtils.isType(_instance, CIProducts.ProductTextPosition)) {
+        } else if (InstanceUtils.isType(instance, CIProducts.ProductTextPosition)) {
             ret = ProductType.TEXT;
-        } else if (InstanceUtils.isType(_instance, CIProducts.ProductSalesPartList)) {
+        } else if (InstanceUtils.isType(instance, CIProducts.ProductSalesPartList)) {
             ret = ProductType.PARTLIST;
-        } else if (InstanceUtils.isType(_instance, CIProducts.ProductBatch)) {
+        } else if (InstanceUtils.isType(instance, CIProducts.ProductBatch)) {
             ret = ProductType.BATCH;
-        } else if (InstanceUtils.isType(_instance, CIProducts.ProductIndividual)) {
+        } else if (InstanceUtils.isType(instance, CIProducts.ProductIndividual)) {
             ret = ProductType.INDIVIDUAL;
         } else {
             ret = ProductType.OTHER;
