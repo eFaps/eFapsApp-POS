@@ -73,7 +73,7 @@ public class Promotion
                                                         .withCrossUnitDiscount(promoDetail.getCrossUnitDiscount())
                                                         .withCrossDiscount(promoDetail.getCrossDiscount())
                                                         .withIndex(promoDetail.getIndex())
-                                                        .withPromotionOid(promoDetail.getPromotionOid())
+                                                        .withPromotionOids(promoDetail.getPromotionOids())
                                                         .build())
                                         .toList())
                         .build();
