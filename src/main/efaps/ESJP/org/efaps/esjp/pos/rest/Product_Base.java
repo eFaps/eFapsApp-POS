@@ -483,7 +483,7 @@ public abstract class Product_Base
                             .attribute(CIProducts.ConfigurationBOM.From).eq(producInst)
                             .select()
                             .attribute(CIProducts.ConfigurationBOM.Position, CIProducts.ConfigurationBOM.Quantity,
-                                            CIProducts.ConfigurationBOM.UoM)
+                                            CIProducts.ConfigurationBOM.UoM, CIProducts.ConfigurationBOM.Flags)
                             .linkto(CIProducts.ConfigurationBOM.BOMGroupConfigurationLink).oid().as("bomGroupOid")
                             .linkto(CIProducts.ConfigurationBOM.To).oid().as("toOid")
                             .evaluate();
@@ -492,6 +492,13 @@ public abstract class Product_Base
 
                 final var uoMId = configBomEval.<Long>get(CIProducts.ConfigurationBOM.UoM);
                 final String uoM = uoMId == null ? null : Dimension.getUoM(uoMId).getCommonCode();
+
+                final Collection<Products.ConfigurationBOMFlag> flags = configBomEval
+                                .get(CIProducts.ConfigurationBOM.Flags);
+                final var flagsBitValue = flags == null ? 0
+                                : flags.stream().filter(Objects::nonNull)
+                                                .map(Products.ConfigurationBOMFlag::getInt)
+                                                .reduce(0, Integer::sum);
 
                 final List<BOMActionDto> actions = new ArrayList<>();
                 final var actionEval = EQL.builder()
@@ -518,6 +525,7 @@ public abstract class Product_Base
                                 .withPosition(configBomEval.get(CIProducts.ConfigurationBOM.Position))
                                 .withQuantity(configBomEval.get(CIProducts.ConfigurationBOM.Quantity))
                                 .withBomGroupOid(configBomEval.get("bomGroupOid"))
+                                .withFlags(flagsBitValue)
                                 .withActions(actions)
                                 .withUoM(uoM)
                                 .build());
