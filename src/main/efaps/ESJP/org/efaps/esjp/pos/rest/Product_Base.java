@@ -456,7 +456,9 @@ public abstract class Product_Base
                             .attribute(CIProducts.BOMGroupConfiguration.Name,
                                             CIProducts.BOMGroupConfiguration.Description,
                                             CIProducts.BOMGroupConfiguration.Weight,
-                                            CIProducts.BOMGroupConfiguration.Config)
+                                            CIProducts.BOMGroupConfiguration.Config,
+                                            CIProducts.BOMGroupConfiguration.MaxQuantity,
+                                            CIProducts.BOMGroupConfiguration.MinQuantity)
                             .evaluate();
             while (groupConfigEval.next()) {
                 final Collection<Products.BOMGroupConfig> flags = groupConfigEval
@@ -472,6 +474,8 @@ public abstract class Product_Base
                                 .withDescription(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Description))
                                 .withWeight(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Weight))
                                 .withFlags(flagsBitValue)
+                                .withMaxQuantity(groupConfigEval.get(CIProducts.BOMGroupConfiguration.MaxQuantity))
+                                .withMinQuantity(groupConfigEval.get(CIProducts.BOMGroupConfiguration.MinQuantity))
                                 .withProductOid(producInst.getOid())
                                 .build());
             }
