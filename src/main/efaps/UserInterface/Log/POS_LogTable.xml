@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+    Copyright © 2003 - 2024 The eFaps Team (-)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>5ddaada0-1056-4624-a499-9060dba3e9ec</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_LogTable</name>
+        <field name="type">
+            <property name="Select">type.label</property>
+            <property name="Label">POS_Log/Type.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+        </field>
+        <field name="backendLink">
+            <property name="Select">linkto[BackendLink].attribute[Name]</property>
+            <property name="Label">POS_Log/BackendLink.Label</property>
+        </field>
+        <field name="ident">
+            <property name="Select">attribute[Ident]</property>
+            <property name="Label">POS_Log/Ident.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+        <field name="level">
+            <property name="Select">attribute[Level]</property>
+            <property name="Label">POS_Log/Level.Label</property>
+        </field>
+        <field name="logDateTime">
+            <property name="Select">attribute[LogDateTime]</property>
+            <property name="Label">POS_Log/LogDateTime.Label</property>
+        </field>
+        <field name="key">
+            <property name="Select">attribute[Key]</property>
+            <property name="Label">POS_Log/Key.Label</property>
+        </field>
+        <field name="message">
+            <property name="Select">attribute[Message]</property>
+            <property name="Label">POS_Log/Message.Label</property>
+        </field>
+        <field name="value">
+            <property name="Select">attribute[Value]</property>
+            <property name="Label">POS_Log/Value.Label</property>
+        </field>
+        <field name="created">
+            <property name="Select">attribute[Created]</property>
+            <property name="Label">POS_Backend/Created.Label</property>
+        </field>
+    </definition>
+</ui-table>

@@ -32,6 +32,8 @@
         <type>POS_Backend</type>
         <childs>
             <child>POS_BackendTree_User</child>
+            <child>POS_BackendTree_Log</child>
+            <child>POS_BackendTree_Monitoring</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>

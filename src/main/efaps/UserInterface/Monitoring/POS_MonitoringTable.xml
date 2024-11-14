@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+    Copyright © 2003 - 2024 The eFaps Team (-)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-table xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>b9a47aa8-6c34-485c-ab98-1dd10188591b</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_MonitoringTable</name>
+        <field name="type">
+            <property name="Select">type.label</property>
+            <property name="Label">POS_Monitoring/Type.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+        </field>
+        <field name="backendLink">
+            <property name="Select">linkto[BackendLink].attribute[Name]</property>
+            <property name="Label">POS_Monitoring/BackendLink.Label</property>
+            <property name="HRef">TREE</property>
+        </field>
+        <field name="string1">
+            <property name="Select">attribute[String1]</property>
+            <property name="Label">POS_Monitoring/String1.Label</property>
+        </field>
+        <field name="string2">
+            <property name="Select">attribute[String2]</property>
+            <property name="Label">POS_Monitoring/String2.Label</property>
+        </field>
+        <field name="dateTime1">
+            <property name="Select">attribute[DateTime1]</property>
+            <property name="Label">POS_Monitoring/DateTime1.Label</property>
+        </field>
+        <field name="created">
+            <property name="Attribute">Created</property>
+            <property name="Label">POS_Backend/Created.Label</property>
+            <property name="FilterType">FREETEXT</property>
+            <property name="FilterRequired">TRUE</property>
+            <property name="FilterBase">DATABASE</property>
+            <property name="FilterDefault">TODAY</property>
+        </field>
+    </definition>
+</ui-table>
