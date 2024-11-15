@@ -29,6 +29,7 @@
         </field>
         <field name="backendLink">
             <property name="Select">linkto[BackendLink].attribute[Name]</property>
+            <property name="SelectAlternateOID">linkto[BackendLink].oid</property>
             <property name="Label">POS_Monitoring/BackendLink.Label</property>
             <property name="HRef">TREE</property>
         </field>
