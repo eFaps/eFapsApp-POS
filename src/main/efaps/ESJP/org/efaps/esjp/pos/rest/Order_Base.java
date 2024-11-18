@@ -129,6 +129,7 @@ public abstract class Order_Base
             EQL.builder().update(docInst)
                 .set(CIPOS.Order.BackendLink, backendInst)
                 .set(CIPOS.Order.OrderOptionLink, orderOptionInst)
+                .set(CIPOS.Order.Shoutout, orderDto.getShoutout())
                 .execute();
 
             if (orderDto.getPayableOid() != null) {

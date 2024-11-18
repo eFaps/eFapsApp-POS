@@ -57,6 +57,12 @@
                 <property name="Type">POS_AttributeDefinitionOrderOption</property>
             </trigger>
         </attribute>
+         <attribute>
+            <name>Shoutout</name>
+            <type>String</type>
+            <sqltable>Sales_DocumentExtendSQLTable</sqltable>
+            <sqlcolumn>STRING1</sqlcolumn>
+        </attribute>
         <trigger program="org.efaps.esjp.pos.Order" name="POS_Order.DELETE_PRE"
             event="DELETE_PRE"
             method="preDeleteTrigger"/>
