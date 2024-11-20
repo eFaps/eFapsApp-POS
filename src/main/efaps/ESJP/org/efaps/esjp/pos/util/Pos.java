@@ -225,6 +225,12 @@ public class Pos
                     .description("NumberGenerator for Order.");
 
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute ORDER_ACTIVATEOPTION = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Order.ActivateOrderOption")
+                    .description("Activate OrderOption Attribuite for Order.");
+
+    @EFapsSysConfAttribute
     public static final PropertiesSysConfAttribute MOBILE_CONFIG = new PropertiesSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "mobile.Configurations")

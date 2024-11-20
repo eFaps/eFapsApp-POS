@@ -64,12 +64,34 @@
         <field name="status">
             <property name="Attribute">Status</property>
         </field>
+          <field character="Group" name="orderOptionGroup">
+            <property name="Attribute">OrderOptionLink</property>
+            <trigger
+                program="org.efaps.esjp.admin.access.AccessCheck4UI"
+                method="configCheck" name="POS_OrderForm.orderOptionGroup.UI_ACCESSCHECK"
+                event="UI_ACCESSCHECK">
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Order.ActivateOrderOption</property>
+            </trigger>
+        </field>
         <field name="name">
             <property name="Attribute">Name</property>
             <property name="Width">15</property>
             <property name="Required">true</property>
             <property name="ModeEdit">NONE</property>
         </field>
+        <field name="orderOptionLink">
+            <property name="Attribute">OrderOptionLink</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <trigger
+                program="org.efaps.esjp.admin.access.AccessCheck4UI"
+                method="configCheck" name="POS_OrderForm.orderOptionLink.UI_ACCESSCHECK"
+                event="UI_ACCESSCHECK">
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Order.ActivateOrderOption</property>
+            </trigger>
+        </field>
+
         <field name="headingClient" character="Heading">
             <property name="Level">2</property>
             <property name="Label">POS_OrderForm.headingClient.Heading</property>
