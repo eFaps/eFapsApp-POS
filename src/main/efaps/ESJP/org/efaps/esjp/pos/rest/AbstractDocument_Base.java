@@ -320,29 +320,11 @@ public abstract class AbstractDocument_Base
         Instance parentInstance = null;
         for (final var item : sortedItems) {
             if (item.getParentIdx() == null) {
-                parentInstance = createPosition(docInstance, item, documentDto.getDate());
+                parentInstance = createPosition(docInstance, item, documentDto.getDate(), null);
             } else {
-                createChildPosition(docInstance, item, parentInstance);
+                createPosition(docInstance, item, documentDto.getDate(), parentInstance);
             }
         }
-    }
-
-    protected Instance createChildPosition(final Instance docInstance,
-                                           final AbstractDocItemDto itemDto,
-                                           final Instance parentPositionInstance)
-        throws EFapsException
-    {
-        final Insert insert = new Insert(CISales.ConfigurationPosition);
-        insert.add(CISales.ConfigurationPosition.PositionAbstractLink, parentPositionInstance);
-        insert.add(CISales.PositionAbstract.PositionNumber, itemDto.getIndex());
-        insert.add(CISales.PositionAbstract.DocumentAbstractLink, docInstance);
-        insert.add(CISales.PositionAbstract.Product, Instance.get(itemDto.getProductOid()));
-        final var productInfo = getProductInfo(itemDto.getProductOid());
-        insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
-        insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
-        insert.add(CISales.PositionAbstract.Quantity, itemDto.getQuantity());
-        insert.execute();
-        return insert.getInstance();
     }
 
     protected Object[] getProductInfo(String productOid)
@@ -355,44 +337,46 @@ public abstract class AbstractDocument_Base
                         eval.get(CIProducts.ProductAbstract.DefaultUoM) };
     }
 
-    protected Instance createPosition(final Instance _docInstance,
-                                      final AbstractDocItemDto _dto,
-                                      final LocalDate _date)
+    protected Instance createPosition(final Instance docInstance,
+                                      final AbstractDocItemDto dto,
+                                      final LocalDate date,
+                                      final Instance parentPositionInstance)
         throws EFapsException
     {
         final Insert insert = new Insert(getPositionType());
-        insert.add(CISales.PositionAbstract.PositionNumber, _dto.getIndex());
-        insert.add(CISales.PositionAbstract.DocumentAbstractLink, _docInstance);
-        insert.add(CISales.PositionAbstract.Product, Instance.get(_dto.getProductOid()));
-        final var productInfo = getProductInfo(_dto.getProductOid());
+        insert.add(CISales.PositionAbstract.PositionNumber, dto.getIndex());
+        insert.add(CISales.PositionAbstract.ParentPositionAbstractLink, parentPositionInstance);
+        insert.add(CISales.PositionAbstract.DocumentAbstractLink, docInstance);
+        insert.add(CISales.PositionAbstract.Product, Instance.get(dto.getProductOid()));
+        final var productInfo = getProductInfo(dto.getProductOid());
         insert.add(CISales.PositionAbstract.ProductDesc, productInfo[0]);
         insert.add(CISales.PositionAbstract.UoM, productInfo[1]);
-        insert.add(CISales.PositionAbstract.Quantity, _dto.getQuantity());
+        insert.add(CISales.PositionAbstract.Quantity, dto.getQuantity());
         insert.add(CISales.PositionSumAbstract.Discount, BigDecimal.ZERO);
         insert.add(CISales.PositionSumAbstract.DiscountNetUnitPrice,
-                        DocumentUtils.exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(dto.getNetUnitPrice(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.CrossUnitPrice,
-                        DocumentUtils.exchange(_dto.getCrossUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(dto.getCrossUnitPrice(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.NetUnitPrice,
-                        DocumentUtils.exchange(_dto.getNetUnitPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(dto.getNetUnitPrice(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.CrossPrice,
-                        DocumentUtils.exchange(_dto.getCrossPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(dto.getCrossPrice(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.NetPrice,
-                        DocumentUtils.exchange(_dto.getNetPrice(), _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(dto.getNetPrice(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
-        insert.add(CISales.PositionSumAbstract.Rate, DocumentUtils.getRate(_dto.getCurrency(), _dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.Rate, DocumentUtils.getRate(dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.RateCurrencyId,
-                        DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
-        insert.add(CISales.PositionSumAbstract.RateNetUnitPrice, _dto.getNetUnitPrice());
-        insert.add(CISales.PositionSumAbstract.RateCrossUnitPrice, _dto.getCrossUnitPrice());
-        insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, _dto.getCrossUnitPrice());
-        insert.add(CISales.PositionSumAbstract.RateNetPrice, _dto.getNetPrice());
-        insert.add(CISales.PositionSumAbstract.RateCrossPrice, _dto.getCrossPrice());
-        insert.add(CISales.PositionSumAbstract.Remark, _dto.getRemark());
-        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(_dto.getTaxes().iterator().next()).getInstance());
+                        DocumentUtils.getCurrencyInst(dto.getCurrency()).getInstance());
+        insert.add(CISales.PositionSumAbstract.RateNetUnitPrice, dto.getNetUnitPrice());
+        insert.add(CISales.PositionSumAbstract.RateCrossUnitPrice, dto.getCrossUnitPrice());
+        insert.add(CISales.PositionSumAbstract.RateDiscountNetUnitPrice, dto.getCrossUnitPrice());
+        insert.add(CISales.PositionSumAbstract.RateNetPrice, dto.getNetPrice());
+        insert.add(CISales.PositionSumAbstract.RateCrossPrice, dto.getCrossPrice());
+        insert.add(CISales.PositionSumAbstract.Remark, dto.getRemark());
+        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(dto.getTaxes().iterator().next()).getInstance());
         insert.add(CISales.PositionSumAbstract.Taxes,
-                        getTaxes(_date, _dto.getTaxes(), _dto.getCurrency(), _dto.getExchangeRate()));
-        insert.add(CISales.PositionSumAbstract.RateTaxes, getRateTaxes(_date, _dto.getTaxes()));
+                        getTaxes(date, dto.getTaxes(), dto.getCurrency(), dto.getExchangeRate()));
+        insert.add(CISales.PositionSumAbstract.RateTaxes, getRateTaxes(date, dto.getTaxes()));
         insert.execute();
         return insert.getInstance();
     }
