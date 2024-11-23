@@ -377,6 +377,12 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.Taxes,
                         getTaxes(date, dto.getTaxes(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.RateTaxes, getRateTaxes(date, dto.getTaxes()));
+
+        final var bomInst = Instance.get(dto.getBomOid());
+        if (InstanceUtils.isKindOf(bomInst, CIProducts.BOMAbstract)) {
+            insert.add(CISales.PositionAbstract.BOMAbstractLink, bomInst);
+        }
+
         insert.execute();
         return insert.getInstance();
     }
