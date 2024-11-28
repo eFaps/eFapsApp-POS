@@ -517,9 +517,13 @@ public abstract class Product_Base
                     final var actionInst = actionEval.inst();
                     LOG.debug("Found Action : {}", actionInst.getOid());
                     if (InstanceUtils.isType(actionInst, CIProducts.ConfigurationBOMPriceAdjustmentAction)) {
+                        final BigDecimal netAmount = actionEval.get(CIProducts.ConfigurationBOMActionAbstract.Dec1);
+                        final Calculator calculator = new Calculator(ParameterUtil.instance(), null, producInst,
+                                        BigDecimal.ONE, netAmount, BigDecimal.ZERO, false, getCalcConf());
                         actions.add(BOMActionDto.builder()
                                         .withType(BOMActionType.PRICEADJUSTMENT)
-                                        .withAmount(actionEval.get(CIProducts.ConfigurationBOMActionAbstract.Dec1))
+                                        .withNetAmount(netAmount)
+                                        .withCrossAmount(calculator.getCrossUnitPrice())
                                         .build());
                     }
                 }
@@ -814,7 +818,7 @@ public abstract class Product_Base
             public boolean priceFromUIisNet(final Parameter _parameter)
                 throws EFapsException
             {
-                return false;
+                return true;
             }
         };
     }
