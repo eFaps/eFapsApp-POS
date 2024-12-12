@@ -172,6 +172,12 @@ public abstract class Contact_Base
                             .as("identityCard")
                             .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
                             .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
+                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.Forename)
+                            .as("forename")
+                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.FirstLastName)
+                            .as("firstLastName")
+                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
+                            .as("secondLastName")
                             .evaluate();
             if (eval.next()) {
                 String idNumber = eval.get("taxNumber");
@@ -197,6 +203,9 @@ public abstract class Contact_Base
                                 .withName(eval.get(CIContacts.Contact.Name))
                                 .withIdType(idType)
                                 .withIdNumber(idNumber)
+                                .withForename(eval.get("forename"))
+                                .withFirstLastName(eval.get("firstLastName"))
+                                .withSecondLastName(eval.get("secondLastName"))
                                 .build())
                                 .build();
             } else {
@@ -209,21 +218,21 @@ public abstract class Contact_Base
     }
 
     public Response addContact(final String _identifier,
-                               final ContactDto _contactDto)
+                               final ContactDto contactDto)
         throws EFapsException
     {
-        LOG.debug("Recieved: {}", _contactDto);
+        LOG.debug("Recieved: {}", contactDto);
         checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         final ContactDto dto;
-        if (_contactDto.getOid() == null) {
+        if (contactDto.getOid() == null) {
             final Insert insert = new Insert(CIContacts.Contact);
-            insert.add(CIContacts.Contact.Name, _contactDto.getName());
+            insert.add(CIContacts.Contact.Name, contactDto.getName());
             insert.add(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active));
             insert.execute();
 
             final Instance contactInst = insert.getInstance();
 
-            if (IdentificationType.RUC.equals(_contactDto.getIdType())) {
+            if (IdentificationType.RUC.equals(contactDto.getIdType())) {
                 final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
                 final Insert relInsert = new Insert(classification.getClassifyRelationType());
                 relInsert.add(classification.getRelLinkAttributeName(), contactInst);
@@ -232,7 +241,7 @@ public abstract class Contact_Base
 
                 final Insert classInsert = new Insert(classification);
                 classInsert.add(classification.getLinkAttributeName(), contactInst);
-                classInsert.add(CIContacts.ClassOrganisation.TaxNumber, _contactDto.getIdNumber());
+                classInsert.add(CIContacts.ClassOrganisation.TaxNumber, contactDto.getIdNumber());
                 classInsert.execute();
             } else {
                 final Classification classification = (Classification) CIContacts.ClassPerson.getType();
@@ -243,11 +252,12 @@ public abstract class Contact_Base
 
                 final Insert classInsert = new Insert(classification);
                 classInsert.add(classification.getLinkAttributeName(), contactInst);
-                classInsert.add(CIContacts.ClassPerson.IdentityCard, _contactDto.getIdNumber());
-                classInsert.add(CIContacts.ClassPerson.Forename, " ");
-                classInsert.add(CIContacts.ClassPerson.FirstLastName, " ");
+                classInsert.add(CIContacts.ClassPerson.IdentityCard, contactDto.getIdNumber());
+                classInsert.add(CIContacts.ClassPerson.Forename, contactDto.getForename());
+                classInsert.add(CIContacts.ClassPerson.FirstLastName, contactDto.getFirstLastName());
+                classInsert.add(CIContacts.ClassPerson.SecondLastName, contactDto.getSecondLastName());
 
-                final String doiType = switch (_contactDto.getIdType()) {
+                final String doiType = switch (contactDto.getIdType()) {
                     case DNI -> "01";
                     case PASSPORT -> "07";
                     case CE -> "04";
@@ -274,7 +284,7 @@ public abstract class Contact_Base
             clientClassInsert.add(clientClass.getLinkAttributeName(), contactInst);
             clientClassInsert.execute();
 
-            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(_contactDto.getEmail())) {
+            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
                 final Classification classification = (Classification) CIContacts.Class.getType();
                 final Insert relInsert = new Insert(classification.getClassifyRelationType());
                 relInsert.add(classification.getRelLinkAttributeName(), contactInst);
@@ -289,7 +299,7 @@ public abstract class Contact_Base
                                 CIContacts.Class.EmailSet.name);
                 final Insert attrSetInsert = new Insert(attrSet);
                 attrSetInsert.add(attrSet.getAttribute(CIContacts.Class.EmailSet.name), classInsert.getId());
-                attrSetInsert.add(attrSet.getAttribute("Email"), _contactDto.getEmail());
+                attrSetInsert.add(attrSet.getAttribute("Email"), contactDto.getEmail());
                 attrSetInsert.add(attrSet.getAttribute("ElectronicBilling"), true);
                 attrSetInsert.execute();
             }
