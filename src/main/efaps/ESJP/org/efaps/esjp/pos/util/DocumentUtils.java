@@ -24,6 +24,7 @@ import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
+import org.efaps.esjp.ci.CILoyalty;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
@@ -107,6 +108,7 @@ public class DocumentUtils
             case CASH -> negate ? CISales.PaymentCashOut : CISales.PaymentCash;
             case CHANGE -> negate ? CISales.PaymentCash : CISales.PaymentCashOut;
             case FREE -> CISales.PaymentInternal;
+            case LOYALTY_POINTS -> CILoyalty.PaymentPoints;
             default -> CISales.PaymentInternal;
         };
         return ret;
@@ -124,6 +126,7 @@ public class DocumentUtils
             case CHANGE -> negate ? Status.find(CISales.PaymentCashStatus.Closed)
                             : Status.find(CISales.PaymentCashOutStatus.Closed);
             case FREE -> Status.find(CISales.PaymentInternalStatus.Closed);
+            case LOYALTY_POINTS -> Status.find(CILoyalty.PaymentPointsStatus.Closed);
             default -> Status.find(CISales.PaymentInternalStatus.Closed);
         };
     }

@@ -40,8 +40,10 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql2.StmtFlag;
+import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIHumanResource;
+import org.efaps.esjp.ci.CILoyalty;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -50,6 +52,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.util.ERP;
+import org.efaps.esjp.loyalty.Points;
 import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
@@ -76,6 +79,7 @@ import org.efaps.util.UUIDUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
@@ -440,12 +444,12 @@ public abstract class AbstractDocument_Base
         return TaxCat_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()));
     }
 
-    protected void addPayments(final Instance _docInst,
-                               final AbstractPayableDocumentDto _dto)
+    protected void addPayments(final Instance docInst,
+                               final AbstractPayableDocumentDto dto)
         throws EFapsException
     {
-        if (CollectionUtils.isNotEmpty(_dto.getPayments())) {
-            for (final PaymentDto paymentDto : _dto.getPayments()) {
+        if (CollectionUtils.isNotEmpty(dto.getPayments())) {
+            for (final PaymentDto paymentDto : dto.getPayments()) {
                 LOG.debug("adding PaymentDto: {}", paymentDto);
                 final Parameter parameter = ParameterUtil.instance();
 
@@ -482,17 +486,21 @@ public abstract class AbstractDocument_Base
                     insert.add(CISales.PaymentElectronic.CardNumber, paymentDto.getCardNumber());
                 }
 
+                if (PaymentType.LOYALTY_POINTS.equals(paymentDto.getType())) {
+                    insert.add(CILoyalty.PaymentPoints.PointsLink, evalLoyaltyProgram(dto, paymentDto));
+                }
+
                 final String code = posPayment.getCode4CreateDoc(parameter);
                 if (code != null) {
                     insert.add(CISales.PaymentDocumentAbstract.Code, code);
                 }
                 insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
-                insert.add(CISales.PaymentDocumentAbstract.Date, _dto.getDate());
+                insert.add(CISales.PaymentDocumentAbstract.Date, dto.getDate());
                 final Instance baseCurrInst = Currency.getBaseCurrency();
                 insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst.getInstance());
                 insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
 
-                final Instance contactInst = Instance.get(_dto.getContactOid());
+                final Instance contactInst = Instance.get(dto.getContactOid());
                 if (InstanceUtils.isValid(contactInst)) {
                     insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
                 }
@@ -505,7 +513,7 @@ public abstract class AbstractDocument_Base
 
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
-                payInsert.add(CISales.Payment.CreateDocument, _docInst);
+                payInsert.add(CISales.Payment.CreateDocument, docInst);
                 payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst.getInstance());
                 payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
                 payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
@@ -523,11 +531,30 @@ public abstract class AbstractDocument_Base
                 transIns.add(CISales.TransactionAbstract.CurrencyId, baseCurrInst);
                 transIns.add(CISales.TransactionAbstract.Payment, payInsert.getInstance());
                 transIns.add(CISales.TransactionAbstract.Amount, paymentDto.getAmount());
-                transIns.add(CISales.TransactionAbstract.Date, _dto.getDate());
-                transIns.add(CISales.TransactionAbstract.Account, getAccountInst(_dto));
+                transIns.add(CISales.TransactionAbstract.Date, dto.getDate());
+                transIns.add(CISales.TransactionAbstract.Account, getAccountInst(dto));
                 transIns.execute();
             }
         }
+    }
+
+    protected Instance evalLoyaltyProgram(final AbstractPayableDocumentDto dto,
+                                          final PaymentDto paymentDto)
+        throws EFapsException
+    {
+        Instance ret = null;
+        final var contactInst = Instance.get(dto.getContactOid());
+        if (InstanceUtils.isKindOf(contactInst, CIContacts.ContactAbstract)) {
+            switch (paymentDto.getType()) {
+                case LOYALTY_POINTS: {
+                    ret = new Points().evalProgramInstance4Contact(contactInst);
+                    break;
+                }
+                default:
+                    throw new IllegalArgumentException("Unexpected value: " + paymentDto);
+            }
+        }
+        return ret;
     }
 
     protected Instance evalEletronicPaymentType(final String _mappingKey)
