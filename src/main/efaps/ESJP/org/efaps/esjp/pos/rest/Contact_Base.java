@@ -102,6 +102,17 @@ public abstract class Contact_Base
                         .linkto(CIContacts.ClassPerson.DOITypeLink)
                         .attribute(CIContacts.AttributeDefinitionDOIType.Value);
 
+        final SelectBuilder selForename = SelectBuilder.get()
+                        .clazz(CIContacts.ClassPerson)
+                        .attribute(CIContacts.ClassPerson.Forename);
+        final SelectBuilder selFirstLastName = SelectBuilder.get()
+                        .clazz(CIContacts.ClassPerson)
+                        .attribute(CIContacts.ClassPerson.FirstLastName);
+        final SelectBuilder selSecondLastName = SelectBuilder.get()
+                        .clazz(CIContacts.ClassPerson)
+                        .attribute(CIContacts.ClassPerson.SecondLastName);
+
+
         final SelectBuilder selEmails = SelectBuilder.get().clazz(CIContacts.Class)
                         .attributeset(CIContacts.Class.EmailSet, "attribute[ElectronicBilling]==true")
                         .attribute("Email");
@@ -109,7 +120,7 @@ public abstract class Contact_Base
             multi.addSelect(selEmails);
         }
         multi.addAttribute(CIContacts.Contact.Name);
-        multi.addSelect(selTaxNumber, selIdentityCard, selDOIType);
+        multi.addSelect(selTaxNumber, selIdentityCard, selDOIType, selForename, selFirstLastName, selSecondLastName);
         multi.execute();
         while (multi.next()) {
             String idNumber = multi.getSelect(selTaxNumber);
@@ -145,6 +156,9 @@ public abstract class Contact_Base
                             .withName(multi.getAttribute(CIContacts.Contact.Name))
                             .withIdType(idType)
                             .withIdNumber(idNumber)
+                            .withForename(multi.getSelect(selForename))
+                            .withFirstLastName(multi.getSelect(selFirstLastName))
+                            .withSecondLastName(multi.getSelect(selSecondLastName))
                             .withEmail(email)
                             .build());
         }
