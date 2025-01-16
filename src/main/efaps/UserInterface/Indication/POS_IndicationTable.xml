@@ -37,7 +37,7 @@
             <property name="ModeSearch">READONLY</property>
         </field>
          <field name="defaultSelected">
-            <property name="Attribute">Default</property>
+            <property name="Attribute">DefaultSelected</property>
             <property name="Label">POS_Indication/DefaultSelected.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
