@@ -39,6 +39,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.efaps.admin.datamodel.AttributeSet;
@@ -506,13 +507,14 @@ public abstract class Product_Base
 
                 final List<BOMActionDto> actions = new ArrayList<>();
                 final var actionEval = EQL.builder()
-                    .print()
-                    .query(CIProducts.ConfigurationBOMActionAbstract)
-                    .where()
-                    .attribute(CIProducts.ConfigurationBOMActionAbstract.ConfigurationBOMLink).eq(configBomEval.inst())
-                    .select()
-                    .attribute(CIProducts.ConfigurationBOMActionAbstract.Dec1)
-                    .evaluate();
+                                .print()
+                                .query(CIProducts.ConfigurationBOMActionAbstract)
+                                .where()
+                                .attribute(CIProducts.ConfigurationBOMActionAbstract.ConfigurationBOMLink)
+                                .eq(configBomEval.inst())
+                                .select()
+                                .attribute(CIProducts.ConfigurationBOMActionAbstract.Dec1)
+                                .evaluate();
                 while (actionEval.next()) {
                     final var actionInst = actionEval.inst();
                     LOG.debug("Found Action : {}", actionInst.getOid());
@@ -765,7 +767,9 @@ public abstract class Product_Base
                                         .withValue(multi.getAttribute(CIPOS.Indication.Value))
                                         .withDescription(multi.getAttribute(CIPOS.Indication.Description))
                                         .withImageOid(imageOid)
-                                        .withDefaultSelected(multi.getAttribute(CIPOS.Indication.DefaultSelected))
+                                        .withDefaultSelected(
+                                                        BooleanUtils.toBoolean(multi.<Boolean>getAttribute(
+                                                                        CIPOS.Indication.DefaultSelected)))
                                         .withWeight(multi.getAttribute(CIPOS.Indication.Weight))
                                         .build());
                     }
