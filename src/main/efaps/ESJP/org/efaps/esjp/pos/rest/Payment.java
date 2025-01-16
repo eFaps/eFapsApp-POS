@@ -69,7 +69,10 @@ import org.efaps.pos.dto.AbstractPayableDocumentDto;
 import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.DocType;
-import org.efaps.pos.dto.PaymentDto;
+import org.efaps.pos.dto.IPaymentDto;
+import org.efaps.pos.dto.PaymentAbstractDto;
+import org.efaps.pos.dto.PaymentCardDto;
+import org.efaps.pos.dto.PaymentElectronicDto;
 import org.efaps.pos.dto.PaymentType;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
@@ -92,7 +95,7 @@ public class Payment
     @Produces(MediaType.APPLICATION_JSON)
     public Response payAndEmit(@PathParam("identifier") final String identifier,
                                @QueryParam("order-oid") final String orderOid,
-                               final PaymentDto dto)
+                               final IPaymentDto dto)
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
@@ -148,7 +151,7 @@ public class Payment
 
     protected void addPayments(final String identifier,
                                final Instance docInst,
-                               final List<PaymentDto> paymentDtos)
+                               final List<IPaymentDto> paymentDtos)
         throws EFapsException
     {
         final var docEval = EQL.builder().print(docInst)
@@ -156,44 +159,48 @@ public class Payment
                         .evaluate();
         docEval.next();
 
-        for (final PaymentDto paymentDto : paymentDtos) {
-            LOG.debug("adding PaymentDto: {}", paymentDto);
+        for (final IPaymentDto payment : paymentDtos) {
+            LOG.debug("adding PaymentDto: {}", payment);
+            final var paymentDto = (PaymentAbstractDto) payment;
             final Parameter parameter = ParameterUtil.instance();
 
             final var rateCurrencyInst = DocumentUtils.getCurrencyInst(paymentDto.getCurrency());
             LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
             final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
-            final CIType docType = DocumentUtils.getPaymentDocType(paymentDto.getType(), negate);
+            final CIType docType = DocumentUtils.getPaymentDocType(payment.getType(), negate);
             final var insert = EQL.builder().insert(docType);
             final PosPayment posPayment = new PosPayment(docType);
             insert.set(CISales.PaymentDocumentAbstract.Name,
                             NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
-            if (PaymentType.CARD.equals(paymentDto.getType())) {
-                final Instance epayInst = evalCardPaymentType(paymentDto.getCardLabel());
+            if (PaymentType.CARD.equals(payment.getType())) {
+                final var cardPayment = (PaymentCardDto) paymentDto;
+                final Instance epayInst = evalCardPaymentType(cardPayment.getCardLabel());
                 if (InstanceUtils.isValid(epayInst)) {
                     insert.set(CISales.PaymentCard.CardType, epayInst);
                 }
-                insert.set(CISales.PaymentCard.CardNumber, paymentDto.getCardNumber());
-                insert.set(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
-                insert.set(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
-                insert.set(CISales.PaymentCard.OperationId, paymentDto.getOperationId());
+                insert.set(CISales.PaymentCard.CardNumber, cardPayment.getCardNumber());
+                insert.set(CISales.PaymentCard.ServiceProvider, cardPayment.getServiceProvider());
+                insert.set(CISales.PaymentCard.Authorization, cardPayment.getAuthorization());
+                insert.set(CISales.PaymentCard.OperationId, cardPayment.getOperationId());
                 insert.set(CISales.PaymentCard.OperationDateTime, paymentDto.getOperationDateTime());
                 insert.set(CISales.PaymentCard.Info, paymentDto.getInfo());
             }
 
-            if (PaymentType.ELECTRONIC.equals(paymentDto.getType())) {
-                final Instance epayInst = evalEletronicPaymentType(paymentDto.getMappingKey());
+            if (PaymentType.ELECTRONIC.equals(payment.getType())) {
+                final var electronicPayment = (PaymentElectronicDto) paymentDto;
+
+                final Instance epayInst = evalEletronicPaymentType(electronicPayment.getMappingKey());
                 if (InstanceUtils.isValid(epayInst)) {
                     insert.set(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
                 }
-                insert.set(CISales.PaymentElectronic.ServiceProvider, paymentDto.getServiceProvider());
-                insert.set(CISales.PaymentElectronic.EquipmentIdent, paymentDto.getEquipmentIdent());
-                insert.set(CISales.PaymentElectronic.Authorization, paymentDto.getAuthorization());
-                insert.set(CISales.PaymentElectronic.OperationId, paymentDto.getOperationId());
+                insert.set(CISales.PaymentElectronic.ServiceProvider, electronicPayment.getServiceProvider());
+                insert.set(CISales.PaymentElectronic.EquipmentIdent, electronicPayment.getEquipmentIdent());
+                insert.set(CISales.PaymentElectronic.Authorization, electronicPayment.getAuthorization());
+                insert.set(CISales.PaymentElectronic.OperationId, electronicPayment.getOperationId());
                 insert.set(CISales.PaymentElectronic.OperationDateTime, paymentDto.getOperationDateTime());
                 insert.set(CISales.PaymentElectronic.Info, paymentDto.getInfo());
-                insert.set(CISales.PaymentElectronic.CardLabel, paymentDto.getCardLabel());
-                insert.set(CISales.PaymentElectronic.CardNumber, paymentDto.getCardNumber());
+                insert.set(CISales.PaymentElectronic.CardLabel, electronicPayment.getCardLabel());
+                insert.set(CISales.PaymentElectronic.CardNumber, electronicPayment.getCardNumber());
             }
 
             final String code = posPayment.getCode4CreateDoc(parameter);
@@ -209,7 +216,7 @@ public class Payment
             final var rate = DocumentUtils.getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
             insert.set(CISales.PaymentDocumentAbstract.Rate, rate);
             insert.set(docType.getType().getStatusAttribute().getName(), String.valueOf(
-                            DocumentUtils.getPaymentDocStatus(paymentDto.getType(), negate).getId()));
+                            DocumentUtils.getPaymentDocStatus(payment.getType(), negate).getId()));
             final var payDocInst = insert.execute();
 
             final var payInsert = EQL.builder().insert(CISales.Payment);

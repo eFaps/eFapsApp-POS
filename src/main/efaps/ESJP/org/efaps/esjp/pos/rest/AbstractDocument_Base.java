@@ -68,9 +68,15 @@ import org.efaps.pos.dto.AbstractDocItemDto;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
 import org.efaps.pos.dto.CreditNoteDto;
+import org.efaps.pos.dto.IPaymentDto;
 import org.efaps.pos.dto.InvoiceDto;
-import org.efaps.pos.dto.PaymentDto;
-import org.efaps.pos.dto.PaymentType;
+import org.efaps.pos.dto.PaymentAbstractDto;
+import org.efaps.pos.dto.PaymentCardDto;
+import org.efaps.pos.dto.PaymentCashDto;
+import org.efaps.pos.dto.PaymentChangeDto;
+import org.efaps.pos.dto.PaymentElectronicDto;
+import org.efaps.pos.dto.PaymentFreeDto;
+import org.efaps.pos.dto.PaymentLoyaltyPointsDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.pos.dto.TicketDto;
@@ -79,7 +85,6 @@ import org.efaps.util.UUIDUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @EFapsUUID("2c0b2e38-14cb-474a-8b49-0859f38784c5")
 @EFapsApplication("eFapsApp-POS")
@@ -449,86 +454,46 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         if (CollectionUtils.isNotEmpty(dto.getPayments())) {
-            for (final PaymentDto paymentDto : dto.getPayments()) {
-                LOG.debug("adding PaymentDto: {}", paymentDto);
-                final Parameter parameter = ParameterUtil.instance();
+            for (final IPaymentDto payment : dto.getPayments()) {
+                LOG.debug("adding payment: {}", payment);
 
-                final var rateCurrencyInst = DocumentUtils.getCurrencyInst(paymentDto.getCurrency());
-                LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
-                final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
-                final CIType docType = DocumentUtils.getPaymentDocType(paymentDto.getType(), negate);
-                final Insert insert = new Insert(docType);
-                final PosPayment posPayment = new PosPayment(docType);
-                insert.add(CISales.PaymentDocumentAbstract.Name,
-                                NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
-                if (PaymentType.CARD.equals(paymentDto.getType())) {
-                    insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
-                    insert.add(CISales.PaymentCard.CardNumber, paymentDto.getCardNumber());
-                    insert.add(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
-                    insert.add(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
-                    insert.add(CISales.PaymentCard.OperationId, paymentDto.getOperationId());
-                    insert.add(CISales.PaymentCard.OperationDateTime, paymentDto.getOperationDateTime());
-                    insert.add(CISales.PaymentCard.Info, paymentDto.getInfo());
-                }
+                final var instance = switch (payment.getType()) {
+                    case ELECTRONIC:
+                        yield evalElectronicPayment(dto, (PaymentElectronicDto) payment);
+                    case LOYALTY_POINTS:
+                        yield evalLoyaltyPayment(dto, (PaymentLoyaltyPointsDto) payment);
+                    case CARD:
+                        yield evalCardPayment(dto, (PaymentCardDto) payment);
+                    case CASH:
+                        yield evalCashPayment(dto, (PaymentCashDto) payment);
+                    case CHANGE:
+                        yield evalChangePayment(dto, (PaymentChangeDto) payment);
+                    case FREE:
+                        yield evalFreePayment(dto, (PaymentFreeDto) payment);
+                };
 
-                if (PaymentType.ELECTRONIC.equals(paymentDto.getType())) {
-                    final Instance epayInst = evalEletronicPaymentType(paymentDto.getMappingKey());
-                    if (InstanceUtils.isValid(epayInst)) {
-                        insert.add(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
-                    }
-                    insert.add(CISales.PaymentElectronic.ServiceProvider, paymentDto.getServiceProvider());
-                    insert.add(CISales.PaymentElectronic.EquipmentIdent, paymentDto.getEquipmentIdent());
-                    insert.add(CISales.PaymentElectronic.Authorization, paymentDto.getAuthorization());
-                    insert.add(CISales.PaymentElectronic.OperationId, paymentDto.getOperationId());
-                    insert.add(CISales.PaymentElectronic.OperationDateTime, paymentDto.getOperationDateTime());
-                    insert.add(CISales.PaymentElectronic.Info, paymentDto.getInfo());
-                    insert.add(CISales.PaymentElectronic.CardLabel, paymentDto.getCardLabel());
-                    insert.add(CISales.PaymentElectronic.CardNumber, paymentDto.getCardNumber());
-                }
-
-                if (PaymentType.LOYALTY_POINTS.equals(paymentDto.getType())) {
-                    insert.add(CILoyalty.PaymentPoints.PointsLink, evalLoyaltyProgram(dto, paymentDto));
-                }
-
-                final String code = posPayment.getCode4CreateDoc(parameter);
-                if (code != null) {
-                    insert.add(CISales.PaymentDocumentAbstract.Code, code);
-                }
-                insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
-                insert.add(CISales.PaymentDocumentAbstract.Date, dto.getDate());
-                final Instance baseCurrInst = Currency.getBaseCurrency();
-                insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst.getInstance());
-                insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
-
-                final Instance contactInst = Instance.get(dto.getContactOid());
-                if (InstanceUtils.isValid(contactInst)) {
-                    insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
-                }
+                final var paymentDto = (PaymentAbstractDto) payment;
                 final var rate = DocumentUtils.getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
-                insert.add(CISales.PaymentDocumentAbstract.Rate, rate);
-
-                insert.add(docType.getType().getStatusAttribute(),
-                                DocumentUtils.getPaymentDocStatus(paymentDto.getType(), negate));
-                insert.execute();
+                final var rateCurrencyInst = DocumentUtils.getCurrencyInst(paymentDto.getCurrency());
 
                 final Insert payInsert = new Insert(CISales.Payment);
                 payInsert.add(CISales.Payment.Status, Status.find(CISales.PaymentStatus.Executed));
                 payInsert.add(CISales.Payment.CreateDocument, docInst);
                 payInsert.add(CISales.Payment.RateCurrencyLink, rateCurrencyInst.getInstance());
                 payInsert.add(CISales.Payment.Amount, paymentDto.getAmount());
-                payInsert.add(CISales.Payment.TargetDocument, insert.getInstance());
-                payInsert.add(CISales.Payment.CurrencyLink, baseCurrInst);
+                payInsert.add(CISales.Payment.TargetDocument, instance);
+                payInsert.add(CISales.Payment.CurrencyLink, Currency.getBaseCurrency());
                 payInsert.add(CISales.Payment.Date, new DateTime());
                 payInsert.add(CISales.Payment.Rate, rate);
                 payInsert.execute();
 
                 final Insert transIns;
-                if (InstanceUtils.isKindOf(insert.getInstance(), CISales.PaymentDocumentAbstract)) {
+                if (InstanceUtils.isKindOf(instance, CISales.PaymentDocumentAbstract)) {
                     transIns = new Insert(CISales.TransactionInbound);
                 } else {
                     transIns = new Insert(CISales.TransactionOutbound);
                 }
-                transIns.add(CISales.TransactionAbstract.CurrencyId, baseCurrInst);
+                transIns.add(CISales.TransactionAbstract.CurrencyId, Currency.getBaseCurrency());
                 transIns.add(CISales.TransactionAbstract.Payment, payInsert.getInstance());
                 transIns.add(CISales.TransactionAbstract.Amount, paymentDto.getAmount());
                 transIns.add(CISales.TransactionAbstract.Date, dto.getDate());
@@ -538,8 +503,133 @@ public abstract class AbstractDocument_Base
         }
     }
 
+    protected Insert getPaymentInsert(final AbstractPayableDocumentDto dto,
+                                      final PaymentAbstractDto paymentDto)
+        throws EFapsException
+    {
+        ParameterUtil.instance();
+
+        final var rateCurrencyInst = DocumentUtils.getCurrencyInst(paymentDto.getCurrency());
+        LOG.debug("using rateCurrencyInst: {}", rateCurrencyInst);
+        final boolean negate = paymentDto.getAmount().compareTo(BigDecimal.ZERO) < 0;
+        final CIType docType = DocumentUtils.getPaymentDocType(paymentDto.getType(), negate);
+        final Insert insert = new Insert(docType);
+        insert.add(CISales.PaymentDocumentAbstract.Name,
+                        NumberGenerator.get(UUID.fromString(Pos.PAYMENTDOCUMENT_SEQ.get())).getNextVal());
+
+        final String code = new PosPayment(docType).getCode4CreateDoc(ParameterUtil.instance());
+        if (code != null) {
+            insert.add(CISales.PaymentDocumentAbstract.Code, code);
+        }
+        insert.add(CISales.PaymentDocumentAbstract.Amount, paymentDto.getAmount());
+        insert.add(CISales.PaymentDocumentAbstract.Date, dto.getDate());
+
+        final Instance baseCurrInst = Currency.getBaseCurrency();
+        insert.add(CISales.PaymentDocumentAbstract.RateCurrencyLink, rateCurrencyInst.getInstance());
+        insert.add(CISales.PaymentDocumentAbstract.CurrencyLink, baseCurrInst);
+
+        final Instance contactInst = Instance.get(dto.getContactOid());
+        if (InstanceUtils.isValid(contactInst)) {
+            insert.add(CISales.PaymentDocumentAbstract.Contact, contactInst);
+        }
+        final var rate = DocumentUtils.getRate(paymentDto.getCurrency(), paymentDto.getExchangeRate());
+        insert.add(CISales.PaymentDocumentAbstract.Rate, rate);
+
+        insert.add(docType.getType().getStatusAttribute(),
+                        DocumentUtils.getPaymentDocStatus(paymentDto.getType(), negate));
+
+        return insert;
+    }
+
+    protected Instance evalElectronicPayment(final AbstractPayableDocumentDto dto,
+                                             final PaymentElectronicDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        final var epayInst = evalAttrDefByKey(CISales.AttributeDefinitionPaymentElectronicType,
+                        paymentDto.getMappingKey());
+        if (InstanceUtils.isValid(epayInst)) {
+            insert.add(CISales.PaymentElectronic.ElectronicPaymentType, epayInst);
+        }
+        insert.add(CISales.PaymentElectronic.ServiceProvider, paymentDto.getServiceProvider());
+        insert.add(CISales.PaymentElectronic.EquipmentIdent, paymentDto.getEquipmentIdent());
+        insert.add(CISales.PaymentElectronic.Authorization, paymentDto.getAuthorization());
+        insert.add(CISales.PaymentElectronic.OperationId, paymentDto.getOperationId());
+        insert.add(CISales.PaymentElectronic.OperationDateTime, paymentDto.getOperationDateTime());
+        insert.add(CISales.PaymentElectronic.Info, paymentDto.getInfo());
+        insert.add(CISales.PaymentElectronic.CardLabel, paymentDto.getCardLabel());
+        insert.add(CISales.PaymentElectronic.CardNumber, paymentDto.getCardNumber());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalLoyaltyPayment(final AbstractPayableDocumentDto dto,
+                                          final PaymentLoyaltyPointsDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+
+        insert.add(CILoyalty.PaymentPoints.PointsLink, evalLoyaltyProgram(dto, paymentDto));
+        final var pointsTypeInst = evalAttrDefByKey(CILoyalty.AttributeDefinitionPointsType,
+                        paymentDto.getMappingKey());
+        if (InstanceUtils.isValid(pointsTypeInst)) {
+            insert.add(CILoyalty.PaymentPoints.PointsTypeLink, pointsTypeInst);
+        }
+        insert.add(CILoyalty.PaymentPoints.PointsAmount, paymentDto.getPointsAmount());
+        insert.add(CILoyalty.PaymentPoints.Authorization, paymentDto.getAuthorization());
+        insert.add(CILoyalty.PaymentPoints.OperationId, paymentDto.getOperationId());
+        insert.add(CILoyalty.PaymentPoints.Info, paymentDto.getInfo());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalCardPayment(final AbstractPayableDocumentDto dto,
+                                       final PaymentCardDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+
+        insert.add(CISales.PaymentCard.CardType, paymentDto.getCardTypeId());
+        insert.add(CISales.PaymentCard.CardNumber, paymentDto.getCardNumber());
+        insert.add(CISales.PaymentCard.ServiceProvider, paymentDto.getServiceProvider());
+        insert.add(CISales.PaymentCard.Authorization, paymentDto.getAuthorization());
+        insert.add(CISales.PaymentCard.OperationId, paymentDto.getOperationId());
+        insert.add(CISales.PaymentCard.OperationDateTime, paymentDto.getOperationDateTime());
+        insert.add(CISales.PaymentCard.Info, paymentDto.getInfo());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalCashPayment(final AbstractPayableDocumentDto dto,
+                                       final PaymentCashDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        insert.add(CILoyalty.PaymentPoints.Info, paymentDto.getInfo());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalFreePayment(final AbstractPayableDocumentDto dto,
+                                       final PaymentFreeDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalChangePayment(final AbstractPayableDocumentDto dto,
+                                         final PaymentChangeDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        insert.execute();
+        return insert.getInstance();
+    }
+
     protected Instance evalLoyaltyProgram(final AbstractPayableDocumentDto dto,
-                                          final PaymentDto paymentDto)
+                                          final IPaymentDto paymentDto)
         throws EFapsException
     {
         Instance ret = null;
@@ -557,12 +647,13 @@ public abstract class AbstractDocument_Base
         return ret;
     }
 
-    protected Instance evalEletronicPaymentType(final String _mappingKey)
+    protected Instance evalAttrDefByKey(final CIType ciType,
+                                        final String mappingKey)
         throws EFapsException
     {
         Instance ret = null;
         final QueryBuilder queryBldr = new QueryBuilder(CISales.AttributeDefinitionPaymentElectronicType);
-        queryBldr.addWhereAttrEqValue(CISales.AttributeDefinitionPaymentElectronicType.MappingKey, _mappingKey);
+        queryBldr.addWhereAttrEqValue(CIERP.AttributeDefinitionMappingAbstract.MappingKey, mappingKey);
         final InstanceQuery query = queryBldr.getQuery();
         query.executeWithoutAccessCheck();
         if (query.next()) {
