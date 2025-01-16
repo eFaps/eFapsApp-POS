@@ -36,5 +36,15 @@
             <property name="Label">POS_Indication/Description.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+         <field name="defaultSelected">
+            <property name="Attribute">Default</property>
+            <property name="Label">POS_Indication/DefaultSelected.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
+         <field name="weight">
+            <property name="Attribute">Weight</property>
+            <property name="Label">POS_Indication/Weight.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
     </definition>
 </ui-table>

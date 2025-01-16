@@ -38,6 +38,18 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
         </field>
+        <field name="defaultSelected">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">DefaultSelected</property>
+        </field>
+         <field name="weight">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Weight</property>
+        </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
         </field>

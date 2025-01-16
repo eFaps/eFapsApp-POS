@@ -33,6 +33,7 @@ xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.
             <column name="STR1"         type="STRING_SHORT"                   length="256"/>
             <column name="STR2"         type="STRING_SHORT"                   length="256"/>
             <column name="INT1"         type="INTEGER" />
+            <column name="INT2"         type="INTEGER" />
             <column name="BOL1"         type="BOOLEAN" />
             <column name="BOL2"         type="BOOLEAN" />
             <column name="DATETIME1"    type="DATETIME" />

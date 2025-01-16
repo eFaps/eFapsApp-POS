@@ -50,6 +50,19 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
+        <attribute>
+            <name>DefaultSelected</name>
+            <type>Boolean</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>BOL1</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>Weight</name>
+            <type>Integer</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>INT2</sqlcolumn>
+            <defaultvalue>0</defaultvalue>
+        </attribute>
         <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

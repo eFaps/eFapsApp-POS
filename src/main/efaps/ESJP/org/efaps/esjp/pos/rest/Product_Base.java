@@ -746,7 +746,8 @@ public abstract class Product_Base
                     queryBldr.addWhereAttrEqValue(CIPOS.Indication.IndicationSetLink,
                                     setMulti.getCurrentInstance());
                     final MultiPrintQuery multi = queryBldr.getPrint();
-                    multi.addAttribute(CIPOS.Indication.Value, CIPOS.Indication.Description);
+                    multi.addAttribute(CIPOS.Indication.Value, CIPOS.Indication.Description,
+                                    CIPOS.Indication.DefaultSelected, CIPOS.Indication.Weight);
                     multi.execute();
                     while (multi.next()) {
                         String imageOid = null;
@@ -764,6 +765,8 @@ public abstract class Product_Base
                                         .withValue(multi.getAttribute(CIPOS.Indication.Value))
                                         .withDescription(multi.getAttribute(CIPOS.Indication.Description))
                                         .withImageOid(imageOid)
+                                        .withDefaultSelected(multi.getAttribute(CIPOS.Indication.DefaultSelected))
+                                        .withWeight(multi.getAttribute(CIPOS.Indication.Weight))
                                         .build());
                     }
                     LOG.trace("    indications {}", indications);
