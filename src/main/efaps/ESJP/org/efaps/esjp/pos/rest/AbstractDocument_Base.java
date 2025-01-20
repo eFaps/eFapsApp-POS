@@ -605,7 +605,6 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         final var insert = getPaymentInsert(dto, paymentDto);
-        insert.add(CILoyalty.PaymentPoints.Info, paymentDto.getInfo());
         insert.execute();
         return insert.getInstance();
     }
