@@ -651,7 +651,7 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         Instance ret = null;
-        final QueryBuilder queryBldr = new QueryBuilder(CISales.AttributeDefinitionPaymentElectronicType);
+        final QueryBuilder queryBldr = new QueryBuilder(ciType);
         queryBldr.addWhereAttrEqValue(CIERP.AttributeDefinitionMappingAbstract.MappingKey, mappingKey);
         final InstanceQuery query = queryBldr.getQuery();
         query.executeWithoutAccessCheck();
