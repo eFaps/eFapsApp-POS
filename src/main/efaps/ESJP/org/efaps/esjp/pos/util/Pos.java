@@ -312,7 +312,9 @@ public class Pos
         PRELIMINARY,
         TICKET,
         COPY,
-        BALANCE;
+        BALANCE,
+        BALANCE_DETAILED,
+        SALESREPORT;
 
         @Override
         public int getInt()
