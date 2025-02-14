@@ -905,22 +905,22 @@ public abstract class Product_Base
     public Response getProductDump(@PathParam("identifier") final String _identifier)
         throws EFapsException
     {
-        Response ret;
-        final var eval = EQL.builder().print()
-                        .query(CIPOS.ProductDump)
-                        .select()
-                        .attribute(CIPOS.ProductDump.UpdatedAt)
-                        .evaluate();
-        if (eval.next()) {
-            ret = Response.ok().entity(
-                            DumpDto.builder()
-                                            .withOid(eval.inst().getOid())
-                                            .withUpdateAt(eval.get(CIPOS.ProductDump.UpdatedAt))
-                                            .build())
-                            .build();
-        } else {
-            ret = Response.noContent().build();
+        Response ret = null;
+        if (Pos.PROD_DUMP_ACIVATE.get()) {
+            final var eval = EQL.builder().print()
+                            .query(CIPOS.ProductDump)
+                            .select()
+                            .attribute(CIPOS.ProductDump.UpdatedAt)
+                            .evaluate();
+            if (eval.next()) {
+                ret = Response.ok().entity(
+                                DumpDto.builder()
+                                                .withOid(eval.inst().getOid())
+                                                .withUpdateAt(eval.get(CIPOS.ProductDump.UpdatedAt))
+                                                .build())
+                                .build();
+            }
         }
-        return ret;
+        return ret == null ? Response.noContent().build() : ret;
     }
 }

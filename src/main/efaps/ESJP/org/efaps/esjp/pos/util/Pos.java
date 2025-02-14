@@ -166,6 +166,13 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute PROD_DUMP_ACIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Product.Dump.Activate")
+                    .description("Activate the dump mechanism for products.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
     public static final PropertiesSysConfAttribute BALANCE_REPORT = new PropertiesSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Balance.Report")
