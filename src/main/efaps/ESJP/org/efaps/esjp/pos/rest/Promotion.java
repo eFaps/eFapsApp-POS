@@ -72,8 +72,8 @@ public class Promotion
                                                         .withNetDiscount(promoDetail.getNetDiscount())
                                                         .withCrossUnitDiscount(promoDetail.getCrossUnitDiscount())
                                                         .withCrossDiscount(promoDetail.getCrossDiscount())
-                                                        .withIndex(promoDetail.getIndex())
-                                                        .withPromotionOids(promoDetail.getPromotionOids())
+                                                        .withPositionIndex(promoDetail.getPositionIndex())
+                                                        .withPromotionOid(promoDetail.getPromotionOid())
                                                         .build())
                                         .toList())
                         .build();
