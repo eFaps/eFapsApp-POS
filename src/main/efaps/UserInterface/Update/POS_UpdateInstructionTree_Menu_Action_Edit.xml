@@ -15,31 +15,18 @@
     limitations under the License.
 
 -->
-<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>6de0334d-04f7-40fd-8d69-8c27f9c33600</uuid>
+    <uuid>5057c863-a651-47d8-b8b5-c164bf6ba842</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UpdateDefinition</name>
-        <parent>POS_ObjectAbstract</parent>
-        <attribute>
-            <name>Association</name>
-            <type>AssociationLink</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>ASSOCID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Version</name>
-            <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR1</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Description</name>
-            <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR2</sqlcolumn>
-        </attribute>
+        <name>POS_UpdateInstructionTree_Menu_Action_Edit</name>
+        <target>
+            <form>POS_UpdateInstructionForm</form>
+            <execute program="org.efaps.esjp.common.uiform.Edit"/>
+        </target>
+        <property name="Target">modal</property>
+        <property name="TargetMode">edit</property>
     </definition>
-</datamodel-type>
+</ui-command>

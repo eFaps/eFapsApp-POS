@@ -24,17 +24,30 @@
         <name>POS_UpdateInstruction</name>
         <parent>POS_ObjectAbstract</parent>
         <attribute>
-            <name>Version</name>
+            <name>DefinitionLink</name>
+            <type>Link</type>
+            <typelink>POS_UpdateDefinition</typelink>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>FileLink</name>
+            <type>Link</type>
+            <typelink>POS_UpdateFile</typelink>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>INT2</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>TargetPath</name>
             <type>String</type>
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
         <attribute>
-            <name>Description</name>
-            <type>String</type>
+            <name>Expand</name>
+            <type>Boolean</type>
             <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR2</sqlcolumn>
+            <sqlcolumn>BOL1</sqlcolumn>
         </attribute>
-        <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

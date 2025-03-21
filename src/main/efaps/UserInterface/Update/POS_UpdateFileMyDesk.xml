@@ -15,31 +15,25 @@
     limitations under the License.
 
 -->
-<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>6de0334d-04f7-40fd-8d69-8c27f9c33600</uuid>
+    <uuid>cf6b1ce0-dc50-46f2-adc8-c1e8b1c87195</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UpdateDefinition</name>
-        <parent>POS_ObjectAbstract</parent>
-        <attribute>
-            <name>Association</name>
-            <type>AssociationLink</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>ASSOCID</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Version</name>
-            <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR1</sqlcolumn>
-        </attribute>
-        <attribute>
-            <name>Description</name>
-            <type>String</type>
-            <sqltable>POS_ObjectSQLTable</sqltable>
-            <sqlcolumn>STR2</sqlcolumn>
-        </attribute>
+        <name>POS_UpdateFileMyDesk</name>
+        <access>
+            <role>Administration</role>
+        </access>
+        <target>
+            <menu>POS_UpdateFileMyDesk_Menu</menu>
+            <table>POS_UpdateFileTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="Type">POS_UpdateFile</property>
+            </evaluate>
+        </target>
+        <property name="Target">content</property>
+        <property name="TargetShowCheckBoxes">true</property>
     </definition>
-</datamodel-type>
+</ui-command>

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
     Copyright © 2003 - 2024 The eFaps Team (-)
 
@@ -17,11 +18,11 @@
 -->
 <datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>6de0334d-04f7-40fd-8d69-8c27f9c33600</uuid>
+    <uuid>a65447fd-b01d-46ae-a1bf-c2f2bc6e4a4a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UpdateDefinition</name>
+        <name>POS_UpdateFile</name>
         <parent>POS_ObjectAbstract</parent>
         <attribute>
             <name>Association</name>
@@ -30,7 +31,7 @@
             <sqlcolumn>ASSOCID</sqlcolumn>
         </attribute>
         <attribute>
-            <name>Version</name>
+            <name>Name</name>
             <type>String</type>
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
@@ -41,5 +42,6 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
+        <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

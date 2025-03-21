@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+
+    Copyright © 2003 - 2024 The eFaps Team (-)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>24b32128-fdf6-48ce-8f49-a2923754bf7d</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_UpdateInstructionForm</name>
+         <field name="fileLink">
+            <property name="Attribute">FileLink</property>
+            <property name="SelectAlternateOID">linkto[FileLink].oid</property>
+            <property name="HRef">TREE</property>
+            <property name="Label">POS_UpdateInstructionForm.fileLink.Label</property>
+            <property name="Select">linkto[FileLink].attribute[Name]</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeView">NONE</property>
+            <property name="Required">true</property>
+            <trigger program="org.efaps.esjp.pos.UpdateDefinition"
+                method="autoComplete4UpdateFile"
+                name="POS_UpdateInstructionForm.fileLink.UI_FIELD_AUTOCOMPLETE"
+                event="UI_FIELD_AUTOCOMPLETE" >
+            </trigger>
+        </field>
+        <field name="fileLink4View">
+            <property name="Select">linkto[FileLink].attribute[Name]</property>
+            <property name="ModeEdit">NONE</property>
+        </field>
+        <field name="targetPath">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">TargetPath</property>
+            <property name="Required">true</property>
+        </field>
+        <field name="expand">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Expand</property>
+            <property name="Required">true</property>
+        </field>
+        <field character="Group" name="createGroup">
+            <property name="GroupCount">2</property>
+        </field>
+        <field name="creator">
+            <property name="SelectAlternateOID">linkto[Creator].oid</property>
+            <property name="Attribute">Creator</property>
+            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
+            <property name="ShowTypeIcon">true</property>
+        </field>
+        <field name="created">
+            <property name="Attribute">Created</property>
+        </field>
+        <field character="Group" name="modifyGroup">
+            <property name="GroupCount">2</property>
+        </field>
+        <field name="modifier">
+            <property name="SelectAlternateOID">linkto[Modifier].oid</property>
+            <property name="Attribute">Modifier</property>
+            <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
+            <property name="ShowTypeIcon">true</property>
+        </field>
+        <field name="modified">
+            <property name="Attribute">Modified</property>
+        </field>
+    </definition>
+</ui-form>

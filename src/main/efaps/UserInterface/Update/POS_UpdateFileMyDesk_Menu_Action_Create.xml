@@ -16,35 +16,24 @@
     limitations under the License.
 
 -->
-
-
-<ui-menu xmlns="http://www.efaps.org/xsd"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>f1859bdf-b3c6-42c5-8aa4-7cc2766fc493</uuid>
+    <uuid>bcb65771-8349-4320-87d2-7693c624b0b2</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_ConfigMyDesk</name>
+        <name>POS_UpdateFileMyDesk_Menu_Action_Create</name>
         <access>
             <role>Administration</role>
-            <role>POS_Admin</role>
-            <role>POS_Modifier</role>
-            <role>POS_Reader</role>
         </access>
-        <childs>
-            <child>POS_BackendMyDesk</child>
-            <child>POS_POSMyDesk</child>
-            <child>POS_WorkspaceMyDesk</child>
-            <child>POS_RoleMyDesk</child>
-            <child>POS_UserMyDesk</child>
-            <child>POS_SequenceMyDesk</child>
-            <child>POS_PrinterMyDesk</child>
-            <child>POS_FloorMyDesk</child>
-            <child>POS_IndicationSetMyDesk</child>
-            <child>POS_MonitoringMyDesk</child>
-            <child>POS_UpdateDefinitionMyDesk</child>
-            <child>POS_UpdateFileMyDesk</child>
-        </childs>
+        <target>
+            <form>POS_UpdateFileForm</form>
+            <execute program="org.efaps.esjp.common.uiform.Create"/>
+        </target>
+        <property name="Target">modal</property>
+        <property name="TargetCreateType">POS_UpdateFile</property>
+        <property name="TargetMode">create</property>
+        <property name="TargetDefaultMenu">none</property>
+        <property name="WindowWidth">900</property>
     </definition>
-</ui-menu>
+</ui-command>
