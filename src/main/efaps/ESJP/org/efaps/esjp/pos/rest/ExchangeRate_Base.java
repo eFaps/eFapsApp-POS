@@ -63,7 +63,7 @@ public abstract class ExchangeRate_Base
                 if (add) {
                     final var rateInfo = new Currency().evaluateRateInfo(ParameterUtil.instance(), "",
                                     currencyInst.getInstance());
-                    builder.withExchangeRate(rateInfo.getSaleRateUI());
+                    builder.withExchangeRate(rateInfo.getRateUI());
                     rates.add(builder.build());
                 }
             } catch (final EFapsException e) {
