@@ -232,6 +232,14 @@ public class Pos
                     .description("NumberGenerator for Order.");
 
     @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute ORDER_SERIAL = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Order.SerialNumbers")
+                    .addDefaultValue("default", "000")
+                    .description("SerialNumbers configuration for Order.\n"
+                                    + "identifier = 200");
+
+    @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute ORDER_ACTIVATEOPTION = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Order.ActivateOrderOption")

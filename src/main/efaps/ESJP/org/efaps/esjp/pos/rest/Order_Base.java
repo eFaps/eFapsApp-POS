@@ -39,6 +39,7 @@ import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.erp.SerialNumbers;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.CalculatorService;
@@ -175,7 +176,14 @@ public abstract class Order_Base
         final var currencyInst = DocumentUtils.getCurrencyInst(dto.getCurrency());
         final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
 
-        final var name = NumberGenerator.get(UUID.fromString(Pos.ORDER_NUMGEN.get())).getNextVal();
+        final String name;
+        if (Pos.ORDER_SERIAL.exists()) {
+            final var serialConf = Pos.ORDER_SERIAL.get();
+            final var serial = serialConf.getProperty(identifier, "000");
+            name = SerialNumbers.getNext(CIPOS.Order, serial);
+        } else {
+            name = NumberGenerator.get(UUID.fromString(Pos.ORDER_NUMGEN.get())).getNextVal();
+        }
 
         final var orderInst = EQL.builder().insert(CIPOS.Order)
                         .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
