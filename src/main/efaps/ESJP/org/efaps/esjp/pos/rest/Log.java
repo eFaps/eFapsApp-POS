@@ -57,7 +57,7 @@ public class Log
                              final LogEntryDto dto)
         throws EFapsException
     {
-        checkAccess(identifier);
+        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         LOG.debug("LogEntry: {}", dto);
 
         final var eval = EQL.builder()

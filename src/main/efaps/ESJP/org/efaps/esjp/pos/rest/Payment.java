@@ -57,6 +57,7 @@ import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.contacts.util.Contacts;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.electronicbilling.EBillingDocument;
+import org.efaps.esjp.electronicbilling.util.ElectronicBilling;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.SerialNumbers;
 import org.efaps.esjp.pos.rest.AbstractDocument_Base.PosPayment;
@@ -95,15 +96,17 @@ public class Payment
     @Produces(MediaType.APPLICATION_JSON)
     public Response payAndEmit(@PathParam("identifier") final String identifier,
                                @QueryParam("order-oid") final String orderOid,
+                               @QueryParam("doc-type") final DocType docTypePara,
                                final IPaymentDto dto)
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         LOG.debug("Create Payable for Order: {} and {}", orderOid, dto);
         AbstractPayableDocumentDto payableDto = null;
-        var docType = DocType.RECEIPT;
+
         final var orderInst = Instance.get(orderOid);
         String ublHhash = null;
+        DocType docType = null;
         if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
             final var orderEval = EQL.builder().print(orderInst)
                             .linkto(CIPOS.Order.Contact)
@@ -112,19 +115,38 @@ public class Payment
                             .as("TaxNumber")
                             .evaluate();
             if (orderEval.next()) {
+                if (docTypePara == null) {
+                    if (StringUtils.isNotEmpty(orderEval.get("TaxNumber"))) {
+                        docType = DocType.INVOICE;
+                    } else {
+                        docType = DocType.RECEIPT;
+                    }
+                } else {
+                    docType = docTypePara;
+                }
                 final CIType documentType;
                 final CIType positionType;
-                final CIType connectType;
-                if (StringUtils.isNotEmpty(orderEval.get("TaxNumber"))) {
-                    documentType = CISales.Invoice;
-                    positionType = CISales.InvoicePosition;
-                    connectType = CIPOS.Order2Invoice;
-                    docType = DocType.INVOICE;
-                } else {
-                    documentType = CISales.Receipt;
-                    positionType = CISales.ReceiptPosition;
-                    connectType = CIPOS.Order2Receipt;
-                }
+                boolean ebilling = false;
+                final CIType connectType = switch (docType) {
+                    case INVOICE -> {
+                        documentType = CISales.Invoice;
+                        positionType = CISales.InvoicePosition;
+                        ebilling = ElectronicBilling.INVOICE_ACTIVE.get();
+                        yield CIPOS.Order2Invoice;
+                    }
+                    case TICKET -> {
+                        documentType = CIPOS.Ticket;
+                        positionType = CIPOS.TicketPosition;
+                        yield CIPOS.Order2Ticket;
+                    }
+                    default -> {
+                        documentType = CISales.Receipt;
+                        positionType = CISales.ReceiptPosition;
+                        ebilling = ElectronicBilling.RECEIPT_ACTIVE.get();
+                        yield CIPOS.Order2Receipt;
+                    }
+                };
+
                 final var targetDocInst = cloneDoc(identifier, orderInst, documentType);
                 clonePositions(orderInst, targetDocInst, positionType);
                 connect(orderInst, targetDocInst, connectType);
@@ -133,11 +155,13 @@ public class Payment
 
                 EQL.builder().update(orderInst).set(CIPOS.Order.Status, CIPOS.OrderStatus.Closed).execute();
 
-                final var parameter = ParameterUtil.instance();
-                parameter.put(ParameterValues.CALL_INSTANCE, targetDocInst);
-                final var edoc = new EBillingDocument();
-                edoc.createDocument(parameter);
-                ublHhash = edoc.getHash(targetDocInst);
+                if (ebilling) {
+                    final var parameter = ParameterUtil.instance();
+                    parameter.put(ParameterValues.CALL_INSTANCE, targetDocInst);
+                    final var edoc = new EBillingDocument();
+                    edoc.createDocument(parameter);
+                    ublHhash = edoc.getHash(targetDocInst);
+                }
             }
         }
         return payableDto == null
