@@ -415,6 +415,8 @@ public class Payment
         CIStatus status;
         if (documentType.equals(CISales.Invoice)) {
             status = CISales.InvoiceStatus.Paid;
+        } else if (documentType.equals(CIPOS.Ticket)) {
+            status = CIPOS.TicketStatus.Closed;
         } else {
             status = CISales.ReceiptStatus.Paid;
         }
