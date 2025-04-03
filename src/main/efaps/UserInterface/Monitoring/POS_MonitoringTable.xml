@@ -33,6 +33,10 @@
             <property name="Label">POS_Monitoring/BackendLink.Label</property>
             <property name="HRef">TREE</property>
         </field>
+        <field name="backendIdentifier">
+            <property name="Select">linkto[BackendLink].attribute[Identifier]</property>
+            <property name="Label">POS_Backend/Identifier.Label</property>
+        </field>
         <field name="string1">
             <property name="Select">attribute[String1]</property>
             <property name="Label">POS_Monitoring/String1.Label</property>
