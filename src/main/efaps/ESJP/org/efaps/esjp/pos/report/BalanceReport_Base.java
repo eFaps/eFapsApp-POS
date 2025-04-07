@@ -18,6 +18,7 @@ package org.efaps.esjp.pos.report;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.comparators.ComparatorChain;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -39,11 +42,17 @@ import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.jasperreport.AbstractDynamicReport;
+import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.FilteredReport;
+import org.efaps.esjp.erp.rest.modules.IFilteredReportProvider;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.ui.rest.dto.OptionDto;
+import org.efaps.esjp.ui.rest.dto.ValueDto;
+import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +70,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 @EFapsApplication("eFapsApp-POS")
 public abstract class BalanceReport_Base
     extends FilteredReport
+    implements IFilteredReportProvider
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(BalanceReport.class);
@@ -113,10 +123,92 @@ public abstract class BalanceReport_Base
      * @return the report class
      * @throws EFapsException on error
      */
-    protected AbstractDynamicReport getReport(final Parameter _parameter)
+    @Override
+    public AbstractDynamicReport getReport(final Parameter _parameter)
         throws EFapsException
     {
         return new DynBalanceReport(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ValueDto> getFilters()
+    {
+        try {
+            clearCache(ParameterUtil.instance());
+        } catch (final EFapsException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        final var filterMap = getFilterMap();
+        String dateFromValue = null;
+        String dateToValue = null;
+        List<String> groupByValue=  null;
+        if (filterMap != null && filterMap.containsKey("dateFrom")) {
+            dateFromValue = ((DateTime) filterMap.get("dateFrom")).toLocalDate().toString();
+        } else {
+            dateFromValue = LocalDate.now().toString();
+        }
+
+        if (filterMap != null && filterMap.containsKey("dateTo")) {
+            dateToValue = ((DateTime) filterMap.get("dateTo")).toLocalDate().toString();
+        } else {
+            dateToValue = LocalDate.now().toString();
+        }
+
+        if (filterMap != null && filterMap.containsKey("groupBy")) {
+            groupByValue = ((List<Grouping>) filterMap.get("groupBy")).stream().map(Grouping::name).toList();
+        }
+
+        final var dateFrom = ValueDto.builder()
+                        .withName("dateFrom")
+                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.dateFrom"))
+                        .withType(ValueType.DATE)
+                        .withRequired(true)
+                        .withValue(dateFromValue)
+                        .build();
+        final var dateTo = ValueDto.builder()
+                        .withName("dateTo")
+                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.dateTo"))
+                        .withType(ValueType.DATE)
+                        .withRequired(true)
+                        .withValue(dateToValue)
+                        .build();
+
+        final var groupBy = ValueDto.builder()
+                        .withName("groupBy")
+                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.groupBy"))
+                        .withType(ValueType.PICKLIST)
+                        .withValue(groupByValue)
+                        .withOptions(Arrays.asList(OptionDto.builder()
+                                        .withLabel(DBProperties.getProperty(
+                                                        "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.BALANCE"))
+                                        .withValue(Grouping.BALANCE.name())
+                                        .build(),
+                                        OptionDto.builder()
+                                                        .withLabel(DBProperties.getProperty(
+                                                                        "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.BACKEND"))
+                                                        .withValue(Grouping.BACKEND.name())
+                                                        .build(),
+                                        OptionDto.builder()
+                                                        .withLabel(DBProperties.getProperty(
+                                                                        "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.PAYMENTTYPE"))
+                                                        .withValue(Grouping.PAYMENTTYPE.name())
+                                                        .build(),
+                                        OptionDto.builder()
+                                                        .withLabel(DBProperties.getProperty(
+                                                                        "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.USER"))
+                                                        .withValue(Grouping.USER.name())
+                                                        .build()))
+                        .build();
+        return Arrays.asList(dateFrom, dateTo, groupBy);
+    }
+
+    @Override
+    public Object evalFilterValue4Key(final String key,
+                                      final List<String> values)
+    {
+        return values.stream().map(value -> EnumUtils.getEnum(Grouping.class, value)).toList();
     }
 
     /**
@@ -247,11 +339,11 @@ public abstract class BalanceReport_Base
 
                 final ComparatorChain<DataBean> chain = new ComparatorChain<>();
                 final Map<String, Object> filters = getFilteredReport().getFilterMap(_parameter);
-                final GroupByFilterValue groupBy = (GroupByFilterValue) filters.get("groupBy");
-                if (groupBy != null) {
-                    final List<Enum<?>> selected = groupBy.getObject();
-                    for (final Enum<?> sel : selected) {
-                        switch ((Grouping) sel) {
+                final var rawGroupBy = filters.get("groupBy");
+                if (rawGroupBy != null) {
+                    final var selected = evalGroupBy(rawGroupBy);
+                    for (final var sel : selected) {
+                        switch (sel) {
                             case BACKEND:
                                 chain.addComparator(Comparator.comparing(DataBean::getBackendName));
                                 break;
@@ -382,11 +474,12 @@ public abstract class BalanceReport_Base
                             DynamicReports.type.bigDecimalType());
 
             final Map<String, Object> filters = getFilteredReport().getFilterMap(_parameter);
-            final GroupByFilterValue groupBy = (GroupByFilterValue) filters.get("groupBy");
-            if (groupBy != null) {
-                final List<Enum<?>> selected = groupBy.getObject();
-                for (final Enum<?> sel : selected) {
-                    switch ((Grouping) sel) {
+
+            final var rawGroupBy = filters.get("groupBy");
+            if (rawGroupBy != null) {
+                final var selected = evalGroupBy(rawGroupBy);
+                for (final var sel : selected) {
+                    switch (sel) {
                         case BACKEND:
                             final ColumnGroupBuilder backendGroup = DynamicReports.grp.group(backendName)
                                             .groupByDataType();
@@ -420,15 +513,29 @@ public abstract class BalanceReport_Base
                             break;
                     }
                 }
+
             }
             _builder.addColumn(backendName, balanceName, userName, docType, docName, paymentName, paymentCode,
-                                            paymentType, amount)
-                    .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
+                            paymentType, amount)
+                            .subtotalsAtSummary(DynamicReports.sbt.sum(amount));
         }
 
         protected String label(final String _key)
         {
             return getFilteredReport().getDBProperty("Column." + _key);
+        }
+
+        @SuppressWarnings("unchecked")
+        protected List<Grouping> evalGroupBy(final Object rawGroupBy) {
+            List<Grouping> entries = null;
+            if (rawGroupBy != null) {
+                if (rawGroupBy instanceof final GroupByFilterValue groupBy) {
+                    entries = groupBy.getObject().stream().map(val -> ((Grouping) val)).toList();
+                } else {
+                    entries = (List<Grouping>) rawGroupBy;
+                }
+            }
+            return entries;
         }
     }
 
