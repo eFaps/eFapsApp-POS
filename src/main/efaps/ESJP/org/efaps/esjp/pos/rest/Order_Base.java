@@ -184,6 +184,7 @@ public abstract class Order_Base
         } else {
             name = NumberGenerator.get(UUID.fromString(Pos.ORDER_NUMGEN.get())).getNextVal();
         }
+        final var contactInst = Instance.get(dto.getContactOid());
 
         final var orderInst = EQL.builder().insert(CIPOS.Order)
                         .set(CIPOS.Order.Status, CIPOS.OrderStatus.Open)
@@ -201,10 +202,33 @@ public abstract class Order_Base
                         .set(CIPOS.Order.Rate, rateObj)
                         .set(CIPOS.Order.Taxes, new Taxes())
                         .set(CIPOS.Order.RateTaxes, new Taxes())
+                        .set(CIPOS.Order.Note, dto.getNote())
+                        .set(CIPOS.Order.Contact, InstanceUtils.isType(contactInst, CIContacts.Contact) ? contactInst : null)
                         .execute();
 
         upsertItems(dto, orderInst);
-        new CalculatorService().recalculate(orderInst);
+
+        new CalculatorService()
+        {
+            @Override
+            protected BigDecimal evalNetUnitPrice(final Object dateObject,
+                                                  final Instance positionInst,
+                                                  final Instance productInst)
+                throws EFapsException
+            {
+                BigDecimal ret;
+                if (Pos.ORDER_MOBILESETPRICE.get()) {
+                    final var eval = EQL.builder().print(positionInst)
+                                    .attribute(CIPOS.OrderPosition.NetUnitPrice)
+                                    .evaluate();
+                    ret = eval.get(CIPOS.OrderPosition.NetUnitPrice);
+                } else {
+                    ret = super.evalNetUnitPrice(dateObject, positionInst, productInst);
+                }
+                return ret;
+            }
+        }.recalculate(orderInst);
+
         return Response.ok(getOrder(orderInst)).build();
     }
 
@@ -223,7 +247,7 @@ public abstract class Order_Base
         final var currencyInst = DocumentUtils.getCurrencyInst(dto.getCurrency());
         final var rateObj = DocumentUtils.getRate(dto.getCurrency(), BigDecimal.ONE);
 
-        int idx = 0;
+        int idx = 1;
         for (final var item : dto.getItems()) {
             final var prodEval = EQL.builder().print(item.getProductOid())
                             .attribute(CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.TaxCategory,
@@ -238,7 +262,7 @@ public abstract class Order_Base
                                 .set(CIPOS.OrderPosition.Discount, BigDecimal.ZERO)
                                 .set(CIPOS.OrderPosition.DiscountNetUnitPrice, BigDecimal.ZERO)
                                 .set(CIPOS.OrderPosition.NetPrice, BigDecimal.ZERO)
-                                .set(CIPOS.OrderPosition.NetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.NetUnitPrice, item.getNetUnitPrice())
                                 .set(CIPOS.OrderPosition.PositionNumber, idx++)
                                 .set(CIPOS.OrderPosition.Product, prodEval.inst())
                                 .set(CIPOS.OrderPosition.ProductDesc,
@@ -251,7 +275,7 @@ public abstract class Order_Base
                                 .set(CIPOS.OrderPosition.RateDiscountNetUnitPrice, BigDecimal.ZERO)
                                 .set(CIPOS.OrderPosition.RateNetPrice, BigDecimal.ZERO)
                                 .set(CIPOS.OrderPosition.RateTaxes, new Taxes())
-                                .set(CIPOS.OrderPosition.RateNetUnitPrice, BigDecimal.ZERO)
+                                .set(CIPOS.OrderPosition.RateNetUnitPrice, item.getNetUnitPrice())
                                 .set(CIPOS.OrderPosition.Remark, "")
                                 .set(CIPOS.OrderPosition.Tax, prodEval.get(CIProducts.ProductAbstract.TaxCategory))
                                 .set(CIPOS.OrderPosition.Taxes, new Taxes())
@@ -274,7 +298,26 @@ public abstract class Order_Base
         final var orderInst = Instance.get(oid);
         upsertItems(dto, orderInst);
 
-        new CalculatorService().recalculate(orderInst);
+        new CalculatorService()
+        {
+            @Override
+            protected BigDecimal evalNetUnitPrice(final Object dateObject,
+                                                  final Instance positionInst,
+                                                  final Instance productInst)
+                throws EFapsException
+            {
+                BigDecimal ret;
+                if (Pos.ORDER_MOBILESETPRICE.get()) {
+                    final var eval = EQL.builder().print(positionInst)
+                                    .attribute(CIPOS.OrderPosition.NetUnitPrice)
+                                    .evaluate();
+                    ret = eval.get(CIPOS.OrderPosition.NetUnitPrice);
+                } else {
+                    ret = super.evalNetUnitPrice(dateObject, positionInst, productInst);
+                }
+                return ret;
+            }
+        }.recalculate(orderInst);
         return Response.ok(getOrder(orderInst)).build();
     }
 

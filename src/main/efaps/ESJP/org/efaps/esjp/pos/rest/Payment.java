@@ -486,6 +486,8 @@ public class Payment
         CIAttribute attr;
         if (documentType.equals(CISales.Invoice)) {
             attr = CIPOS.BackendMobile.InvoiceSerial;
+        } else if (documentType.equals(CIPOS.Ticket)) {
+            attr = CIPOS.BackendMobile.TicketSerial;
         } else {
             attr = CIPOS.BackendMobile.ReceiptSerial;
         }

@@ -240,6 +240,13 @@ public class Pos
                                     + "identifier = 200");
 
     @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute ORDER_MOBILESETPRICE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Order.Mobile.PermitSetPrice")
+                    .defaultValue(false)
+                    .description("Permit setting the price for the endpoint to create Order for mobile");
+
+    @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute ORDER_ACTIVATEOPTION = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Order.ActivateOrderOption")

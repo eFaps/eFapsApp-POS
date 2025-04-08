@@ -59,6 +59,12 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">InvoiceSerial</property>
         </field>
+        <field name="ticketSerial">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">TicketSerial</property>
+        </field>
         <field name="status">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>

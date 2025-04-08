@@ -43,11 +43,17 @@
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>STR1</sqlcolumn>
         </attribute>
-         <attribute>
+        <attribute>
             <name>InvoiceSerial</name>
             <type>String</type>
             <sqltable>POS_BackendSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>TicketSerial</name>
+            <type>String</type>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>STR3</sqlcolumn>
         </attribute>
          <attribute>
             <name>AccountLink</name>
