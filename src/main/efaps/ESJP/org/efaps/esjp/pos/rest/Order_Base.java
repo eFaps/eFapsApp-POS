@@ -365,7 +365,9 @@ public abstract class Order_Base
         final var docEval = EQL.builder().print(instance)
                         .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
                                         CISales.DocumentSumAbstract.RateCrossTotal,
-                                        CISales.DocumentSumAbstract.RateCurrencyId)
+                                        CISales.DocumentSumAbstract.RateCurrencyId,
+                                        CISales.DocumentAbstract.Note)
+                        .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
                         .evaluate();
         docEval.next();
 
@@ -373,8 +375,14 @@ public abstract class Order_Base
                         .where()
                         .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
                         .select()
-                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity)
+                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity,
+                                        CISales.PositionSumAbstract.RateNetUnitPrice,
+                                        CISales.PositionSumAbstract.RateNetPrice,
+                                        CISales.PositionSumAbstract.RateCrossUnitPrice,
+                                        CISales.PositionSumAbstract.RateCrossPrice,
+                                        CISales.PositionSumAbstract.RateCurrencyId)
                         .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
+
                         .orderBy(CISales.PositionSumAbstract.PositionNumber)
                         .evaluate();
         final var items = new ArrayList<DocItemDto>();
@@ -382,6 +390,12 @@ public abstract class Order_Base
             items.add(DocItemDto.builder()
                             .withProductOid(posEval.get("productOid"))
                             .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
+                            .withNetUnitPrice(posEval.get(CISales.PositionSumAbstract.RateNetUnitPrice))
+                            .withNetPrice(posEval.get(CISales.PositionSumAbstract.RateNetPrice))
+                            .withCrossUnitPrice(posEval.get(CISales.PositionSumAbstract.RateCrossUnitPrice))
+                            .withCrossPrice(posEval.get(CISales.PositionSumAbstract.RateCrossPrice))
+                            .withCurrency(DocumentUtils
+                                        .getCurrency(docEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
                             .build());
         }
 
@@ -394,6 +408,8 @@ public abstract class Order_Base
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
                         .withStatus(DocStatus.OPEN)
+                        .withNote(docEval.get(CISales.DocumentAbstract.Note))
+                        .withContactOid(docEval.get("contactOid"))
                         .withItems(items)
                         .build();
     }
