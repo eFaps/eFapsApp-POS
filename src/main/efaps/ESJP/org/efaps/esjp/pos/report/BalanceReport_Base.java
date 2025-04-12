@@ -17,6 +17,8 @@ package org.efaps.esjp.pos.report;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,6 +36,7 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
@@ -52,7 +55,6 @@ import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,8 +136,10 @@ public abstract class BalanceReport_Base
     @Override
     public List<ValueDto> getFilters()
     {
+        ZoneId zoneId = ZoneId.systemDefault();
         try {
             clearCache(ParameterUtil.instance());
+            zoneId = Context.getThreadContext().getZoneId();
         } catch (final EFapsException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -147,13 +151,13 @@ public abstract class BalanceReport_Base
         if (filterMap != null && filterMap.containsKey("dateFrom")) {
             dateFromValue = ((DateTime) filterMap.get("dateFrom")).toLocalDate().toString();
         } else {
-            dateFromValue = LocalDate.now().toString();
+            dateFromValue = LocalDate.now(zoneId).toString();
         }
 
         if (filterMap != null && filterMap.containsKey("dateTo")) {
             dateToValue = ((DateTime) filterMap.get("dateTo")).toLocalDate().toString();
         } else {
-            dateToValue = LocalDate.now().toString();
+            dateToValue = LocalDate.now(zoneId).toString();
         }
 
         if (filterMap != null && filterMap.containsKey("groupBy")) {
