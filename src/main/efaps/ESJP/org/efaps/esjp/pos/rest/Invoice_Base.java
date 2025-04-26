@@ -15,6 +15,9 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.datamodel.Status;
@@ -22,7 +25,10 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CISales;
+import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.util.EFapsException;
@@ -59,7 +65,7 @@ public abstract class Invoice_Base
     @Override
     protected CIType getDepartment2DocumentType()
     {
-        return  CISales.HumanResource_Department2Invoice;
+        return CISales.HumanResource_Department2Invoice;
     }
 
     /**
@@ -68,7 +74,8 @@ public abstract class Invoice_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addInvoice(final String _identifier, final InvoiceDto _invoiceDto)
+    public Response addInvoice(final String _identifier,
+                               final InvoiceDto _invoiceDto)
         throws EFapsException
     {
         checkAccess(_identifier);
@@ -90,6 +97,52 @@ public abstract class Invoice_Base
         final Response ret = Response.ok()
                         .entity(dto)
                         .build();
+        return ret;
+    }
+
+    public Response getInvoice(final String identifier,
+                               final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        final var invoiceInstance = Instance.get(oid);
+        if (InstanceUtils.isType(invoiceInstance, CISales.Invoice)) {
+            final var dto = toDto(InvoiceDto.builder(), invoiceInstance);
+            ret = Response.ok()
+                            .entity(dto)
+                            .build();
+        } else {
+            LOG.warn("Recieved invalid get request for invoice oid: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
+        }
+        return ret;
+    }
+
+    public Response findInvoices(final String identifier,
+                                 final String number)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        final var eval = EQL.builder().print().query(CISales.Invoice)
+                        .where()
+                        .attribute(CISales.Invoice.Name).eq(number)
+                        .select().oid()
+                        .evaluate();
+        final List<AbstractDocumentDto> dtos = new ArrayList<>();
+        while (eval.next()) {
+            dtos.add(toDto(InvoiceDto.builder(), eval.inst()));
+        }
+        if (dtos.isEmpty()) {
+            ret = Response.status(Response.Status.NOT_FOUND)
+                            .build();
+        } else {
+            ret = Response.ok()
+                            .entity(dtos)
+                            .build();
+        }
         return ret;
     }
 }

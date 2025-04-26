@@ -16,10 +16,12 @@
 package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,14 +36,38 @@ import org.efaps.util.EFapsException;
 public class Invoice
     extends Invoice_Base
 {
+
     @Override
     @Path("/{identifier}/invoices")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addInvoice(@PathParam("identifier") final String _identifier, final InvoiceDto _receipt)
+    public Response addInvoice(@PathParam("identifier") final String identifier,
+                               final InvoiceDto receipt)
         throws EFapsException
     {
-        return super.addInvoice(_identifier, _receipt);
+        return super.addInvoice(identifier, receipt);
+    }
+
+    @Override
+    @Path("/{identifier}/invoices/{oid}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInvoice(@PathParam("identifier") final String identifier,
+                               @PathParam("oid") final String oid)
+        throws EFapsException
+    {
+        return super.getInvoice(identifier, oid);
+    }
+
+    @Override
+    @Path("/{identifier}/invoices")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findInvoices(@PathParam("identifier") final String identifier,
+                                 @QueryParam("number") final String number)
+        throws EFapsException
+    {
+        return super.findInvoices(identifier, number);
     }
 }
