@@ -120,8 +120,8 @@ public abstract class Invoice_Base
         return ret;
     }
 
-    public Response findInvoices(final String identifier,
-                                 final String number)
+    public Response retrieveInvoices(final String identifier,
+                                     final String number)
         throws EFapsException
     {
         checkAccess(identifier);

@@ -64,10 +64,10 @@ public class Invoice
     @Path("/{identifier}/invoices")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findInvoices(@PathParam("identifier") final String identifier,
+    public Response retrieveInvoices(@PathParam("identifier") final String identifier,
                                  @QueryParam("number") final String number)
         throws EFapsException
     {
-        return super.findInvoices(identifier, number);
+        return super.retrieveInvoices(identifier, number);
     }
 }
