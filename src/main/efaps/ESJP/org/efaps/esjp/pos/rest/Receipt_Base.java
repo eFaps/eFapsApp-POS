@@ -109,14 +109,14 @@ public abstract class Receipt_Base
     {
         checkAccess(identifier);
         final Response ret;
-        final var reciptInstance = Instance.get(oid);
-        if (InstanceUtils.isType(reciptInstance, CISales.Receipt)) {
-            final var dto = toDto(ReceiptDto.builder(), reciptInstance);
+        final var recieptInstance = Instance.get(oid);
+        if (InstanceUtils.isType(recieptInstance, CISales.Receipt)) {
+            final var dto = toDto(ReceiptDto.builder(), recieptInstance);
             ret = Response.ok()
                             .entity(dto)
                             .build();
         } else {
-            LOG.warn("Recieved invalid get request for receipt oid: {}", oid);
+            LOG.warn("Recieved invalid GET request for receipt oid: {}", oid);
             ret = Response.status(Response.Status.PRECONDITION_FAILED)
                             .build();
         }

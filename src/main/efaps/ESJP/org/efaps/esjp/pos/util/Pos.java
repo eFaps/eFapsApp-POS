@@ -391,7 +391,8 @@ public class Pos
         ORDERREQUIRESCONTACT,
         ROUNDPAYABLE,
         ASSIGNSELLER,
-        JOBONPAYMENT;
+        JOBONPAYMENT,
+        REMOTE;
 
         @Override
         public int getInt()
@@ -410,7 +411,8 @@ public class Pos
     {
         ADMIN,
         COLLECT,
-        ORDER;
+        ORDER,
+        CREDITNOTE;
 
         @Override
         public int getInt()

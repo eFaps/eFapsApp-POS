@@ -53,16 +53,13 @@ import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
+import org.efaps.esjp.erp.RateInfo;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.loyalty.Points;
 import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
-import org.efaps.esjp.sales.tax.Tax;
-import org.efaps.esjp.sales.tax.TaxCat;
-import org.efaps.esjp.sales.tax.TaxCat_Base;
-import org.efaps.esjp.sales.tax.Tax_Base;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.esjp.sales.util.Sales;
@@ -71,7 +68,6 @@ import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
 import org.efaps.pos.dto.CreditNoteDto;
 import org.efaps.pos.dto.DocItemDto;
-import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.IPaymentDto;
 import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.PaymentAbstractDto;
@@ -105,7 +101,6 @@ public abstract class AbstractDocument_Base
     protected abstract CIType getEmployee2DocumentType();
 
     protected abstract CIType getDepartment2DocumentType();
-
 
     protected Instance createDocument(final Status _status,
                                       final AbstractDocumentDto _dto)
@@ -387,7 +382,8 @@ public abstract class AbstractDocument_Base
         insert.add(CISales.PositionSumAbstract.RateNetPrice, dto.getNetPrice());
         insert.add(CISales.PositionSumAbstract.RateCrossPrice, dto.getCrossPrice());
         insert.add(CISales.PositionSumAbstract.Remark, dto.getRemark());
-        insert.add(CISales.PositionSumAbstract.Tax, getTaxCat(dto.getTaxes().iterator().next()).getInstance());
+        insert.add(CISales.PositionSumAbstract.Tax,
+                        DocumentUtils.getTaxCat(dto.getTaxes().iterator().next()).getInstance());
         insert.add(CISales.PositionSumAbstract.Taxes,
                         getTaxes(date, dto.getTaxes(), dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.PositionSumAbstract.RateTaxes, getRateTaxes(date, dto.getTaxes()));
@@ -412,8 +408,8 @@ public abstract class AbstractDocument_Base
             final TaxEntry taxentry = new TaxEntry();
             taxentry.setBase(DocumentUtils.exchange(dto.getBase(), currency, exchangeRate));
             taxentry.setAmount(DocumentUtils.exchange(dto.getAmount(), currency, exchangeRate));
-            taxentry.setUUID(getTax(dto).getUUID());
-            taxentry.setCatUUID(getTax(dto).getTaxCat().getUuid());
+            taxentry.setUUID(DocumentUtils.getTax(dto).getUUID());
+            taxentry.setCatUUID(DocumentUtils.getTax(dto).getTaxCat().getUuid());
             taxentry.setCurrencyUUID(CurrencyInst.get(ERP.CURRENCYBASE.get()).getUUID());
             taxentry.setDate(new org.joda.time.LocalDate(_date.getYear(), _date.getMonthValue(), _date.getDayOfMonth())
                             .toDateTimeAtCurrentTime().withTimeAtStartOfDay());
@@ -431,27 +427,14 @@ public abstract class AbstractDocument_Base
             final TaxEntry taxentry = new TaxEntry();
             taxentry.setBase(dto.getBase());
             taxentry.setAmount(dto.getAmount());
-            taxentry.setUUID(getTax(dto).getUUID());
-            taxentry.setCatUUID(getTax(dto).getTaxCat().getUuid());
+            taxentry.setUUID(DocumentUtils.getTax(dto).getUUID());
+            taxentry.setCatUUID(DocumentUtils.getTax(dto).getTaxCat().getUuid());
             taxentry.setCurrencyUUID(CurrencyInst.get(ERP.CURRENCYBASE.get()).getUUID());
             taxentry.setDate(new org.joda.time.LocalDate(_date.getYear(), _date.getMonthValue(), _date.getDayOfMonth())
                             .toDateTimeAtCurrentTime().withTimeAtStartOfDay());
             ret.getEntries().add(taxentry);
         }
         return ret;
-    }
-
-    protected Tax getTax(final TaxEntryDto _taxEntry)
-        throws EFapsException
-    {
-        return Tax_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()),
-                        UUID.fromString(_taxEntry.getTax().getKey()));
-    }
-
-    protected TaxCat getTaxCat(final TaxEntryDto _taxEntry)
-        throws EFapsException
-    {
-        return TaxCat_Base.get(UUID.fromString(_taxEntry.getTax().getCatKey()));
     }
 
     protected void addPayments(final Instance docInst,
@@ -687,75 +670,44 @@ public abstract class AbstractDocument_Base
         }
     }
 
-    protected void toDto2(final Instance instance)
-        throws EFapsException
-    {
-
-        final var docEval = EQL.builder().print(instance)
-                        .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
-                                        CISales.DocumentSumAbstract.RateCrossTotal,
-                                        CISales.DocumentSumAbstract.RateCurrencyId,
-                                        CISales.DocumentAbstract.Note)
-                        .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
-                        .evaluate();
-        docEval.next();
-
-        final var posEval = EQL.builder().print().query(CISales.PositionSumAbstract)
-                        .where()
-                        .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
-                        .select()
-                        .attribute(CISales.PositionSumAbstract.PositionNumber,
-                                        CISales.PositionSumAbstract.Quantity,
-                                        CISales.PositionSumAbstract.RateNetUnitPrice,
-                                        CISales.PositionSumAbstract.RateNetPrice,
-                                        CISales.PositionSumAbstract.RateCrossUnitPrice,
-                                        CISales.PositionSumAbstract.RateCrossPrice,
-                                        CISales.PositionSumAbstract.RateCurrencyId)
-                        .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
-                        .orderBy(CISales.PositionSumAbstract.PositionNumber)
-                        .evaluate();
-        final var items = new ArrayList<DocItemDto>();
-        while (posEval.next()) {
-            items.add(DocItemDto.builder()
-                            .withProductOid(posEval.get("productOid"))
-                            .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
-                            .withNetUnitPrice(posEval.get(CISales.PositionSumAbstract.RateNetUnitPrice))
-                            .withNetPrice(posEval.get(CISales.PositionSumAbstract.RateNetPrice))
-                            .withCrossUnitPrice(posEval.get(CISales.PositionSumAbstract.RateCrossUnitPrice))
-                            .withCrossPrice(posEval.get(CISales.PositionSumAbstract.RateCrossPrice))
-                            .withCurrency(DocumentUtils
-                                            .getCurrency(docEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
-                            .build());
-        }
-    }
-
     public AbstractDocumentDto toDto(final AbstractDocumentDto.Builder<?> bldr,
                                      final Instance instance)
         throws EFapsException
     {
         final var docEval = EQL.builder().print(instance)
-                        .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
+                        .attribute(CISales.DocumentAbstract.Name,
+                                        CISales.DocumentSumAbstract.RateNetTotal,
                                         CISales.DocumentSumAbstract.RateCrossTotal,
                                         CISales.DocumentSumAbstract.RateCurrencyId,
-                                        CISales.DocumentAbstract.Note)
+                                        CISales.DocumentSumAbstract.RateTaxes,
+                                        CISales.DocumentSumAbstract.Rate,
+                                        CISales.DocumentAbstract.Note,
+                                        CISales.DocumentAbstract.StatusAbstract)
                         .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
                         .evaluate();
+
+        final var rateInfo = RateInfo.getRateInfo(docEval.get(CISales.DocumentSumAbstract.Rate));
 
         bldr.withOID(instance.getOid())
                         .withId(instance.getOid())
                         .withNumber(docEval.get(CISales.DocumentAbstract.Name))
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
+                        .withExchangeRate(rateInfo.getRateUI())
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
-                        .withStatus(DocStatus.OPEN)
+                        .withStatus(DocumentUtils
+                                        .getDtoStatus(docEval.<Long>get(CISales.DocumentSumAbstract.StatusAbstract)))
+                        .withTaxes(DocumentUtils.getDtoTaxes(docEval.get(CISales.DocumentSumAbstract.RateTaxes),
+                                        rateInfo.getRateUI()))
                         .withNote(docEval.get(CISales.DocumentAbstract.Note))
                         .withContactOid(docEval.get("contactOid"));
         return toDto(bldr, evalDocItemDtos(instance));
     }
 
     protected AbstractDocumentDto toDto(final AbstractDocumentDto.Builder<?> bldr,
-                                        final List<DocItemDto> items) {
+                                        final List<DocItemDto> items)
+    {
         AbstractDocumentDto dto = null;
         if (bldr instanceof final InvoiceDto.Builder invoiceBldr) {
             dto = invoiceBldr.withItems(items).build();
@@ -778,24 +730,31 @@ public abstract class AbstractDocument_Base
                                         CISales.PositionSumAbstract.RateNetPrice,
                                         CISales.PositionSumAbstract.RateCrossUnitPrice,
                                         CISales.PositionSumAbstract.RateCrossPrice,
-                                        CISales.PositionSumAbstract.RateCurrencyId)
+                                        CISales.PositionSumAbstract.RateCurrencyId,
+                                        CISales.PositionSumAbstract.Rate,
+                                        CISales.PositionSumAbstract.RateTaxes)
                         .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
                         .orderBy(CISales.PositionSumAbstract.PositionNumber)
                         .evaluate();
         final var items = new ArrayList<DocItemDto>();
         while (posEval.next()) {
+            final var rateInfo = RateInfo.getRateInfo(posEval.get(CISales.PositionSumAbstract.Rate));
             items.add(DocItemDto.builder()
+                            .withIndex(posEval.get(CISales.PositionSumAbstract.PositionNumber))
                             .withProductOid(posEval.get("productOid"))
                             .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
                             .withNetUnitPrice(posEval.get(CISales.PositionSumAbstract.RateNetUnitPrice))
                             .withNetPrice(posEval.get(CISales.PositionSumAbstract.RateNetPrice))
                             .withCrossUnitPrice(posEval.get(CISales.PositionSumAbstract.RateCrossUnitPrice))
                             .withCrossPrice(posEval.get(CISales.PositionSumAbstract.RateCrossPrice))
+                            .withExchangeRate(rateInfo.getRateUI())
+                            .withTaxes(DocumentUtils.getDtoTaxes(
+                                            posEval.get(CISales.PositionSumAbstract.RateTaxes), rateInfo.getRateUI()))
                             .withCurrency(DocumentUtils
                                             .getCurrency(posEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
                             .build());
         }
-        return null;
+        return items;
     }
 
     public static class PosPayment

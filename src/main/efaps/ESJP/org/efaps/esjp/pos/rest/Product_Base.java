@@ -70,6 +70,7 @@ import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.pos.rest.dto.DumpDto;
+import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.products.util.Products;
 import org.efaps.esjp.products.util.Products.ProductIndividual;
@@ -343,16 +344,7 @@ public abstract class Product_Base
             final Set<TaxDto> taxes = new HashSet<>();
             calculator.getTaxes().forEach(tax -> {
                 try {
-                    taxes.add(TaxDto.builder()
-                                    .withOID(tax.getInstance().getOid())
-                                    .withKey(tax.getUUID().toString())
-                                    .withCatKey(tax.getTaxCat().getUuid().toString())
-                                    .withName(tax.getName())
-                                    .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class,
-                                                    tax.getTaxType().name()))
-                                    .withAmount(tax.getAmount())
-                                    .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
-                                    .build());
+                    taxes.add(DocumentUtils.getDtoTax(tax));
                 } catch (final EFapsException e) {
                     LOG.error("Catched", e);
                 }
@@ -360,8 +352,6 @@ public abstract class Product_Base
             final Set<ProductRelationDto> relations = new HashSet<>();
             if (Pos.PRODREL.exists()) {
                 final Properties properties = Pos.PRODREL.get();
-                PropertiesUtil.analyseProperty(properties, "QuantitySelect",
-                                0);
                 final Map<Integer, String> relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
                 final Map<Integer, String> relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
                 final Map<Integer, String> relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);

@@ -17,6 +17,8 @@ package org.efaps.esjp.pos.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.apache.commons.lang3.EnumUtils;
@@ -28,7 +30,15 @@ import org.efaps.esjp.ci.CILoyalty;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
+import org.efaps.esjp.sales.tax.Tax;
+import org.efaps.esjp.sales.tax.TaxCat;
+import org.efaps.esjp.sales.tax.TaxCat_Base;
+import org.efaps.esjp.sales.tax.Tax_Base;
+import org.efaps.esjp.sales.tax.xml.Taxes;
+import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.PaymentType;
+import org.efaps.pos.dto.TaxDto;
+import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.jfree.util.Log;
@@ -95,8 +105,7 @@ public class DocumentUtils
         }
 
         final var currencyInst = getCurrencyInst(currency);
-        return currencyInst.isInvert() ? new Object[] { rate, 1 }
-                        : new Object[] { 1, rate };
+        return currencyInst.isInvert() ? new Object[] { 1, rate } : new Object[] { rate, 1 };
     }
 
     public static CIType getPaymentDocType(final PaymentType paymentType,
@@ -131,6 +140,71 @@ public class DocumentUtils
         };
     }
 
+    public static DocStatus getDtoStatus(final Long statusId)
+        throws CacheReloadException
+    {
+        final var status = Status.get(statusId);
+        return switch (status.getKey()) {
+            case "Booked" -> DocStatus.CLOSED;
+            case "Draft" -> DocStatus.OPEN;
+            case "Open" -> DocStatus.OPEN;
+            case "Paid" -> DocStatus.CLOSED;
+            case "Replaced" -> DocStatus.CANCELED;
+            default -> DocStatus.OPEN;
+        };
+    }
 
+    public static Collection<TaxEntryDto> getDtoTaxes(final Taxes taxes,
+                                                      final BigDecimal exchangeRate)
+        throws EFapsException
+    {
+        final var dtos = new ArrayList<TaxEntryDto>();
+        for (final var entry : taxes.getEntries()) {
+            final var currencyId = CurrencyInst.get(entry.getCurrencyUUID()).getInstance().getId();
+            dtos.add(TaxEntryDto.builder()
+                            .withAmount(entry.getAmount())
+                            .withBase(entry.getBase())
+                            .withCurrency(getCurrency(currencyId))
+                            .withExchangeRate(exchangeRate)
+                            .withTax(getDtoTax(entry.getCatUUID(), entry.getUUID()))
+                            .build());
+        }
+        return dtos;
+    }
+
+    public static TaxDto getDtoTax(final UUID catUuid,
+                                   final UUID taxUuid)
+        throws EFapsException
+    {
+        return getDtoTax(Tax.get(catUuid, taxUuid));
+    }
+
+    public static TaxDto getDtoTax(final Tax tax)
+        throws EFapsException
+    {
+        return TaxDto.builder()
+                        .withOID(tax.getInstance().getOid())
+                        .withKey(tax.getUUID().toString())
+                        .withCatKey(tax.getTaxCat().getUuid().toString())
+                        .withName(tax.getName())
+                        .withType(EnumUtils.getEnum(org.efaps.pos.dto.TaxType.class,
+                                        tax.getTaxType().name()))
+                        .withAmount(tax.getAmount())
+                        .withPercent(tax.getFactor().multiply(BigDecimal.valueOf(100)))
+                        .build();
+    }
+
+    public static Tax getTax(final TaxEntryDto taxEntry)
+        throws EFapsException
+    {
+        return Tax_Base.get(UUID.fromString(taxEntry.getTax().getCatKey()),
+                        UUID.fromString(taxEntry.getTax().getKey()));
+    }
+
+    public static TaxCat getTaxCat(final TaxEntryDto taxEntry)
+        throws EFapsException
+    {
+        return TaxCat_Base.get(UUID.fromString(taxEntry.getTax().getCatKey()));
+    }
 
 }
