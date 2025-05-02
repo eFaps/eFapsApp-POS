@@ -95,6 +95,12 @@ public class Pos
                     .defaultValue(true)
                     .description("Activate the image mechanism for categories.");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute CREDITNOTE_PERMITPARTIAL = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "CreditNote.PermitPartial")
+                    .description("Permit partial creditnotes.");
+
     /** See description. */
     @EFapsSysConfAttribute
     public static final BooleanSysConfAttribute FILE_ACIVATE = new BooleanSysConfAttribute()
