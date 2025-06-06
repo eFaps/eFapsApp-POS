@@ -29,7 +29,7 @@
 
     <packaging>jar</packaging>
     <groupId>org.efaps.apps</groupId>
-    <artifactId>pos</artifactId>
+    <artifactId>efaps-app-pos</artifactId>
     <name>eFaps ERP Pos-Connection App</name>
     <description>
     </description>
