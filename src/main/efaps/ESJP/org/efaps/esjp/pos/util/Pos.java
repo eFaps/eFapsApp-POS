@@ -398,7 +398,8 @@ public class Pos
         ROUNDPAYABLE,
         ASSIGNSELLER,
         JOBONPAYMENT,
-        REMOTE;
+        REMOTE,
+        ASSIGNSHOUTOUT;
 
         @Override
         public int getInt()
