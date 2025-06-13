@@ -442,7 +442,9 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         if (CollectionUtils.isNotEmpty(dto.getPayments())) {
-            for (final IPaymentDto payment : dto.getPayments()) {
+            final var paymentDtos = dto.getPayments().stream().sorted(Comparator.comparing(IPaymentDto::getIndex))
+                            .toList();
+            for (final IPaymentDto payment : paymentDtos) {
                 LOG.debug("adding payment: {}", payment);
 
                 final var instance = switch (payment.getType()) {
