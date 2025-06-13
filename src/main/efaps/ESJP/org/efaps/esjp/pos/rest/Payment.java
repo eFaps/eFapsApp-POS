@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -97,11 +96,11 @@ public class Payment
     public Response payAndEmit(@PathParam("identifier") final String identifier,
                                @QueryParam("order-oid") final String orderOid,
                                @QueryParam("doc-type") final DocType docTypePara,
-                               final IPaymentDto dto)
+                               final List<IPaymentDto> paymentDtos)
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
-        LOG.debug("Create Payable for Order: {} and {}", orderOid, dto);
+        LOG.debug("Create Payable for Order: {} with: {} and {}", orderOid, docTypePara, paymentDtos);
         AbstractPayableDocumentDto payableDto = null;
 
         final var orderInst = Instance.get(orderOid);
@@ -150,7 +149,7 @@ public class Payment
                 final var targetDocInst = cloneDoc(identifier, orderInst, documentType);
                 clonePositions(orderInst, targetDocInst, positionType);
                 connect(orderInst, targetDocInst, connectType);
-                addPayments(identifier, targetDocInst, Collections.singletonList(dto));
+                addPayments(identifier, targetDocInst, paymentDtos);
                 payableDto = toPayableDto(targetDocInst);
 
                 EQL.builder().update(orderInst).set(CIPOS.Order.Status, CIPOS.OrderStatus.Closed).execute();
