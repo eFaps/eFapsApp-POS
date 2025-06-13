@@ -125,27 +125,27 @@
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>loyalty</artifactId>
+            <artifactId>efaps-app-loyalty</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>sales</artifactId>
+            <artifactId>efaps-app-sales</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>electronicbilling</artifactId>
+            <artifactId>efaps-app-electronicbilling</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>promotions</artifactId>
+            <artifactId>efaps-app-promotions</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
             <groupId>org.efaps.apps</groupId>
-            <artifactId>humanresource</artifactId>
+            <artifactId>efaps-app-humanresource</artifactId>
             <version>${efaps.app.dependencies}</version>
         </dependency>
         <dependency>
