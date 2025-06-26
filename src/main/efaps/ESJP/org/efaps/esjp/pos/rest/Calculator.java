@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.EnumUtils;
+import org.efaps.abacus.api.ICalcPosition;
 import org.efaps.abacus.api.IConfig;
 import org.efaps.abacus.api.ITax;
 import org.efaps.abacus.api.TaxType;
@@ -39,6 +40,8 @@ import org.efaps.esjp.sales.tax.TaxCat_Base;
 import org.efaps.pos.dto.CalculatorPositionResponseDto;
 import org.efaps.pos.dto.CalculatorRequestDto;
 import org.efaps.pos.dto.CalculatorResponseDto;
+import org.efaps.pos.dto.PromoDetailDto;
+import org.efaps.pos.dto.PromoInfoDto;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.promotionengine.api.IDocument;
@@ -128,6 +131,8 @@ public class Calculator
                         .withTaxes(toDto(taxMap, result.getTaxes()))
                         .withPositions(result.getPositions().stream()
                                         .map(pos -> CalculatorPositionResponseDto.builder()
+                                                        .withIndex(pos.getIndex())
+                                                        .withParentIdx(evalParentIndex(pos, dto))
                                                         .withQuantity(pos.getQuantity())
                                                         .withProductOid(pos.getProductOid())
                                                         .withNetUnitPrice(pos.getNetUnitPrice())
@@ -136,10 +141,39 @@ public class Calculator
                                                         .withCrossPrice(pos.getCrossPrice())
                                                         .withTaxAmount(pos.getTaxAmount())
                                                         .withTaxes(toDto(taxMap, pos.getTaxes()))
+                                                        .withBomOid(evalBomOid(pos,dto))
                                                         .build())
                                         .toList())
+                        .withPromotionInfo(getPromoInfo(result))
                         .build();
+
         return Response.ok(payload).build();
+    }
+
+    private Integer evalParentIndex(final ICalcPosition pos,
+                                    final CalculatorRequestDto calculatorPayloadDto)
+    {
+
+        Integer ret = null;
+        final var reqPos = calculatorPayloadDto.getPositions().stream()
+                        .filter(p -> p.getIndex().equals(pos.getIndex()))
+                        .findFirst();
+        if (reqPos.isPresent()) {
+            ret = reqPos.get().getParentIdx();
+        }
+        return ret;
+    }
+
+    private String evalBomOid(final ICalcPosition pos,
+                              final CalculatorRequestDto calculatorPayloadDto)
+    {
+        String ret = null;
+        final var reqPos = calculatorPayloadDto.getPositions().stream()
+                        .filter(p -> p.getIndex().equals(pos.getIndex())).findFirst();
+        if (reqPos.isPresent()) {
+            ret = reqPos.get().getBomOid();
+        }
+        return ret;
     }
 
     public IDocument calculate(final IDocument document)
@@ -147,6 +181,35 @@ public class Calculator
         final var calculator = new org.efaps.promotionengine.Calculator(getConfig());
         calculator.calc(document, new ArrayList<>());
         return document;
+    }
+
+    public PromoInfoDto getPromoInfo(final IDocument result)
+    {
+        PromoInfoDto ret = null;
+        if (result != null && result instanceof Document) {
+            final var info = ((Document) result).getPromotionInfo();
+            if (info != null) {
+                ret = PromoInfoDto.builder()
+                                .withNetTotalDiscount(info.getNetTotalDiscount())
+                                .withCrossTotalDiscount(info.getCrossTotalDiscount())
+                                .withPromotionOids(info.getPromotionOids())
+                                .withDetails(info.getDetails().stream()
+                                                .map(pos -> PromoDetailDto.builder()
+                                                                .withPositionIndex(pos.getPositionIndex())
+                                                                .withNetBase(pos.getNetBase())
+                                                                .withNetUnitBase(pos.getNetUnitBase())
+                                                                .withNetDiscount(pos.getNetDiscount())
+                                                                .withNetUnitDiscount(pos.getNetUnitDiscount())
+                                                                .withNetDiscount(pos.getNetDiscount())
+                                                                .withCrossUnitDiscount(pos.getCrossUnitDiscount())
+                                                                .withCrossDiscount(pos.getCrossDiscount())
+                                                                .withPromotionOid(pos.getPromotionOid())
+                                                                .build())
+                                                .toList())
+                                .build();
+            }
+        }
+        return ret;
     }
 
     protected IConfig getConfig()
