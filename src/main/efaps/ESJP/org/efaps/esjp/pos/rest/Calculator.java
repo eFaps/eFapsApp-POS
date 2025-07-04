@@ -33,6 +33,7 @@ import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.promotions.PromotionService;
 import org.efaps.esjp.sales.CalculatorConfig;
 import org.efaps.esjp.sales.PriceUtil;
 import org.efaps.esjp.sales.tax.Tax;
@@ -59,8 +60,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-
 
 @EFapsUUID("be9d1159-20dd-48d2-91cd-1cc6a015c0f5")
 @EFapsApplication("eFapsApp-POS")
@@ -141,7 +140,7 @@ public class Calculator
                                                         .withCrossPrice(pos.getCrossPrice())
                                                         .withTaxAmount(pos.getTaxAmount())
                                                         .withTaxes(toDto(taxMap, pos.getTaxes()))
-                                                        .withBomOid(evalBomOid(pos,dto))
+                                                        .withBomOid(evalBomOid(pos, dto))
                                                         .build())
                                         .toList())
                         .withPromotionInfo(getPromoInfo(result))
@@ -177,9 +176,11 @@ public class Calculator
     }
 
     public IDocument calculate(final IDocument document)
+        throws EFapsException
     {
         final var calculator = new org.efaps.promotionengine.Calculator(getConfig());
-        calculator.calc(document, new ArrayList<>());
+        final var promotionService = new PromotionService();
+        calculator.calc(document, promotionService.getPromotions());
         return document;
     }
 
