@@ -395,7 +395,7 @@ public abstract class Order_Base
                             .withCrossUnitPrice(posEval.get(CISales.PositionSumAbstract.RateCrossUnitPrice))
                             .withCrossPrice(posEval.get(CISales.PositionSumAbstract.RateCrossPrice))
                             .withCurrency(DocumentUtils
-                                        .getCurrency(docEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
+                                        .getCurrency(posEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
                             .build());
         }
 
