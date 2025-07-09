@@ -32,6 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.promotions.PromotionService;
 import org.efaps.esjp.sales.CalculatorConfig;
@@ -215,7 +216,7 @@ public class Calculator
 
     protected IConfig getConfig()
     {
-        return new CalculatorConfig();
+        return new CalculatorConfig(CISales.Invoice.getType().getName());
     }
 
     protected List<TaxEntryDto> toDto(final Map<String, Tax> taxMap,
