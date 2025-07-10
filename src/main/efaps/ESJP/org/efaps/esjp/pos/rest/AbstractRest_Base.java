@@ -15,6 +15,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,6 +28,7 @@ import org.efaps.eql.EQL;
 import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.pos.MonitoringService;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +114,7 @@ public abstract class AbstractRest_Base
             LOG.error("Access denied due to being a Mobile only endpoint");
             throw new ForbiddenException("Mobile only endpoint");
         }
+        MonitoringService.getLastRequestCache().put(identifier, OffsetDateTime.now());
     }
 
     protected Instance getBackendInstance(final String identifier)
