@@ -15,6 +15,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,11 +72,13 @@ public abstract class Category_Base
         multi.execute();
         while (multi.next()) {
             String imageOid = null;
+            final OffsetDateTime modifiedAt = null;
             if (Pos.CATEGORY_ACIVATEIMAGE.get()) {
                 final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
                                 .getResource(multi.getCurrentInstance());
                 if (resource.exists()) {
                     imageOid = multi.getCurrentInstance().getOid();
+                    resource.getModified();
                 }
             }
             final Instance parentInst = multi.getSelect(selParentInst);
@@ -89,6 +92,7 @@ public abstract class Category_Base
                 .withDescription(multi.getAttribute(CIPOS.Category.Description))
                 .withWeight(multi.getAttribute(CIPOS.Category.Weight))
                 .withImageOid(imageOid)
+                .withImageModifiedAt(modifiedAt)
                 .withParentOid(parentOid)
                 .build());
         }

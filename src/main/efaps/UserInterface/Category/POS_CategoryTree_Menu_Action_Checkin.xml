@@ -30,8 +30,6 @@
             <execute program="org.efaps.esjp.common.uiform.Edit" />
             <trigger program="org.efaps.esjp.admin.access.AccessCheck4UI" method="configCheck"
                 name="POS_CategoryTree_Menu_Action_Checkin.UI_ACCESSCHECK" event="UI_ACCESSCHECK">
-                
-
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
                 <property name="Attribute">org.efaps.pos.Category.ActivateImage</property>
             </trigger>
