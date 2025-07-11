@@ -366,7 +366,7 @@ public abstract class Order_Base
                         .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
                                         CISales.DocumentSumAbstract.RateCrossTotal,
                                         CISales.DocumentSumAbstract.RateCurrencyId,
-                                        CISales.DocumentAbstract.Note)
+                                        CISales.DocumentAbstract.Note, CISales.DocumentAbstract.StatusAbstract)
                         .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
                         .evaluate();
         docEval.next();
@@ -407,7 +407,7 @@ public abstract class Order_Base
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
-                        .withStatus(DocStatus.OPEN)
+                        .withStatus(DocumentUtils.getDtoStatus(docEval.get(CISales.DocumentSumAbstract.StatusAbstract)))
                         .withNote(docEval.get(CISales.DocumentAbstract.Note))
                         .withContactOid(docEval.get("contactOid"))
                         .withItems(items)
