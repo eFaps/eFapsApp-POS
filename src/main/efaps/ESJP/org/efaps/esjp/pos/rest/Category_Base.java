@@ -72,13 +72,13 @@ public abstract class Category_Base
         multi.execute();
         while (multi.next()) {
             String imageOid = null;
-            final OffsetDateTime modifiedAt = null;
+            OffsetDateTime modifiedAt = null;
             if (Pos.CATEGORY_ACIVATEIMAGE.get()) {
                 final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
                                 .getResource(multi.getCurrentInstance());
                 if (resource.exists()) {
                     imageOid = multi.getCurrentInstance().getOid();
-                    resource.getModified();
+                    modifiedAt = resource.getModified();
                 }
             }
             final Instance parentInst = multi.getSelect(selParentInst);
