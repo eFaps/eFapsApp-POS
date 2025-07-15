@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
     Copyright © 2003 - 2024 The eFaps Team (-)
 
@@ -16,23 +15,18 @@
     limitations under the License.
 
 -->
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>bb891246-4741-42bd-b404-0f9f60083491</uuid>
+<ui-menu
+    xmlns="http://www.efaps.org/xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd"
+>
+    <uuid>87e8eeee-bfb2-448f-af8b-c4be9cd99e5c</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UpdateDefinitionTree</name>
-        <target>
-            <menu>POS_UpdateDefinitionTree_Menu</menu>
-            <form>POS_UpdateDefinitionForm</form>
-        </target>
+        <name>POS_UpdateDefinitionTree_Backends_Menu</name>
         <childs>
-            <child>POS_UpdateDefinitionTree_Instruction</child>
-            <child>POS_UpdateDefinitionTree_Backends</child>
+            <child>POS_UpdateDefinitionTree_Backends_Menu_Action</child>
         </childs>
-        <type>POS_UpdateDefinition</type>
-        <property name="Target">content</property>
-        <property name="TargetMode">view</property>
     </definition>
 </ui-menu>
