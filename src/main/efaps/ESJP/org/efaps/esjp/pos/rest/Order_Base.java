@@ -407,7 +407,7 @@ public abstract class Order_Base
                         .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
-                        .withStatus(DocumentUtils.getDtoStatus(docEval.get(CISales.DocumentSumAbstract.StatusAbstract)))
+                        .withStatus(DocumentUtils.getDtoStatus(docEval.get(CISales.DocumentAbstract.StatusAbstract)))
                         .withNote(docEval.get(CISales.DocumentAbstract.Note))
                         .withContactOid(docEval.get("contactOid"))
                         .withItems(items)
