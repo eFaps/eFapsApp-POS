@@ -30,6 +30,11 @@
             <property name="Attribute">Version</property>
             <property name="Required">true</property>
         </field>
+        <field name="status">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="Attribute">Status</property>
+        </field>
         <field name="description">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>

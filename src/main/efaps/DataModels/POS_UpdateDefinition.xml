@@ -30,6 +30,16 @@
             <sqlcolumn>ASSOCID</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Status</name>
+            <type>Status</type>
+            <typelink>POS_UpdateDefinitionStatus</typelink>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>STATUS</sqlcolumn>
+            <trigger event="RANGE_VALUE" name="POS_UpdateDefinition.Status.RANGE_VALUE"
+                program="org.efaps.esjp.admin.datamodel.StatusValue">
+            </trigger>
+        </attribute>
+        <attribute>
             <name>Version</name>
             <type>String</type>
             <sqltable>POS_ObjectSQLTable</sqltable>

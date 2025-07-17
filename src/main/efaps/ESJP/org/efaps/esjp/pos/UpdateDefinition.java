@@ -32,6 +32,7 @@ import org.efaps.db.Checkin;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.pos.dto.UpdateDto;
 import org.efaps.pos.dto.UpdateInstructionDto;
@@ -42,33 +43,51 @@ import org.efaps.util.EFapsException;
 public class UpdateDefinition
 {
 
-    public UpdateDto getUpdate()
+    public UpdateDto getUpdate(final Instance backendInst)
         throws EFapsException
     {
-        final var eval = EQL.builder().print().query(CIPOS.UpdateDefinition)
+        UpdateDto updateDto = null;
+        final var eval = EQL.builder().print()
+                        .query(CIPOS.UpdateDefinition)
+                        .where()
+                        .attribute(CIPOS.UpdateDefinition.Status).eq(CIPOS.UpdateDefinitionStatus.Active)
+                        .attribute(CIPOS.UpdateDefinition.ID).in(
+                                        EQL.builder()
+                                                        .nestedQuery(CIPOS.UpdateDefinition2Backend)
+                                                        .where()
+                                                        .attribute(CIPOS.UpdateDefinition2Backend.ToLink)
+                                                        .eq(backendInst)
+                                                        .up()
+                                                        .selectable(Selectables.attribute(
+                                                                        CIPOS.UpdateDefinition2Backend.FromLink)))
                         .select()
                         .attribute(CIPOS.UpdateDefinition.Created, CIPOS.UpdateDefinition.Version)
-                        .orderBy("Created", true)
+                        .orderBy(CIPOS.UpdateDefinition.Created, true)
                         .limit(1)
                         .evaluate();
-        eval.inst();
-        final var instructionEval = EQL.builder().print().query(CIPOS.UpdateInstruction)
-                        .select()
-                        .attribute(CIPOS.UpdateInstruction.TargetPath, CIPOS.UpdateInstruction.Expand)
-                        .linkto(CIPOS.UpdateInstruction.FileLink).oid().as("fileOid")
-                        .evaluate();
-        final var instructions = new ArrayList<UpdateInstructionDto>();
-        while (instructionEval.next()) {
-            instructions.add(UpdateInstructionDto.builder()
-                            .withTargetPath(instructionEval.get(CIPOS.UpdateInstruction.TargetPath))
-                            .withFileOid(instructionEval.get("fileOid"))
-                            .withExpand(instructionEval.get(CIPOS.UpdateInstruction.Expand))
-                            .build());
+        if (eval.next()) {
+            final var instructionEval = EQL.builder().print()
+                            .query(CIPOS.UpdateInstruction)
+                            .where()
+                            .attribute(CIPOS.UpdateInstruction.DefinitionLink).eq(eval.inst())
+                            .select()
+                            .attribute(CIPOS.UpdateInstruction.TargetPath, CIPOS.UpdateInstruction.Expand)
+                            .linkto(CIPOS.UpdateInstruction.FileLink).oid().as("fileOid")
+                            .evaluate();
+            final var instructions = new ArrayList<UpdateInstructionDto>();
+            while (instructionEval.next()) {
+                instructions.add(UpdateInstructionDto.builder()
+                                .withTargetPath(instructionEval.get(CIPOS.UpdateInstruction.TargetPath))
+                                .withFileOid(instructionEval.get("fileOid"))
+                                .withExpand(instructionEval.get(CIPOS.UpdateInstruction.Expand))
+                                .build());
+            }
+            updateDto = UpdateDto.builder()
+                            .withVersion(eval.get(CIPOS.UpdateDefinition.Version))
+                            .withInstructions(instructions)
+                            .build();
         }
-        return UpdateDto.builder()
-                        .withVersion(eval.get(CIPOS.UpdateDefinition.Version))
-                        .withInstructions(instructions)
-                        .build();
+        return updateDto;
     }
 
     public Return autoComplete4UpdateFile(final Parameter _parameter)

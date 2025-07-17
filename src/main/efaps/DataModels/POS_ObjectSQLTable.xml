@@ -30,6 +30,7 @@ xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.
             <table-name>T_POSOBJ</table-name>
             <column name="TYPEID"       type="INTEGER"      not-null="true"/>
             <column name="ASSOCID"      type="INTEGER" />
+            <column name="STATUS"       type="INTEGER" />
             <column name="STR1"         type="STRING_SHORT"                   length="256"/>
             <column name="STR2"         type="STRING_SHORT"                   length="256"/>
             <column name="INT1"         type="INTEGER" />

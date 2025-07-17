@@ -40,7 +40,8 @@ public class Update
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.BE);
-        final var updateDto = new UpdateDefinition().getUpdate();
+        final var backendInst = getBackendInstance(identifier);
+        final var updateDto = new UpdateDefinition().getUpdate(backendInst);
         final Response ret = Response.ok()
                         .entity(updateDto)
                         .build();

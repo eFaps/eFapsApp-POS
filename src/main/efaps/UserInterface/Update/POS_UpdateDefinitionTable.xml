@@ -29,6 +29,10 @@
             <property name="Label">POS_UpdateDefinition/Version.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+        <field name="status">
+            <property name="Attribute">Status</property>
+            <property name="Label">POS_UpdateDefinition/Status.Label</property>
+        </field>
         <field name="description">
             <property name="Attribute">Description</property>
             <property name="Label">POS_UpdateDefinition/Description.Label</property>
