@@ -27,14 +27,20 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @EFapsApplication("eFapsApp-POS")
 public class BackendStatusDto
 {
-
+    private final String oid;
     private final String name;
     private final OffsetDateTime lastSeenAt;
 
     private BackendStatusDto(Builder builder)
     {
+        this.oid = builder.oid;
         this.name = builder.name;
         this.lastSeenAt = builder.lastSeenAt;
+    }
+
+    public String getOid()
+    {
+        return oid;
     }
 
     public String getName()
@@ -55,11 +61,18 @@ public class BackendStatusDto
     public static final class Builder
     {
 
+        private String oid;
         private String name;
         private OffsetDateTime lastSeenAt;
 
         private Builder()
         {
+        }
+
+        public Builder withOid(String oid)
+        {
+            this.oid = oid;
+            return this;
         }
 
         public Builder withName(String name)

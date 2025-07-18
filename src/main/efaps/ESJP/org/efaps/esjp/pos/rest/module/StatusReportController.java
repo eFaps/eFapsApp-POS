@@ -67,6 +67,7 @@ public class StatusReportController
                 lastSeenAt = lastSeenAt.withOffsetSameInstant(offset);
             }
             backendStatus.add(BackendStatusDto.builder()
+                            .withOid(eval.inst().getOid())
                             .withName(eval.get(CIPOS.BackendAbstract.Name))
                             .withLastSeenAt(lastSeenAt)
                             .build());
