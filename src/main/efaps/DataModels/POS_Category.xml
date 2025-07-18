@@ -73,6 +73,12 @@
             <sqlcolumn>DESCR</sqlcolumn>
         </attribute>
         <attribute>
+            <name>Label</name>
+            <type>String</type>
+            <sqltable>POS_CategorySQLTable</sqltable>
+            <sqlcolumn>LABEL</sqlcolumn>
+        </attribute>
+        <attribute>
             <name>Weight</name>
             <type>Integer</type>
             <sqltable>POS_CategorySQLTable</sqltable>

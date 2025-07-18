@@ -36,6 +36,11 @@
             <property name="Label">POS_Category/Description.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+         <field name="label">
+            <property name="Attribute">Label</property>
+            <property name="Label">POS_Category/Label.Label</property>
+            <property name="ModeSearch">READONLY</property>
+        </field>
         <field name="weight">
             <property name="Attribute">Weight</property>
             <property name="Label">POS_Category/Weight.Label</property>

@@ -67,7 +67,10 @@ public abstract class Category_Base
         final MultiPrintQuery multi = queryBldr.getPrint();
         final var selParentInst = SelectBuilder.get().linkto(CIPOS.Category.ParentLink).instance();
         multi.addSelect(selParentInst);
-        multi.addAttribute(CIPOS.Category.Name, CIPOS.Category.Description, CIPOS.Category.Weight);
+        multi.addAttribute(CIPOS.Category.Name,
+                        CIPOS.Category.Description,
+                        CIPOS.Category.Label,
+                        CIPOS.Category.Weight);
         multi.execute();
         while (multi.next()) {
             String imageOid = null;
@@ -87,6 +90,7 @@ public abstract class Category_Base
                 .withOID(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Category.Name))
                 .withDescription(multi.getAttribute(CIPOS.Category.Description))
+                .withLabel(multi.getAttribute(CIPOS.Category.Label))
                 .withWeight(multi.getAttribute(CIPOS.Category.Weight))
                 .withImageOid(imageOid)
                 .withParentOid(parentOid)
