@@ -96,8 +96,8 @@
             <property name="Label">POS_Order/Status.Label</property>
         </field>
         <field name="payable">
-            <property name="Select">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].attribute[Name]</property>
-            <property name="SelectAlternateOID">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].oid</property>
+            <property name="Select">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].attribute[Name].first</property>
+            <property name="SelectAlternateOID">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].oid.first</property>
             <property name="HRef">TREE</property>
             <property name="Label">POS_OrderTable.payable.Label</property>
         </field>
