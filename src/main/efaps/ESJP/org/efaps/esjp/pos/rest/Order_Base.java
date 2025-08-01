@@ -17,7 +17,6 @@ package org.efaps.esjp.pos.rest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -45,7 +44,6 @@ import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.sales.CalculatorService;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.CreateDocumentDto;
-import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.OrderDto;
 import org.efaps.util.EFapsException;
@@ -229,7 +227,7 @@ public abstract class Order_Base
             }
         }.recalculate(orderInst);
 
-        return Response.ok(getOrder(orderInst)).build();
+        return Response.ok(toDto(OrderDto.builder(), orderInst)).build();
     }
 
     protected void upsertItems(final CreateDocumentDto dto,
@@ -318,7 +316,7 @@ public abstract class Order_Base
                 return ret;
             }
         }.recalculate(orderInst);
-        return Response.ok(getOrder(orderInst)).build();
+        return Response.ok(toDto(OrderDto.builder(), orderInst)).build();
     }
 
     public Response updateOrderWithContact(final String identifier,
@@ -340,7 +338,7 @@ public abstract class Order_Base
                                             InstanceUtils.isType(contactInst, CIContacts.Contact) ? contactInst : null)
                             .execute();
         }
-        return Response.ok(getOrder(orderInst)).build();
+        return Response.ok(toDto(OrderDto.builder(), orderInst)).build();
     }
 
     public Response getOrder(final String identifier,
@@ -349,68 +347,18 @@ public abstract class Order_Base
     {
         checkAccess(identifier, ACCESSROLE.MOBILE, ACCESSROLE.BE);
         LOG.info("GET Order for : {}", oid);
+        final Response ret;
         final var orderInst = Instance.get(oid);
-        Response response = null;
         if (InstanceUtils.isType(orderInst, CIPOS.Order)) {
-            response = Response.ok(getOrder(Instance.get(oid))).build();
+            final var dto = toDto(OrderDto.builder(), orderInst);
+            ret = Response.ok()
+                            .entity(dto)
+                            .build();
         } else {
-            response = Response.status(Response.Status.BAD_REQUEST).build();
+            LOG.warn("Recieved invalid get request for order oid: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
         }
-        return response;
-    }
-
-    protected OrderDto getOrder(final Instance instance)
-        throws EFapsException
-    {
-        final var docEval = EQL.builder().print(instance)
-                        .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
-                                        CISales.DocumentSumAbstract.RateCrossTotal,
-                                        CISales.DocumentSumAbstract.RateCurrencyId,
-                                        CISales.DocumentAbstract.Note, CISales.DocumentAbstract.StatusAbstract)
-                        .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
-                        .evaluate();
-        docEval.next();
-
-        final var posEval = EQL.builder().print().query(CISales.PositionSumAbstract)
-                        .where()
-                        .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
-                        .select()
-                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity,
-                                        CISales.PositionSumAbstract.RateNetUnitPrice,
-                                        CISales.PositionSumAbstract.RateNetPrice,
-                                        CISales.PositionSumAbstract.RateCrossUnitPrice,
-                                        CISales.PositionSumAbstract.RateCrossPrice,
-                                        CISales.PositionSumAbstract.RateCurrencyId)
-                        .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
-
-                        .orderBy(CISales.PositionSumAbstract.PositionNumber)
-                        .evaluate();
-        final var items = new ArrayList<DocItemDto>();
-        while (posEval.next()) {
-            items.add(DocItemDto.builder()
-                            .withProductOid(posEval.get("productOid"))
-                            .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
-                            .withNetUnitPrice(posEval.get(CISales.PositionSumAbstract.RateNetUnitPrice))
-                            .withNetPrice(posEval.get(CISales.PositionSumAbstract.RateNetPrice))
-                            .withCrossUnitPrice(posEval.get(CISales.PositionSumAbstract.RateCrossUnitPrice))
-                            .withCrossPrice(posEval.get(CISales.PositionSumAbstract.RateCrossPrice))
-                            .withCurrency(DocumentUtils
-                                        .getCurrency(posEval.<Long>get(CISales.PositionSumAbstract.RateCurrencyId)))
-                            .build());
-        }
-
-        return OrderDto.builder()
-                        .withOID(instance.getOid())
-                        .withId(instance.getOid())
-                        .withNumber(docEval.get(CISales.DocumentAbstract.Name))
-                        .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
-                        .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
-                        .withCurrency(DocumentUtils
-                                        .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
-                        .withStatus(DocumentUtils.getDtoStatus(docEval.get(CISales.DocumentAbstract.StatusAbstract)))
-                        .withNote(docEval.get(CISales.DocumentAbstract.Note))
-                        .withContactOid(docEval.get("contactOid"))
-                        .withItems(items)
-                        .build();
+        return ret;
     }
 }

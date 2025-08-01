@@ -59,6 +59,8 @@ import org.efaps.esjp.loyalty.Points;
 import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.promotions.PromotionService;
+import org.efaps.esjp.promotions.utils.Promotions;
 import org.efaps.esjp.sales.payment.AbstractPaymentDocument;
 import org.efaps.esjp.sales.tax.xml.TaxEntry;
 import org.efaps.esjp.sales.tax.xml.Taxes;
@@ -70,6 +72,7 @@ import org.efaps.pos.dto.CreditNoteDto;
 import org.efaps.pos.dto.DocItemDto;
 import org.efaps.pos.dto.IPaymentDto;
 import org.efaps.pos.dto.InvoiceDto;
+import org.efaps.pos.dto.OrderDto;
 import org.efaps.pos.dto.PaymentAbstractDto;
 import org.efaps.pos.dto.PaymentCardDto;
 import org.efaps.pos.dto.PaymentCashDto;
@@ -77,6 +80,8 @@ import org.efaps.pos.dto.PaymentChangeDto;
 import org.efaps.pos.dto.PaymentElectronicDto;
 import org.efaps.pos.dto.PaymentFreeDto;
 import org.efaps.pos.dto.PaymentLoyaltyPointsDto;
+import org.efaps.pos.dto.PromoDetailDto;
+import org.efaps.pos.dto.PromoInfoDto;
 import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.pos.dto.TicketDto;
@@ -691,6 +696,7 @@ public abstract class AbstractDocument_Base
         final var rateInfo = RateInfo.getRateInfo(docEval.get(CISales.DocumentSumAbstract.Rate));
 
         bldr.withOID(instance.getOid())
+                        .withOID(instance.getOid())
                         .withId(instance.getOid())
                         .withNumber(docEval.get(CISales.DocumentAbstract.Name))
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
@@ -699,12 +705,42 @@ public abstract class AbstractDocument_Base
                         .withCurrency(DocumentUtils
                                         .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
                         .withStatus(DocumentUtils
-                                        .getDtoStatus(docEval.<Long>get(CISales.DocumentSumAbstract.StatusAbstract)))
+                                        .getDtoStatus(docEval.<Long>get(CISales.DocumentAbstract.StatusAbstract)))
                         .withTaxes(DocumentUtils.getDtoTaxes(docEval.get(CISales.DocumentSumAbstract.RateTaxes),
                                         rateInfo.getRateUI()))
                         .withNote(docEval.get(CISales.DocumentAbstract.Note))
-                        .withContactOid(docEval.get("contactOid"));
+                        .withContactOid(docEval.get("contactOid"))
+                        .withPromotionInfo(evalPromotionInfo(instance));
         return toDto(bldr, evalDocItemDtos(instance));
+    }
+
+    protected PromoInfoDto evalPromotionInfo(final Instance instance)
+        throws EFapsException
+    {
+        PromoInfoDto dto = null;
+        if (Promotions.ACTIVATE.get()) {
+            final var promotionInfoDto = new PromotionService().getPromotionInfoForDoc(instance);
+            if (promotionInfoDto != null) {
+                dto = PromoInfoDto.builder()
+                                .withNetTotalDiscount(promotionInfoDto.getNetTotalDiscount())
+                                .withCrossTotalDiscount(promotionInfoDto.getCrossTotalDiscount())
+                                .withPromotionOids(promotionInfoDto.getPromotionOids())
+                                .withDetails(promotionInfoDto.getDetails().stream()
+                                                .map(detail -> PromoDetailDto.builder()
+                                                                .withPositionIndex(detail.getPositionIndex())
+                                                                .withCrossDiscount(detail.getCrossDiscount())
+                                                                .withCrossUnitDiscount(detail.getCrossUnitDiscount())
+                                                                .withNetBase(detail.getNetBase())
+                                                                .withNetDiscount(detail.getNetDiscount())
+                                                                .withNetUnitBase(detail.getNetUnitBase())
+                                                                .withNetUnitDiscount(detail.getNetUnitDiscount())
+                                                                .withPromotionOid(detail.getPromotionOid())
+                                                                .build())
+                                                .toList())
+                                .build();
+            }
+        }
+        return dto;
     }
 
     protected AbstractDocumentDto toDto(final AbstractDocumentDto.Builder<?> bldr,
@@ -715,6 +751,10 @@ public abstract class AbstractDocument_Base
             dto = invoiceBldr.withItems(items).build();
         } else if (bldr instanceof final ReceiptDto.Builder receiptBldr) {
             dto = receiptBldr.withItems(items).build();
+        } else if (bldr instanceof final OrderDto.Builder orderDtoBldr) {
+            dto = orderDtoBldr.withItems(items).build();
+        } else if (bldr instanceof final TicketDto.Builder ticketDtoBldr) {
+            dto = ticketDtoBldr.withItems(items).build();
         }
         return dto;
     }
