@@ -100,6 +100,7 @@
             <property name="SelectAlternateOID">linkfrom[POS_Order2Document#FromAbstractLink].linkto[ToAbstractLink].oid.first</property>
             <property name="HRef">TREE</property>
             <property name="Label">POS_OrderTable.payable.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
         </field>
     </definition>
 </ui-table>
