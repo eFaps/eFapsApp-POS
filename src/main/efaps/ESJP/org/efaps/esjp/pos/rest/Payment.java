@@ -18,7 +18,6 @@ package org.efaps.esjp.pos.rest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +50,7 @@ import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Insert;
 import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CIPromo;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.contacts.util.Contacts;
@@ -63,19 +63,19 @@ import org.efaps.esjp.pos.rest.AbstractDocument_Base.PosPayment;
 import org.efaps.esjp.pos.rest.dto.PayAndEmitResponseDto;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.esjp.promotions.utils.Promotions;
 import org.efaps.esjp.sales.tax.Tax_Base;
 import org.efaps.esjp.sales.tax.xml.Taxes;
 import org.efaps.pos.dto.AbstractPayableDocumentDto;
-import org.efaps.pos.dto.DocItemDto;
-import org.efaps.pos.dto.DocStatus;
 import org.efaps.pos.dto.DocType;
 import org.efaps.pos.dto.IPaymentDto;
+import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.PaymentAbstractDto;
 import org.efaps.pos.dto.PaymentCardDto;
 import org.efaps.pos.dto.PaymentElectronicDto;
 import org.efaps.pos.dto.PaymentType;
-import org.efaps.pos.dto.ReceiptDto;
 import org.efaps.pos.dto.TaxEntryDto;
+import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +148,7 @@ public class Payment
 
                 final var targetDocInst = cloneDoc(identifier, orderInst, documentType);
                 clonePositions(orderInst, targetDocInst, positionType);
+                clonePromoInfo(orderInst, targetDocInst);
                 connect(orderInst, targetDocInst, connectType);
                 addPayments(identifier, targetDocInst, paymentDtos);
                 payableDto = toPayableDto(targetDocInst);
@@ -325,6 +326,47 @@ public class Payment
                         .execute();
     }
 
+    protected void clonePromoInfo(final Instance sourceDocInst,
+                                  final Instance targetDocInst)
+        throws EFapsException
+    {
+        if (Promotions.ACTIVATE.get()) {
+            final var docEvel = EQL.builder().print().query(CIPromo.Promotion2Order)
+                            .where()
+                            .attribute(CIPromo.Promotion2Order.ToLink).eq(sourceDocInst)
+                            .select()
+                            .attribute(CIPromo.Promotion2Order.NetTotalDiscount,
+                                            CIPromo.Promotion2Order.CrossTotalDiscount,
+                                            CIPromo.Promotion2Order.PromoInfo,
+                                            CIPromo.Promotion2Order.Promotion,
+                                            CIPromo.Promotion2Order.FromLink)
+                            .evaluate();
+            if (docEvel.next()) {
+                CIType relType;
+                if (InstanceUtils.isType(sourceDocInst, CISales.Invoice)) {
+                    relType = CIPromo.Promotion2Invoice;
+                } else if (InstanceUtils.isType(sourceDocInst, CIPOS.Ticket)) {
+                    relType = CIPromo.Promotion2Ticket;
+                } else {
+                    relType = CIPromo.Promotion2Receipt;
+                }
+                EQL.builder().insert(relType)
+                                .set(CIPromo.Promotion2DocumentAbstract.ToLinkAbstract, targetDocInst)
+                                .set(CIPromo.Promotion2DocumentAbstract.NetTotalDiscount,
+                                                docEvel.get(CIPromo.Promotion2Order.NetTotalDiscount))
+                                .set(CIPromo.Promotion2DocumentAbstract.CrossTotalDiscount,
+                                                docEvel.get(CIPromo.Promotion2Order.CrossTotalDiscount))
+                                .set(CIPromo.Promotion2DocumentAbstract.PromoInfo,
+                                                docEvel.get(CIPromo.Promotion2Order.PromoInfo))
+                                .set(CIPromo.Promotion2DocumentAbstract.Promotion,
+                                                docEvel.get(CIPromo.Promotion2Order.Promotion))
+                                .set(CIPromo.Promotion2DocumentAbstract.FromLink,
+                                                docEvel.get(CIPromo.Promotion2Order.FromLink))
+                                .execute();
+            }
+        }
+    }
+
     protected void clonePositions(final Instance sourceDocInst,
                                   final Instance targetDocInst,
                                   final CIType positionType)
@@ -358,7 +400,7 @@ public class Payment
                                         CISales.PositionSumAbstract.RateTaxes)
                         .evaluate();
         while (posEval.next()) {
-            EQL.builder().insert(positionType)
+            final var targetPosInst = EQL.builder().insert(positionType)
                             .set(CISales.PositionAbstract.DocumentAbstractLink, targetDocInst)
                             .set(CISales.PositionAbstract.PositionNumber,
                                             posEval.get(CISales.PositionSumAbstract.PositionNumber))
@@ -403,8 +445,59 @@ public class Payment
                             .set(CISales.PositionSumAbstract.RateTaxes,
                                             posEval.get(CISales.PositionSumAbstract.RateTaxes))
                             .execute();
+
+            clonePositionPromoInfo(posEval.inst(), targetPosInst);
         }
     }
+
+    protected void clonePositionPromoInfo(final Instance sourcePosInst,
+                                          final Instance targetPosInst)
+        throws EFapsException
+    {
+        if (Promotions.ACTIVATE.get()) {
+            CIType relType;
+            if (InstanceUtils.isType(targetPosInst, CISales.InvoicePosition)) {
+                relType = CIPromo.Promotion2InvoicePosition;
+            } else if (InstanceUtils.isType(targetPosInst, CIPOS.TicketPosition)) {
+                relType = CIPromo.Promotion2TicketPosition;
+            } else {
+                relType = CIPromo.Promotion2ReceiptPosition;
+            }
+
+            final var posEval = EQL.builder().print().query(CIPromo.Promotion2OrderPosition)
+                            .where()
+                            .attribute(CIPromo.Promotion2OrderPosition.ToLink).eq(sourcePosInst)
+                            .select()
+                            .attribute(CIPromo.Promotion2OrderPosition.NetDiscount,
+                                            CIPromo.Promotion2OrderPosition.NetUnitDiscount,
+                                            CIPromo.Promotion2OrderPosition.CrossUnitDiscount,
+                                            CIPromo.Promotion2OrderPosition.CrossDiscount,
+                                            CIPromo.Promotion2OrderPosition.PromoInfo,
+                                            CIPromo.Promotion2OrderPosition.Promotion,
+                                            CIPromo.Promotion2OrderPosition.FromLink)
+                            .evaluate();
+            while (posEval.next()) {
+                EQL.builder().insert(relType)
+                                .set(CIPromo.Promotion2PositionAbstract.ToLinkAbstract, targetPosInst)
+                                .set(CIPromo.Promotion2PositionAbstract.NetDiscount,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.NetDiscount))
+                                .set(CIPromo.Promotion2PositionAbstract.NetUnitDiscount,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.NetUnitDiscount))
+                                .set(CIPromo.Promotion2PositionAbstract.CrossUnitDiscount,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.CrossUnitDiscount))
+                                .set(CIPromo.Promotion2PositionAbstract.CrossDiscount,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.CrossDiscount))
+                                .set(CIPromo.Promotion2PositionAbstract.PromoInfo,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.PromoInfo))
+                                .set(CIPromo.Promotion2PositionAbstract.Promotion,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.Promotion))
+                                .set(CIPromo.Promotion2PositionAbstract.FromLink,
+                                                posEval.get(CIPromo.Promotion2OrderPosition.FromLink))
+                                .execute();
+            }
+        }
+    }
+
 
     protected Instance cloneDoc(final String identifier,
                                 final Instance docInst,
@@ -511,47 +604,15 @@ public class Payment
     protected AbstractPayableDocumentDto toPayableDto(final Instance instance)
         throws EFapsException
     {
-        final var docEval = EQL.builder().print(instance)
-                        .attribute(CISales.DocumentAbstract.Name, CISales.DocumentSumAbstract.RateNetTotal,
-                                        CISales.DocumentSumAbstract.RateCrossTotal,
-                                        CISales.DocumentSumAbstract.RateCurrencyId,
-                                        CISales.DocumentSumAbstract.RateTaxes)
-                        .linkto(CISales.DocumentAbstract.Contact).oid().as("contactOid")
-                        .evaluate();
-        docEval.next();
-
-        final var posEval = EQL.builder().print().query(CISales.PositionSumAbstract)
-                        .where()
-                        .attribute(CISales.PositionSumAbstract.DocumentAbstractLink).eq(instance)
-                        .select()
-                        .attribute(CISales.PositionSumAbstract.PositionNumber, CISales.PositionSumAbstract.Quantity,
-                                        CISales.PositionSumAbstract.CrossPrice)
-                        .linkto(CISales.PositionSumAbstract.Product).oid().as("productOid")
-                        .orderBy(CISales.PositionSumAbstract.PositionNumber)
-                        .evaluate();
-        final var items = new ArrayList<DocItemDto>();
-        while (posEval.next()) {
-            items.add(DocItemDto.builder()
-                            .withProductOid(posEval.get("productOid"))
-                            .withQuantity(posEval.get(CISales.PositionSumAbstract.Quantity))
-                            .withCrossPrice(posEval.get(CISales.PositionSumAbstract.CrossPrice))
-                            .build());
+        AbstractPayableDocumentDto ret = null;
+        if (InstanceUtils.isType(instance, CISales.Invoice)) {
+            ret = (AbstractPayableDocumentDto) new Invoice().toDto(InvoiceDto.builder(), instance);
+        } else if (InstanceUtils.isType(instance, CISales.Receipt)) {
+            ret = (AbstractPayableDocumentDto) new Receipt().toDto(TicketDto.builder(), instance);
+        } else if (InstanceUtils.isType(instance, CIPOS.Ticket)) {
+            ret = (AbstractPayableDocumentDto) new Ticket().toDto(TicketDto.builder(), instance);
         }
-        final var payableAmount = docEval.<BigDecimal>get(CISales.DocumentSumAbstract.RateCrossTotal);
-        return ReceiptDto.builder()
-                        .withOID(instance.getOid())
-                        .withId(instance.getOid())
-                        .withNumber(docEval.get(CISales.DocumentAbstract.Name))
-                        .withContactOid(docEval.get("contactOid"))
-                        .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))
-                        .withCrossTotal(docEval.get(CISales.DocumentSumAbstract.RateCrossTotal))
-                        .withPayableAmount(payableAmount)
-                        .withTaxes(getTaxes(docEval.get(CISales.DocumentSumAbstract.RateTaxes)))
-                        .withCurrency(DocumentUtils
-                                        .getCurrency(docEval.<Long>get(CISales.DocumentSumAbstract.RateCurrencyId)))
-                        .withStatus(DocStatus.OPEN)
-                        .withItems(items)
-                        .build();
+        return ret;
     }
 
     public Collection<TaxEntryDto> getTaxes(final Taxes docTaxes)
