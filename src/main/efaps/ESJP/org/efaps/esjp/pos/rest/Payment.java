@@ -147,6 +147,7 @@ public class Payment
                 };
 
                 final var targetDocInst = cloneDoc(identifier, orderInst, documentType);
+                Context.save();
                 clonePositions(orderInst, targetDocInst, positionType);
                 clonePromoInfo(orderInst, targetDocInst);
                 connect(orderInst, targetDocInst, connectType);
