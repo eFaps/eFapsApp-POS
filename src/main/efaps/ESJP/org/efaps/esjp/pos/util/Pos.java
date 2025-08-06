@@ -419,7 +419,8 @@ public class Pos
         ADMIN,
         COLLECT,
         ORDER,
-        CREDITNOTE;
+        CREDITNOTE,
+        REDEEM_CREDITNOTE;
 
         @Override
         public int getInt()

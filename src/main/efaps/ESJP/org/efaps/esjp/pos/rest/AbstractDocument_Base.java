@@ -80,6 +80,7 @@ import org.efaps.pos.dto.PaymentChangeDto;
 import org.efaps.pos.dto.PaymentElectronicDto;
 import org.efaps.pos.dto.PaymentFreeDto;
 import org.efaps.pos.dto.PaymentLoyaltyPointsDto;
+import org.efaps.pos.dto.PaymentRedeemCreditNoteDto;
 import org.efaps.pos.dto.PromoDetailDto;
 import org.efaps.pos.dto.PromoInfoDto;
 import org.efaps.pos.dto.ReceiptDto;
@@ -465,6 +466,9 @@ public abstract class AbstractDocument_Base
                         yield evalChangePayment(dto, (PaymentChangeDto) payment);
                     case FREE:
                         yield evalFreePayment(dto, (PaymentFreeDto) payment);
+                    case REDEEM_CREDITNOTE:
+                        yield evalRedeemCreditNotePayment(dto, (PaymentRedeemCreditNoteDto) payment);
+
                 };
 
                 final var paymentDto = (PaymentAbstractDto) payment;
@@ -618,6 +622,21 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         final var insert = getPaymentInsert(dto, paymentDto);
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalRedeemCreditNotePayment(final AbstractPayableDocumentDto dto,
+                                       final PaymentRedeemCreditNoteDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        final var creditNoteInst = Instance.get(paymentDto.getRedeemDocOid());
+        if (InstanceUtils.isType(creditNoteInst, CISales.CreditNote)) {
+            insert.add(CISales.PaymentRedeemCreditNote.CreditNoteLink, paymentDto.getRedeemDocOid());
+        } else {
+            throw new EFapsException(this.getClass(), "Invalid Redeem Instance", creditNoteInst);
+        }
         insert.execute();
         return insert.getInstance();
     }

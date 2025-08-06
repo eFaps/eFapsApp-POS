@@ -31,6 +31,12 @@
             <property name="Label">POS_User/Name.Label</property>
             <property name="ModeSearch">READONLY</property>
         </field>
+         <field name="employeeLink">
+            <property name="SelectAlternateOID">linkto[EmployeeLink].oid</property>
+            <property name="MsgPhrase">HumanResource_EmployeeWithNumberMsgPhrase</property>
+            <property name="HRef">TREE</property>
+            <property name="Label">POS_UserForm.employeeLink.Label</property>
+        </field>
         <field name="roleLink">
             <property name="Select">linkto[RoleLink].attribute[Name]</property>
             <property name="Label">POS_User/RoleLink.Label</property>
