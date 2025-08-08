@@ -36,6 +36,7 @@
             <property name="MsgPhrase">HumanResource_EmployeeWithNumberMsgPhrase</property>
             <property name="HRef">TREE</property>
             <property name="Label">POS_UserForm.employeeLink.Label</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
         </field>
         <field name="roleLink">
             <property name="Select">linkto[RoleLink].attribute[Name]</property>
