@@ -31,7 +31,6 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.CreditNoteDto;
-import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,6 +103,26 @@ public abstract class CreditNote_Base
         return ret;
     }
 
+    public Response getCreditNote(final String identifier,
+                                  final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        final var instance = Instance.get(oid);
+        if (InstanceUtils.isType(instance, CISales.CreditNote)) {
+            final var dto = toDto(CreditNoteDto.builder(), instance);
+            ret = Response.ok()
+                            .entity(dto)
+                            .build();
+        } else {
+            LOG.warn("Recieved invalid GET request for creditNote oid: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
+        }
+        return ret;
+    }
+
     public Response retrieveCreditNotes(final String identifier,
                                         final String number)
         throws EFapsException
@@ -117,7 +136,7 @@ public abstract class CreditNote_Base
                         .evaluate();
         final List<AbstractDocumentDto> dtos = new ArrayList<>();
         while (eval.next()) {
-            dtos.add(toDto(InvoiceDto.builder(), eval.inst()));
+            dtos.add(toDto(CreditNoteDto.builder(), eval.inst()));
         }
         if (dtos.isEmpty()) {
             ret = Response.status(Response.Status.NOT_FOUND)

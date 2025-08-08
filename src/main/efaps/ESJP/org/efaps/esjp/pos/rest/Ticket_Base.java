@@ -27,8 +27,8 @@ import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.AbstractDocumentDto;
-import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -100,6 +100,27 @@ public abstract class Ticket_Base
         return ret;
     }
 
+    public Response getTicket(final String identifier,
+                              final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        final var instance = Instance.get(oid);
+        if (InstanceUtils.isType(instance, CIPOS.Ticket)) {
+            final var dto = toDto(TicketDto.builder(), instance);
+            ret = Response.ok()
+                            .entity(dto)
+                            .build();
+        } else {
+            LOG.warn("Recieved invalid GET request for ticket oid: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
+        }
+        return ret;
+    }
+
+
     public Response retrieveTickets(final String identifier,
                                     final String number)
         throws EFapsException
@@ -113,7 +134,7 @@ public abstract class Ticket_Base
                         .evaluate();
         final List<AbstractDocumentDto> dtos = new ArrayList<>();
         while (eval.next()) {
-            dtos.add(toDto(InvoiceDto.builder(), eval.inst()));
+            dtos.add(toDto(TicketDto.builder(), eval.inst()));
         }
         if (dtos.isEmpty()) {
             ret = Response.status(Response.Status.NOT_FOUND)

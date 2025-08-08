@@ -49,6 +49,18 @@ public class CreditNote
     }
 
     @Override
+    @Path("/{identifier}/creditnotes/{oid}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCreditNote(@PathParam("identifier") final String identifier,
+                                  @PathParam("oid") final String oid)
+        throws EFapsException
+    {
+        return super.getCreditNote(identifier, oid);
+    }
+
+
+    @Override
     @Path("/{identifier}/creditnotes")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

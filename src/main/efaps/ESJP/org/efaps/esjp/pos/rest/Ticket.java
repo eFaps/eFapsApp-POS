@@ -50,6 +50,17 @@ public class Ticket
     }
 
     @Override
+    @Path("/{identifier}/tickets/{oid}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTicket(@PathParam("identifier") final String identifier,
+                              @PathParam("oid") final String oid)
+        throws EFapsException
+    {
+        return super.getTicket(identifier, oid);
+    }
+
+    @Override
     @Path("/{identifier}/tickets")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
