@@ -15,6 +15,9 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.datamodel.Status;
@@ -22,7 +25,10 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.ci.CIType;
 import org.efaps.db.Instance;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.pos.dto.AbstractDocumentDto;
+import org.efaps.pos.dto.InvoiceDto;
 import org.efaps.pos.dto.TicketDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -67,7 +73,8 @@ public abstract class Ticket_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addTicket(final String _identifier, final TicketDto _ticketDto)
+    public Response addTicket(final String _identifier,
+                              final TicketDto _ticketDto)
         throws EFapsException
     {
         checkAccess(_identifier);
@@ -90,6 +97,32 @@ public abstract class Ticket_Base
         final Response ret = Response.ok()
                         .entity(dto)
                         .build();
+        return ret;
+    }
+
+    public Response retrieveTickets(final String identifier,
+                                    final String number)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        final var eval = EQL.builder().print().query(CIPOS.Ticket)
+                        .where()
+                        .attribute(CIPOS.Ticket.Name).eq(number)
+                        .select().oid()
+                        .evaluate();
+        final List<AbstractDocumentDto> dtos = new ArrayList<>();
+        while (eval.next()) {
+            dtos.add(toDto(InvoiceDto.builder(), eval.inst()));
+        }
+        if (dtos.isEmpty()) {
+            ret = Response.status(Response.Status.NOT_FOUND)
+                            .build();
+        } else {
+            ret = Response.ok()
+                            .entity(dtos)
+                            .build();
+        }
         return ret;
     }
 }

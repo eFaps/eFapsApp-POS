@@ -16,10 +16,12 @@
 package org.efaps.esjp.pos.rest;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,14 +36,27 @@ import org.efaps.util.EFapsException;
 public class Ticket
     extends Ticket_Base
 {
+
     @Override
     @Path("/{identifier}/tickets")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addTicket(@PathParam("identifier") final String _identifier, final TicketDto _ticketDto)
+    public Response addTicket(@PathParam("identifier") final String _identifier,
+                              final TicketDto _ticketDto)
         throws EFapsException
     {
         return super.addTicket(_identifier, _ticketDto);
+    }
+
+    @Override
+    @Path("/{identifier}/tickets")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response retrieveTickets(@PathParam("identifier") final String identifier,
+                                    @QueryParam("number") final String number)
+        throws EFapsException
+    {
+        return super.retrieveTickets(identifier, number);
     }
 }
