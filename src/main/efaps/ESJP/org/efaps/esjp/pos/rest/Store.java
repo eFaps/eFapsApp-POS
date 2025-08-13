@@ -56,7 +56,7 @@ public class Store
         final List<StoreStatus> status = new ArrayList<>();
         for (final var oid : dto.getOids()) {
             final var instance = Instance.get(oid);
-            if (instance.getType().hasStore()) {
+            if (instance.isValid() && instance.getType().hasStore()) {
                 final Resource resource = org.efaps.db.store.Store.get(instance.getType().getStoreId())
                                 .getResource(instance);
                 status.add(StoreStatus.builder()
