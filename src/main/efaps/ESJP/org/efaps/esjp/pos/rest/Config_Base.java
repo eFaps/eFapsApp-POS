@@ -29,6 +29,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.admin.common.systemconfiguration.AbstractSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.contacts.util.Contacts;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.electronicbilling.util.ElectronicBilling;
 import org.efaps.esjp.erp.util.ERP;
@@ -74,6 +75,10 @@ public abstract class Config_Base
 
             config.put(ERP.COMPANY_TAX.getKey(), ERP.COMPANY_TAX.get());
 
+            if (InstanceUtils.isValid(Contacts.STRAYCOSTUMER.get())) {
+                config.put(Contacts.STRAYCOSTUMER.getKey(), Contacts.STRAYCOSTUMER.get().getOid());
+            }
+
             ret = Response.ok()
                             .entity(config)
                             .build();
@@ -117,6 +122,9 @@ public abstract class Config_Base
             config.put(ERP.COMPANY_DISTRICT.getKey(), ERP.COMPANY_DISTRICT.get());
             config.put(ERP.COMPANY_ESTABLECIMIENTO.getKey(), ERP.COMPANY_ESTABLECIMIENTO.get());
 
+            if (InstanceUtils.isValid(Contacts.STRAYCOSTUMER.get())) {
+                config.put(Contacts.STRAYCOSTUMER.getKey(), Contacts.STRAYCOSTUMER.get().getOid());
+            }
             // Sales
             if (Sales.CALCULATOR_CONFIG.exists()) {
                 config.put(Sales.CALCULATOR_CONFIG.getKey(), propsToString(Sales.CALCULATOR_CONFIG.get()));
