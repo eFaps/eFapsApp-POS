@@ -39,6 +39,9 @@
             <property name="Label">POS_BalanceTable.user.Label</property>
         </field>
         <field name="startAt">
+            <property name="FilterType">FREETEXT</property>
+            <property name="FilterBase">DATABASE</property>
+            <property name="FilterDefault">WEEK</property>
             <property name="Select">attribute[StartAt]</property>
             <property name="Label">POS_Balance/StartAt.Label</property>
         </field>
@@ -47,6 +50,8 @@
             <property name="Label">POS_Balance/EndAt.Label</property>
         </field>
         <field name="status">
+            <property name="FilterType">STATUS</property>
+            <property name="FilterBase">DATABASE</property>
             <property name="Select">attribute[Status]</property>
             <property name="Label">POS_Balance/Status.Label</property>
         </field>
