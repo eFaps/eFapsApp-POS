@@ -38,7 +38,7 @@ public class Loyalty
 {
     private static final Logger LOG = LoggerFactory.getLogger(Loyalty.class);
 
-    @Path("/{identifier}/loyalty-programs")
+    @Path("/{identifier}/loyalty/balance")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     public Response getPrograms(@PathParam("identifier") final String identifier,
@@ -47,10 +47,12 @@ public class Loyalty
     {
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         LOG.info("Request for loyalty-programs witdth identifier {} and contactIdentifier: {}", identifier, contactIdentifier);
+        Object entity = null;
         if (contactIdentifier != null) {
-            new LoyaltyService().queryPrograms4Contact(contactIdentifier);
+            entity = new LoyaltyService().queryBalance4Contact(contactIdentifier);
         }
         final Response ret = Response.ok()
+                        .entity(entity)
                         .build();
         return ret;
     }
