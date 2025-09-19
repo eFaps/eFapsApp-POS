@@ -86,7 +86,7 @@ public abstract class Invoice_Base
             createPositions(docInst, _invoiceDto);
             addPayments(docInst, _invoiceDto);
             createTransactions(_invoiceDto, docInst);
-            afterCreate(docInst);
+            afterCreate(docInst, _invoiceDto);
             dto = ReceiptDto.builder()
                             .withId(_invoiceDto.getId())
                             .withOID(docInst.getOid())

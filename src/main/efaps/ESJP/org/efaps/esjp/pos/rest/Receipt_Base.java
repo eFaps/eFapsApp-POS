@@ -78,20 +78,20 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final String _identifier, final ReceiptDto _receiptDto)
+    public Response addReceipt(final String _identifier, final ReceiptDto receiptDto)
         throws EFapsException
     {
         checkAccess(_identifier);
-        LOG.debug("Recieved: {}", _receiptDto);
+        LOG.debug("Recieved: {}", receiptDto);
         final ReceiptDto dto;
-        if (_receiptDto.getOid() == null) {
-            final Instance docInst = createDocument(Status.find(CISales.ReceiptStatus.Paid), _receiptDto);
-            createPositions(docInst, _receiptDto);
-            addPayments(docInst, _receiptDto);
-            createTransactions(_receiptDto, docInst);
-            afterCreate(docInst);
+        if (receiptDto.getOid() == null) {
+            final Instance docInst = createDocument(Status.find(CISales.ReceiptStatus.Paid), receiptDto);
+            createPositions(docInst, receiptDto);
+            addPayments(docInst, receiptDto);
+            createTransactions(receiptDto, docInst);
+            afterCreate(docInst, receiptDto);
             dto = ReceiptDto.builder()
-                            .withId(_receiptDto.getId())
+                            .withId(receiptDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {

@@ -74,21 +74,21 @@ public abstract class Ticket_Base
      * @throws EFapsException the eFaps exception
      */
     public Response addTicket(final String _identifier,
-                              final TicketDto _ticketDto)
+                              final TicketDto ticketDto)
         throws EFapsException
     {
         checkAccess(_identifier);
         checkAccess(_identifier);
-        LOG.debug("Recieved: {}", _ticketDto);
+        LOG.debug("Recieved: {}", ticketDto);
         final TicketDto dto;
-        if (_ticketDto.getOid() == null) {
-            final Instance docInst = createDocument(Status.find(CIPOS.TicketStatus.Closed), _ticketDto);
-            createPositions(docInst, _ticketDto);
-            addPayments(docInst, _ticketDto);
-            createTransactions(_ticketDto, docInst);
-            afterCreate(docInst);
+        if (ticketDto.getOid() == null) {
+            final Instance docInst = createDocument(Status.find(CIPOS.TicketStatus.Closed), ticketDto);
+            createPositions(docInst, ticketDto);
+            addPayments(docInst, ticketDto);
+            createTransactions(ticketDto, docInst);
+            afterCreate(docInst, ticketDto);
             dto = TicketDto.builder()
-                            .withId(_ticketDto.getId())
+                            .withId(ticketDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {

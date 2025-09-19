@@ -68,18 +68,18 @@ public abstract class CreditNote_Base
     }
 
     protected Response addCreditNote(final String _identifier,
-                                     final CreditNoteDto _creditNoteDto)
+                                     final CreditNoteDto creditNoteDto)
         throws EFapsException
     {
         checkAccess(_identifier);
-        LOG.debug("Recieved: {}", _creditNoteDto);
+        LOG.debug("Recieved: {}", creditNoteDto);
         final CreditNoteDto dto;
-        if (_creditNoteDto.getOid() == null) {
-            final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid), _creditNoteDto);
-            createPositions(docInst, _creditNoteDto);
-            addPayments(docInst, _creditNoteDto);
+        if (creditNoteDto.getOid() == null) {
+            final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid), creditNoteDto);
+            createPositions(docInst, creditNoteDto);
+            addPayments(docInst, creditNoteDto);
             // connect CreditNote and source document
-            final var sourceDocInst = Instance.get(_creditNoteDto.getSourceDocOid());
+            final var sourceDocInst = Instance.get(creditNoteDto.getSourceDocOid());
             final Insert insert = new Insert(
                             InstanceUtils.isKindOf(sourceDocInst, CISales.Invoice) ? CISales.CreditNote2Invoice
                                             : CISales.CreditNote2Receipt);
@@ -87,11 +87,11 @@ public abstract class CreditNote_Base
             insert.add(CISales.Document2DocumentAbstract.ToAbstractLink, sourceDocInst);
             insert.executeWithoutAccessCheck();
 
-            createTransactions(_creditNoteDto, docInst);
-            afterCreate(docInst);
+            createTransactions(creditNoteDto, docInst);
+            afterCreate(docInst, creditNoteDto);
             // createTransactionDocument(_creditNoteDto, docInst);
             dto = CreditNoteDto.builder()
-                            .withId(_creditNoteDto.getId())
+                            .withId(creditNoteDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {

@@ -19,6 +19,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.program.esjp.IEsjpListener;
 import org.efaps.db.Instance;
+import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("64261c7f-7e66-494d-9e8e-1c4c46eb67d4")
@@ -27,7 +28,8 @@ public interface IOnDocument
     extends IEsjpListener
 {
 
-    void afterCreate(final Instance docInst)
+    void afterCreate(final Instance docInst,
+                     final AbstractDocumentDto payload)
         throws EFapsException;
 
     @Override

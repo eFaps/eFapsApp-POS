@@ -248,8 +248,9 @@ public abstract class AbstractDocument_Base
             final var sortedItems = documentDto.getItems().stream()
                             .sorted(Comparator.comparing(AbstractDocItemDto::getIndex))
                             .collect(Collectors.toList());
-
+            int position = 0;
             for (final var item : sortedItems) {
+                position++;
                 final var productInfo = getProductInfo(item.getProductOid());
                 EQL.builder().insert(positionCiType)
                                 .set(CISales.PositionAbstract.PositionNumber, item.getIndex())
@@ -264,6 +265,7 @@ public abstract class AbstractDocument_Base
                                 ? CIProducts.TransactionOutbound.getType()
                                 : CIProducts.TransactionInbound.getType();
                 EQL.builder().insert(transactionCIType)
+                                .set(CIProducts.TransactionAbstract.Position, position)
                                 .set(CIProducts.TransactionAbstract.Quantity, item.getQuantity())
                                 .set(CIProducts.TransactionAbstract.Storage, warehouseInst)
                                 .set(CIProducts.TransactionAbstract.Product, Instance.get(item.getProductOid()))
@@ -280,6 +282,7 @@ public abstract class AbstractDocument_Base
                                     : CIProducts.TransactionIndividualInbound.getType();
 
                     EQL.builder().insert(transactionIndividualCIType)
+                                    .set(CIProducts.TransactionAbstract.Position, position)
                                     .set(CIProducts.TransactionAbstract.Quantity, item.getQuantity())
                                     .set(CIProducts.TransactionAbstract.Storage, warehouseInst)
                                     .set(CIProducts.TransactionAbstract.Product, Instance.get(item.getStandInOid()))
@@ -627,7 +630,7 @@ public abstract class AbstractDocument_Base
     }
 
     protected Instance evalRedeemCreditNotePayment(final AbstractPayableDocumentDto dto,
-                                       final PaymentRedeemCreditNoteDto paymentDto)
+                                                   final PaymentRedeemCreditNoteDto paymentDto)
         throws EFapsException
     {
         final var insert = getPaymentInsert(dto, paymentDto);
@@ -688,11 +691,12 @@ public abstract class AbstractDocument_Base
         return print.getSelect(selAccountInst);
     }
 
-    protected void afterCreate(final Instance docInst)
+    protected void afterCreate(final Instance docInst,
+                               final AbstractDocumentDto payload)
         throws EFapsException
     {
         for (final var listener : Listener.get().<IOnDocument>invoke(IOnDocument.class)) {
-            listener.afterCreate(docInst);
+            listener.afterCreate(docInst, payload);
         }
     }
 
