@@ -49,6 +49,7 @@ import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Insert;
 import org.efaps.esjp.ci.CIContacts;
+import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIPromo;
 import org.efaps.esjp.ci.CISales;
@@ -125,23 +126,27 @@ public class Payment
                 }
                 final CIType documentType;
                 final CIType positionType;
+                final CIType connectDoc2EmployeeType;
                 boolean ebilling = false;
-                final CIType connectType = switch (docType) {
+                final CIType connectOrder2DocType = switch (docType) {
                     case INVOICE -> {
                         documentType = CISales.Invoice;
                         positionType = CISales.InvoicePosition;
                         ebilling = ElectronicBilling.INVOICE_ACTIVE.get();
+                        connectDoc2EmployeeType = CISales.Employee2Invoice;
                         yield CIPOS.Order2Invoice;
                     }
                     case TICKET -> {
                         documentType = CIPOS.Ticket;
                         positionType = CIPOS.TicketPosition;
+                        connectDoc2EmployeeType = CIPOS.Employee2Ticket;
                         yield CIPOS.Order2Ticket;
                     }
                     default -> {
                         documentType = CISales.Receipt;
                         positionType = CISales.ReceiptPosition;
                         ebilling = ElectronicBilling.RECEIPT_ACTIVE.get();
+                        connectDoc2EmployeeType = CISales.Employee2Receipt;
                         yield CIPOS.Order2Receipt;
                     }
                 };
@@ -150,7 +155,9 @@ public class Payment
                 Context.save();
                 clonePositions(orderInst, targetDocInst, positionType);
                 clonePromoInfo(orderInst, targetDocInst);
-                connect(orderInst, targetDocInst, connectType);
+                connectOrder2Doc(orderInst, targetDocInst, connectOrder2DocType);
+                connectDoc2Employee(orderInst, targetDocInst, connectDoc2EmployeeType);
+
                 addPayments(identifier, targetDocInst, paymentDtos);
                 payableDto = toPayableDto(targetDocInst);
 
@@ -316,15 +323,34 @@ public class Payment
         return accountInst;
     }
 
-    protected void connect(final Instance sourceDocInst,
-                           final Instance targetDocInst,
-                           final CIType connectType)
+    protected void connectOrder2Doc(final Instance sourceDocInst,
+                                    final Instance targetDocInst,
+                                    final CIType connectType)
         throws EFapsException
     {
         EQL.builder().insert(connectType)
                         .set(CIPOS.Order2Document.FromAbstractLink, sourceDocInst)
                         .set(CIPOS.Order2Document.ToAbstractLink, targetDocInst)
                         .execute();
+    }
+
+    protected void connectDoc2Employee(final Instance sourceDocInst,
+                                       final Instance targetDocInst,
+                                       final CIType connectType)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print().query(CIPOS.Employee2Order)
+                        .where().attribute(CIPOS.Employee2Order.ToLink).eq(sourceDocInst)
+                        .select()
+                        .attribute(CIPOS.Employee2Order.FromLink)
+                        .evaluate();
+        if (eval.next()) {
+            EQL.builder().insert(connectType)
+                            .set(CIHumanResource.Employee2DocumentAbstract.FromAbstractLink,
+                                            eval.get(CIPOS.Employee2Order.FromLink))
+                            .set(CIHumanResource.Employee2DocumentAbstract.ToAbstractLink, targetDocInst)
+                            .execute();
+        }
     }
 
     protected void clonePromoInfo(final Instance sourceDocInst,

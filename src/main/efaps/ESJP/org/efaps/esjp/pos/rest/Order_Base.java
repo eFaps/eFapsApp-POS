@@ -34,6 +34,7 @@ import org.efaps.db.QueryBuilder;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIERP;
+import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
@@ -227,7 +228,21 @@ public abstract class Order_Base
             }
         }.recalculate(orderInst);
 
+        // assign employee
+        final var employeeInst = evalEmployee();
+        if (InstanceUtils.isKindOf(employeeInst, CIHumanResource.Employee)) {
+            EQL.builder().insert(getEmployee2DocumentType())
+                            .set(CIHumanResource.Employee2DocumentAbstract.FromAbstractLink, employeeInst)
+                            .set(CIHumanResource.Employee2DocumentAbstract.ToAbstractLink, orderInst)
+                            .execute();
+        }
         return Response.ok(toDto(OrderDto.builder(), orderInst)).build();
+    }
+
+    protected Instance evalEmployee()
+        throws EFapsException
+    {
+        return org.efaps.esjp.humanresource.Employee.getEmployee4Person(Context.getThreadContext().getPersonId());
     }
 
     protected void upsertItems(final CreateDocumentDto dto,
