@@ -242,7 +242,8 @@ public abstract class Order_Base
     protected Instance evalEmployee()
         throws EFapsException
     {
-        return org.efaps.esjp.humanresource.Employee.getEmployee4Person(Context.getThreadContext().getPersonId());
+        return org.efaps.esjp.humanresource.Employee.getEmployee4Person(
+                        Long.valueOf(Context.getThreadContext().getPersonId()));
     }
 
     protected void upsertItems(final CreateDocumentDto dto,
