@@ -56,14 +56,14 @@ public class Loyalty
         throws EFapsException
     {
         checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
-        LOG.info("Request for loyalty-programs witdth identifier {} and contactIdentifier: {}", identifier,
-                        contactIdentifier);
+        LOG.info("Request for loyalty-programs with identifier {}, contactIdentifier: {}, includeContact: {}",
+                        identifier, contactIdentifier, includeContact);
         final List<LoyaltyPointsBalanceDto> balances = new ArrayList<>();
         if (contactIdentifier != null) {
             for (final var balance : new LoyaltyService().queryBalance4Contact(contactIdentifier)) {
                 final var builder = LoyaltyPointsBalanceDto.builder();
                 if (BooleanUtils.isTrue(includeContact)
-                                && InstanceUtils.isType(balance.getContactInst(), CIContacts.ContactAbstract)) {
+                                && InstanceUtils.isKindOf(balance.getContactInst(), CIContacts.ContactAbstract)) {
                     builder.withContact(new Contact().toDto(balance.getContactInst()));
                 }
                 balances.add(builder
