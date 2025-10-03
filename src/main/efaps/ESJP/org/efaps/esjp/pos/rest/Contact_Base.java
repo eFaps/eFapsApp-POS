@@ -112,7 +112,6 @@ public abstract class Contact_Base
                         .clazz(CIContacts.ClassPerson)
                         .attribute(CIContacts.ClassPerson.SecondLastName);
 
-
         final SelectBuilder selEmails = SelectBuilder.get().clazz(CIContacts.Class)
                         .attributeset(CIContacts.Class.EmailSet, "attribute[ElectronicBilling]==true")
                         .attribute("Email");
@@ -176,51 +175,10 @@ public abstract class Contact_Base
         Response ret = null;
         final var contactInstance = Instance.get(oid);
         if (InstanceUtils.isType(contactInstance, CIContacts.Contact)) {
-            final var eval = EQL.builder()
-                            .with(StmtFlag.TRIGGEROFF)
-                            .print(contactInstance)
-                            .attribute(CIContacts.Contact.Name)
-                            .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
-                            .as("taxNumber")
-                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
-                            .as("identityCard")
-                            .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
-                            .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
-                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.Forename)
-                            .as("forename")
-                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.FirstLastName)
-                            .as("firstLastName")
-                            .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
-                            .as("secondLastName")
-                            .evaluate();
-            if (eval.next()) {
-                String idNumber = eval.get("taxNumber");
-                IdentificationType idType;
-                if (StringUtils.isNotBlank(idNumber)) {
-                    idType = IdentificationType.RUC;
-                } else {
-                    idNumber = eval.get("identityCard");
-                    final String doiType = eval.get("doiType");
-                    if (StringUtils.isBlank(doiType)) {
-                        idType = IdentificationType.OTHER;
-                    } else {
-                        idType = switch (doiType) {
-                            case "01" -> IdentificationType.DNI;
-                            case "07" -> IdentificationType.PASSPORT;
-                            case "04" -> IdentificationType.CE;
-                            default -> IdentificationType.OTHER;
-                        };
-                    }
-                }
-                ret = Response.ok().entity(ContactDto.builder()
-                                .withOID(eval.inst().getOid())
-                                .withName(eval.get(CIContacts.Contact.Name))
-                                .withIdType(idType)
-                                .withIdNumber(idNumber)
-                                .withForename(eval.get("forename"))
-                                .withFirstLastName(eval.get("firstLastName"))
-                                .withSecondLastName(eval.get("secondLastName"))
-                                .build())
+            final var dto = toDto(contactInstance);
+            if (dto != null) {
+                ret = Response.ok()
+                                .entity(dto)
                                 .build();
             } else {
                 ret = Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).build();
@@ -389,6 +347,59 @@ public abstract class Contact_Base
 
         final Response ret = Response.ok()
                         .build();
+        return ret;
+    }
+
+    public ContactDto toDto(final Instance contactInstance)
+        throws EFapsException
+    {
+        ContactDto ret = null;
+        final var eval = EQL.builder()
+                        .with(StmtFlag.TRIGGEROFF)
+                        .print(contactInstance)
+                        .attribute(CIContacts.Contact.Name)
+                        .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
+                        .as("taxNumber")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
+                        .as("identityCard")
+                        .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
+                        .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.Forename)
+                        .as("forename")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.FirstLastName)
+                        .as("firstLastName")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
+                        .as("secondLastName")
+                        .evaluate();
+        if (eval.next()) {
+            String idNumber = eval.get("taxNumber");
+            IdentificationType idType;
+            if (StringUtils.isNotBlank(idNumber)) {
+                idType = IdentificationType.RUC;
+            } else {
+                idNumber = eval.get("identityCard");
+                final String doiType = eval.get("doiType");
+                if (StringUtils.isBlank(doiType)) {
+                    idType = IdentificationType.OTHER;
+                } else {
+                    idType = switch (doiType) {
+                        case "01" -> IdentificationType.DNI;
+                        case "07" -> IdentificationType.PASSPORT;
+                        case "04" -> IdentificationType.CE;
+                        default -> IdentificationType.OTHER;
+                    };
+                }
+            }
+            ret = ContactDto.builder()
+                            .withOID(eval.inst().getOid())
+                            .withName(eval.get(CIContacts.Contact.Name))
+                            .withIdType(idType)
+                            .withIdNumber(idNumber)
+                            .withForename(eval.get("forename"))
+                            .withFirstLastName(eval.get("firstLastName"))
+                            .withSecondLastName(eval.get("secondLastName"))
+                            .build();
+        }
         return ret;
     }
 }
