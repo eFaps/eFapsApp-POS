@@ -46,4 +46,22 @@ public class Backend
             }
         }.execute(parameter);
     }
+
+    public Return createBackend(final Parameter parameter)
+        throws EFapsException
+    {
+        return new Create()
+        {
+
+            @Override
+            protected void add2basicInsert(final Parameter parameter,
+                                           final Insert insert)
+                throws EFapsException
+            {
+                super.add2basicInsert(parameter, insert);
+                insert.add(CIPOS.BackendAbstract.Identifier, RandomUtil.randomAlphanumeric(16));
+            }
+        }.execute(parameter);
+    }
+
 }

@@ -28,6 +28,7 @@
         <name>POS_BackendMyDesk_Menu_Action</name>
         <childs>
             <child>POS_BackendMyDesk_Menu_Action_CreateMobile</child>
+            <child>POS_BackendMyDesk_Menu_Action_CreateBackend</child>
             <child>POS_BackendMyDesk_Menu_Action_Delete</child>
         </childs>
     </definition>

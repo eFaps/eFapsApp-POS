@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
 
     Copyright © 2003 - 2024 The eFaps Team (-)
 
@@ -16,28 +15,22 @@
     limitations under the License.
 
 -->
-
-<ui-command xmlns="http://www.efaps.org/xsd"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>71004e68-333c-4176-8cd4-47f081ccd9bd</uuid>
+    <uuid>f401b576-61f1-4d0d-81bd-de2c24dd2a3a</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_BackendMyDesk_Menu_Action_CreateMobile</name>
+        <name>POS_BackendMyDesk_Menu_Action_CreateBackend</name>
+        <access>
+            <role>Administration</role>
+        </access>
         <target>
-            <form>POS_BackendMobileForm</form>
-            <execute program="org.efaps.esjp.pos.Backend" method="createMobile"/>
-            <trigger
-                program="org.efaps.esjp.admin.access.AccessCheck4UI"
-                method="configCheck" name="POS_BackendMyDesk_Menu_Action_CreateMobile.UI_ACCESSCHECK"
-                event="UI_ACCESSCHECK">
-                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
-                <property name="Attribute">org.efaps.pos.ActivateMobile</property>
-            </trigger>
+            <form>POS_BackendForm</form>
+            <execute method="createBackend" program="org.efaps.esjp.pos.Backend"/>
         </target>
         <property name="Target">modal</property>
-        <property name="TargetCreateType">POS_BackendMobile</property>
+        <property name="TargetCreateType">POS_Backend</property>
         <property name="TargetMode">create</property>
         <property name="TargetDefaultMenu">none</property>
     </definition>
