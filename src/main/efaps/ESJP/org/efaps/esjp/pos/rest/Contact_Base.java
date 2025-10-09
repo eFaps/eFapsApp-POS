@@ -197,87 +197,9 @@ public abstract class Contact_Base
         checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         final ContactDto dto;
         if (contactDto.getOid() == null) {
-            final Insert insert = new Insert(CIContacts.Contact);
-            insert.add(CIContacts.Contact.Name, contactDto.getName());
-            insert.add(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active));
-            insert.execute();
-
-            final Instance contactInst = insert.getInstance();
-
-            if (IdentificationType.RUC.equals(contactDto.getIdType())) {
-                final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
-                final Insert relInsert = new Insert(classification.getClassifyRelationType());
-                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
-                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
-                relInsert.execute();
-
-                final Insert classInsert = new Insert(classification);
-                classInsert.add(classification.getLinkAttributeName(), contactInst);
-                classInsert.add(CIContacts.ClassOrganisation.TaxNumber, contactDto.getIdNumber());
-                classInsert.execute();
-            } else {
-                final Classification classification = (Classification) CIContacts.ClassPerson.getType();
-                final Insert relInsert = new Insert(classification.getClassifyRelationType());
-                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
-                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
-                relInsert.execute();
-
-                final Insert classInsert = new Insert(classification);
-                classInsert.add(classification.getLinkAttributeName(), contactInst);
-                classInsert.add(CIContacts.ClassPerson.IdentityCard, contactDto.getIdNumber());
-                classInsert.add(CIContacts.ClassPerson.Forename, contactDto.getForename());
-                classInsert.add(CIContacts.ClassPerson.FirstLastName, contactDto.getFirstLastName());
-                classInsert.add(CIContacts.ClassPerson.SecondLastName, contactDto.getSecondLastName());
-
-                final String doiType = switch (contactDto.getIdType()) {
-                    case DNI -> "01";
-                    case PASSPORT -> "07";
-                    case CE -> "04";
-                    case OTHER -> "00";
-                    default -> null;
-                };
-                if (doiType != null) {
-                    final QueryBuilder queryBldr = new QueryBuilder(CIContacts.AttributeDefinitionDOIType);
-                    queryBldr.addWhereAttrEqValue(CIContacts.AttributeDefinitionDOIType.Value, doiType);
-                    final List<Instance> result = queryBldr.getQuery().execute();
-                    if (!result.isEmpty()) {
-                        classInsert.add(CIContacts.ClassPerson.DOITypeLink, result.get(0));
-                    }
-                }
-                classInsert.execute();
-            }
-            final Classification clientClass = (Classification) CIContacts.ClassClient.getType();
-            final Insert relClientInsert = new Insert(clientClass.getClassifyRelationType());
-            relClientInsert.add(clientClass.getRelLinkAttributeName(), contactInst);
-            relClientInsert.add(clientClass.getRelTypeAttributeName(), clientClass.getId());
-            relClientInsert.execute();
-
-            final Insert clientClassInsert = new Insert(clientClass);
-            clientClassInsert.add(clientClass.getLinkAttributeName(), contactInst);
-            clientClassInsert.execute();
-
-            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
-                final Classification classification = (Classification) CIContacts.Class.getType();
-                final Insert relInsert = new Insert(classification.getClassifyRelationType());
-                relInsert.add(classification.getRelLinkAttributeName(), contactInst);
-                relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
-                relInsert.execute();
-
-                final Insert classInsert = new Insert(classification);
-                classInsert.add(classification.getLinkAttributeName(), contactInst);
-                classInsert.execute();
-
-                final var attrSet = AttributeSet.find(CIContacts.Class.getType().getName(),
-                                CIContacts.Class.EmailSet.name);
-                final Insert attrSetInsert = new Insert(attrSet);
-                attrSetInsert.add(attrSet.getAttribute(CIContacts.Class.EmailSet.name), classInsert.getId());
-                attrSetInsert.add(attrSet.getAttribute("Email"), contactDto.getEmail());
-                attrSetInsert.add(attrSet.getAttribute("ElectronicBilling"), true);
-                attrSetInsert.execute();
-            }
-
+            final var contactInstance = createContactInstance(contactDto);
             dto = ContactDto.builder()
-                            .withOID(insert.getInstance().getOid())
+                            .withOID(contactInstance.getOid())
                             .build();
         } else {
             dto = ContactDto.builder().build();
@@ -402,4 +324,89 @@ public abstract class Contact_Base
         }
         return ret;
     }
+
+    public Instance createContactInstance(final ContactDto contactDto)
+        throws EFapsException
+    {
+        final Insert insert = new Insert(CIContacts.Contact);
+        insert.add(CIContacts.Contact.Name, contactDto.getName());
+        insert.add(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active));
+        insert.execute();
+
+        final Instance contactInst = insert.getInstance();
+
+        if (IdentificationType.RUC.equals(contactDto.getIdType())) {
+            final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
+            final Insert relInsert = new Insert(classification.getClassifyRelationType());
+            relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+            relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+            relInsert.execute();
+
+            final Insert classInsert = new Insert(classification);
+            classInsert.add(classification.getLinkAttributeName(), contactInst);
+            classInsert.add(CIContacts.ClassOrganisation.TaxNumber, contactDto.getIdNumber());
+            classInsert.execute();
+        } else {
+            final Classification classification = (Classification) CIContacts.ClassPerson.getType();
+            final Insert relInsert = new Insert(classification.getClassifyRelationType());
+            relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+            relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+            relInsert.execute();
+
+            final Insert classInsert = new Insert(classification);
+            classInsert.add(classification.getLinkAttributeName(), contactInst);
+            classInsert.add(CIContacts.ClassPerson.IdentityCard, contactDto.getIdNumber());
+            classInsert.add(CIContacts.ClassPerson.Forename, contactDto.getForename());
+            classInsert.add(CIContacts.ClassPerson.FirstLastName, contactDto.getFirstLastName());
+            classInsert.add(CIContacts.ClassPerson.SecondLastName, contactDto.getSecondLastName());
+
+            final String doiType = switch (contactDto.getIdType()) {
+                case DNI -> "01";
+                case PASSPORT -> "07";
+                case CE -> "04";
+                case OTHER -> "00";
+                default -> null;
+            };
+            if (doiType != null) {
+                final QueryBuilder queryBldr = new QueryBuilder(CIContacts.AttributeDefinitionDOIType);
+                queryBldr.addWhereAttrEqValue(CIContacts.AttributeDefinitionDOIType.Value, doiType);
+                final List<Instance> result = queryBldr.getQuery().execute();
+                if (!result.isEmpty()) {
+                    classInsert.add(CIContacts.ClassPerson.DOITypeLink, result.get(0));
+                }
+            }
+            classInsert.execute();
+        }
+        final Classification clientClass = (Classification) CIContacts.ClassClient.getType();
+        final Insert relClientInsert = new Insert(clientClass.getClassifyRelationType());
+        relClientInsert.add(clientClass.getRelLinkAttributeName(), contactInst);
+        relClientInsert.add(clientClass.getRelTypeAttributeName(), clientClass.getId());
+        relClientInsert.execute();
+
+        final Insert clientClassInsert = new Insert(clientClass);
+        clientClassInsert.add(clientClass.getLinkAttributeName(), contactInst);
+        clientClassInsert.execute();
+
+        if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
+            final Classification classification = (Classification) CIContacts.Class.getType();
+            final Insert relInsert = new Insert(classification.getClassifyRelationType());
+            relInsert.add(classification.getRelLinkAttributeName(), contactInst);
+            relInsert.add(classification.getRelTypeAttributeName(), classification.getId());
+            relInsert.execute();
+
+            final Insert classInsert = new Insert(classification);
+            classInsert.add(classification.getLinkAttributeName(), contactInst);
+            classInsert.execute();
+
+            final var attrSet = AttributeSet.find(CIContacts.Class.getType().getName(),
+                            CIContacts.Class.EmailSet.name);
+            final Insert attrSetInsert = new Insert(attrSet);
+            attrSetInsert.add(attrSet.getAttribute(CIContacts.Class.EmailSet.name), classInsert.getId());
+            attrSetInsert.add(attrSet.getAttribute("Email"), contactDto.getEmail());
+            attrSetInsert.add(attrSet.getAttribute("ElectronicBilling"), true);
+            attrSetInsert.execute();
+        }
+        return insert.getInstance();
+    }
+
 }
