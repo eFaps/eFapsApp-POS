@@ -138,6 +138,10 @@ public abstract class Config_Base
             config.put(ElectronicBilling.TAXMAPPING.getKey(),
                             propsToString(ElectronicBilling.TAXMAPPING.get()));
 
+            // Loyalty
+            config.put(org.efaps.esjp.loyalty.utils.Loyalty.ACTIVATE.getKey(),
+                            String.valueOf(org.efaps.esjp.loyalty.utils.Loyalty.ACTIVATE.get()));
+
             ret = Response.ok()
                             .entity(config)
                             .build();

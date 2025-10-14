@@ -67,6 +67,7 @@ public class Loyalty
                     builder.withContact(new Contact().toDto(balance.getContactInst()));
                 }
                 balances.add(builder
+                                .withProgramKey(balance.getProgramKey())
                                 .withPoints(balance.getPoints())
                                 .withEquivalentAmount(balance.getEquivalentAmount())
                                 .withEquivalentCurrency(balance.getEquivalentCurrency() == null
