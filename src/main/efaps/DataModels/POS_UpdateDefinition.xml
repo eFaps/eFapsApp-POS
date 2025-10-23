@@ -51,5 +51,11 @@
             <sqltable>POS_ObjectSQLTable</sqltable>
             <sqlcolumn>STR2</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>TargetFolder</name>
+            <type>String</type>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>STR3</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>

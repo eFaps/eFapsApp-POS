@@ -61,7 +61,8 @@ public class UpdateDefinition
                                                         .selectable(Selectables.attribute(
                                                                         CIPOS.UpdateDefinition2Backend.FromLink)))
                         .select()
-                        .attribute(CIPOS.UpdateDefinition.Created, CIPOS.UpdateDefinition.Version)
+                        .attribute(CIPOS.UpdateDefinition.Created, CIPOS.UpdateDefinition.Version,
+                                        CIPOS.UpdateDefinition.TargetFolder)
                         .orderBy(CIPOS.UpdateDefinition.Created, true)
                         .limit(1)
                         .evaluate();
@@ -84,6 +85,7 @@ public class UpdateDefinition
             }
             updateDto = UpdateDto.builder()
                             .withVersion(eval.get(CIPOS.UpdateDefinition.Version))
+                            .withTargetFolder(eval.get(CIPOS.UpdateDefinition.TargetFolder))
                             .withInstructions(instructions)
                             .build();
         }

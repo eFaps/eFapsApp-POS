@@ -115,7 +115,7 @@ public abstract class Contact_Base
         final SelectBuilder selEmails = SelectBuilder.get().clazz(CIContacts.Class)
                         .attributeset(CIContacts.Class.EmailSet, "attribute[ElectronicBilling]==true")
                         .attribute("Email");
-        if (Pos.CONTACT_ACIVATEEMAIL.get()) {
+        if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
             multi.addSelect(selEmails);
         }
         multi.addAttribute(CIContacts.Contact.Name);
@@ -141,7 +141,7 @@ public abstract class Contact_Base
                 }
             }
             String email = null;
-            if (Pos.CONTACT_ACIVATEEMAIL.get()) {
+            if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
                 final Object obj = multi.getSelect(selEmails);
                 if (obj instanceof List) {
                     email = ((List<String>) obj).get(0);
@@ -223,7 +223,7 @@ public abstract class Contact_Base
                             .set(CIContacts.Contact.Status, CIContacts.ContactStatus.Active)
                             .execute();
 
-            if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
+            if (Pos.CONTACT_ACTIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
                 final var contactInst = Instance.get(oid);
                 final var classification = (Classification) CIContacts.Class.getType();
                 final var eval = EQL.builder().print().query(CIContacts.Class)
@@ -387,7 +387,7 @@ public abstract class Contact_Base
         clientClassInsert.add(clientClass.getLinkAttributeName(), contactInst);
         clientClassInsert.execute();
 
-        if (Pos.CONTACT_ACIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
+        if (Pos.CONTACT_ACTIVATEEMAIL.get() && StringUtils.isNotEmpty(contactDto.getEmail())) {
             final Classification classification = (Classification) CIContacts.Class.getType();
             final Insert relInsert = new Insert(classification.getClassifyRelationType());
             relInsert.add(classification.getRelLinkAttributeName(), contactInst);

@@ -83,7 +83,7 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute CATEGORY_ACIVATEIMAGE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute CATEGORY_ACTIVATEIMAGE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Category.ActivateImage")
                     .description("Activate the image mechanism for categories.");
@@ -103,35 +103,42 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute FILE_ACIVATE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute UPDATE_ACTIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Update.Activate")
+                    .description("Activate the update mechanism.");
+
+    /** See description. */
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute FILE_ACTIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "File.Activate")
                     .description("Activate the handling for files.");
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute FLOOR_ACIVATE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute FLOOR_ACTIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Floor.Activate")
                     .description("Activate the handling for spots.");
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute INDICATIONSET_ACIVATE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute INDICATIONSET_ACTIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "IndicationSet.Activate")
                     .description("Activate the handling for spots.");
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute INDICATIONSET_ACIVATEIMAGE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute INDICATIONSET_ACTIVATEIMAGE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "IndicationSet.ActivateImage")
                     .description("Activate the handling for spots.");
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute INDICATION_ACIVATEIMAGE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute INDICATION_ACTIVATEIMAGE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Indication.ActivateImage")
                     .description("Activate the handling for spots.");
@@ -172,7 +179,7 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute PROD_DUMP_ACIVATE = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute PROD_DUMP_ACTIVATE = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Product.Dump.Activate")
                     .description("Activate the dump mechanism for products.");
@@ -186,7 +193,7 @@ public class Pos
                     .description("Configurations for Balance Report");
 
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute BALANCE_ACIVATECASHENTRY = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute BALANCE_ACTIVATECASHENTRY = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Balance.ActivateCashEntry")
                     .description("Activate the possibility to set Cash Entries for Balances.");
@@ -200,7 +207,7 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final BooleanSysConfAttribute CONTACT_ACIVATEEMAIL = new BooleanSysConfAttribute()
+    public static final BooleanSysConfAttribute CONTACT_ACTIVATEEMAIL = new BooleanSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Contact.ActivateEmail")
                     .description("Activate the handling of categories.");

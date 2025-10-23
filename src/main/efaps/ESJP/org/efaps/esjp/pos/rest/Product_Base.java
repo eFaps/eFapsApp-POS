@@ -720,7 +720,7 @@ public abstract class Product_Base
     {
         final Set<IndicationSetDto> ret = new HashSet<>();
         try {
-            if (Pos.INDICATIONSET_ACIVATE.get()) {
+            if (Pos.INDICATIONSET_ACTIVATE.get()) {
                 final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.IndicationSet2Product);
                 attrQueryBldr.addWhereAttrEqValue(CIPOS.IndicationSet2Product.ToLink, productInstance);
                 final QueryBuilder isQueryBldr = new QueryBuilder(CIPOS.IndicationSet);
@@ -743,7 +743,7 @@ public abstract class Product_Base
                     multi.execute();
                     while (multi.next()) {
                         String imageOid = null;
-                        if (Pos.INDICATION_ACIVATEIMAGE.get()) {
+                        if (Pos.INDICATION_ACTIVATEIMAGE.get()) {
                             final Resource resource = Store
                                             .get(multi.getCurrentInstance().getType().getStoreId())
                                             .getResource(multi.getCurrentInstance());
@@ -766,7 +766,7 @@ public abstract class Product_Base
                     LOG.trace("    indications {}", indications);
 
                     String imageOid = null;
-                    if (Pos.INDICATIONSET_ACIVATEIMAGE.get()) {
+                    if (Pos.INDICATIONSET_ACTIVATEIMAGE.get()) {
                         final Resource resource = Store
                                         .get(setMulti.getCurrentInstance().getType().getStoreId())
                                         .getResource(setMulti.getCurrentInstance());
@@ -896,7 +896,7 @@ public abstract class Product_Base
         throws EFapsException
     {
         Response ret = null;
-        if (Pos.PROD_DUMP_ACIVATE.get()) {
+        if (Pos.PROD_DUMP_ACTIVATE.get()) {
             final var eval = EQL.builder().print()
                             .query(CIPOS.ProductDump)
                             .select()

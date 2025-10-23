@@ -32,6 +32,11 @@
             <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
                 <property name="Type">POS_UpdateFile</property>
             </evaluate>
+            <trigger event="UI_ACCESSCHECK" method="configCheck" name="POS_UpdateFileMyDesk.UI_ACCESSCHECK"
+                program="org.efaps.esjp.admin.access.AccessCheck4UI">
+                <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
+                <property name="Attribute">org.efaps.pos.Update.Activate</property>
+            </trigger>
         </target>
         <property name="Target">content</property>
         <property name="TargetShowCheckBoxes">true</property>

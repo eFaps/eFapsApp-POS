@@ -74,7 +74,7 @@ public abstract class Category_Base
         multi.execute();
         while (multi.next()) {
             String imageOid = null;
-            if (Pos.CATEGORY_ACIVATEIMAGE.get()) {
+            if (Pos.CATEGORY_ACTIVATEIMAGE.get()) {
                 final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
                                 .getResource(multi.getCurrentInstance());
                 if (resource.exists()) {
