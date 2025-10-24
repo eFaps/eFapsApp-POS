@@ -20,7 +20,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -335,13 +337,12 @@ public abstract class AbstractDocument_Base
         final var sortedItems = documentDto.getItems().stream()
                         .sorted(Comparator.comparing(AbstractDocItemDto::getIndex))
                         .collect(Collectors.toList());
-        Instance parentInstance = null;
+        final Map<Integer, Instance> instances = new HashMap<>();
+
         for (final var item : sortedItems) {
-            if (item.getParentIdx() == null) {
-                parentInstance = createPosition(docInstance, item, documentDto.getDate(), null);
-            } else {
-                createPosition(docInstance, item, documentDto.getDate(), parentInstance);
-            }
+            final var parentInstance = item.getParentIdx() == null ? null : instances.get(item.getParentIdx());
+            final var instance = createPosition(docInstance, item, documentDto.getDate(), parentInstance);
+            instances.put(item.getIndex(), instance);
         }
     }
 
