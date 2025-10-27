@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
@@ -34,14 +35,19 @@ import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.pos.dto.UpdateConfirmationDto;
 import org.efaps.pos.dto.UpdateDto;
 import org.efaps.pos.dto.UpdateInstructionDto;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("e8a79ebb-f9df-435d-8526-46fb5533ec26")
 @EFapsApplication("eFapsApp-POS")
 public class UpdateDefinition
 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UpdateDefinition.class);
 
     public UpdateDto getUpdate(final Instance backendInst)
         throws EFapsException
@@ -142,6 +148,33 @@ public class UpdateDefinition
             EQL.builder().update(instance).set(CIPOS.UpdateFile.Name, fileItem.getName()).execute();
         }
         return new Return();
+    }
+
+    public void confirm(final Instance backendInst,
+                        UpdateConfirmationDto dto)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print()
+                        .query(CIPOS.UpdateDefinition2Backend)
+                        .where()
+                        .attribute(CIPOS.UpdateDefinition2Backend.ToLink).eq(backendInst)
+                        .attribute(CIPOS.UpdateDefinition2Backend.FromLink).in(
+                                        EQL.builder()
+                                                        .nestedQuery(CIPOS.UpdateDefinition)
+                                                        .where()
+                                                        .attribute(CIPOS.UpdateDefinition.Version)
+                                                        .eq(dto.getVersion())
+                                                        .up())
+                        .select()
+                        .oid()
+                        .evaluate();
+        if (eval.next()) {
+            LOG.info("Get update of status for version: {} for {}", dto, backendInst);
+            final var value = EnumUtils.getEnum(org.efaps.esjp.pos.util.Pos.UpdateStatus.class, dto.getStatus().name());
+            EQL.builder().update(eval.inst())
+                .set(CIPOS.UpdateDefinition2Backend.UpdateStatus, value)
+                .execute();
+        }
     }
 
 }

@@ -15,17 +15,19 @@
  */
 package org.efaps.esjp.pos.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.pos.UpdateDefinition;
+import org.efaps.pos.dto.UpdateConfirmationDto;
 import org.efaps.util.EFapsException;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("3e77f8ab-f87d-41b7-986b-504357dbd956")
 @EFapsApplication("eFapsApp-POS")
@@ -44,6 +46,21 @@ public class Update
         final var updateDto = new UpdateDefinition().getUpdate(backendInst);
         final Response ret = Response.ok()
                         .entity(updateDto)
+                        .build();
+        return ret;
+    }
+
+    @Path("/{identifier}/update/confirm")
+    @POST
+    public Response confirmUpdateDefinition(@PathParam("identifier") final String identifier,
+                                            final UpdateConfirmationDto dto)
+        throws EFapsException
+    {
+        checkAccess(identifier, ACCESSROLE.BE);
+        final var backendInst = getBackendInstance(identifier);
+
+        new UpdateDefinition().confirm(backendInst, dto);
+        final Response ret = Response.ok()
                         .build();
         return ret;
     }

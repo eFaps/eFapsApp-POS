@@ -38,5 +38,12 @@
             <sqltable>POS_Object2ObjectSQLTable</sqltable>
             <sqlcolumn>TOID</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>UpdateStatus</name>
+            <type>Enum</type>
+            <className>org.efaps.esjp.pos.util.Pos$UpdateStatus</className>
+            <sqltable>POS_Object2ObjectSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>

@@ -32,5 +32,9 @@
             <property name="Select">linkto[FromLink].attribute[Description]</property>
             <property name="Label">POS_UpdateDefinition/Description.Label</property>
         </field>
+        <field name="updateStatus">
+            <property name="Select">attribute[UpdateStatus]</property>
+            <property name="Label">POS_UpdateDefinition2Backend/UpdateStatus.Label</property>
+        </field>
     </definition>
 </ui-table>

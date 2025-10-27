@@ -442,6 +442,19 @@ public class Pos
         }
     }
 
+
+    public enum UpdateStatus implements IEnum
+    {
+        DOWNLOADED,
+        INSTALLED;
+
+        @Override
+        public int getInt()
+        {
+            return ordinal();
+        }
+    }
+
     /**
      * @return the SystemConfigruation for Payroll
      * @throws CacheReloadException on error
