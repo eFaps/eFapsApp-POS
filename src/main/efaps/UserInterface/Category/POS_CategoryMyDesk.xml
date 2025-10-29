@@ -50,8 +50,6 @@
                 program="org.efaps.esjp.admin.access.AccessCheck4UI"
                 method="configCheck" name="POS_MyDesk.UI_ACCESSCHECK"
                 event="UI_ACCESSCHECK">
-                
-
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
                 <property name="Attribute">org.efaps.pos.Category.Activate</property>
             </trigger>
