@@ -24,9 +24,12 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Checkin;
+import org.efaps.db.Checkout;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +70,7 @@ public class Category
                         .evaluate();
         eval.next();
 
-        final var cloneInst = EQL.builder().insert(CIPOS.Category)
+        final var clonedInst = EQL.builder().insert(CIPOS.Category)
                         .set(CIPOS.Category.Name, name == null ? eval.get(CIPOS.Category.Name) : name)
                         .set(CIPOS.Category.Description, eval.get(CIPOS.Category.Description))
                         .set(CIPOS.Category.Label, eval.get(CIPOS.Category.Label))
@@ -75,6 +78,17 @@ public class Category
                         .set(CIPOS.Category.Status, CIPOS.CategoryStatus.Inactive)
                         .set(CIPOS.Category.ParentLink, parentInst)
                         .execute();
+
+        // clone image
+        if (Pos.CATEGORY_ACTIVATEIMAGE.get()) {
+            final var checkout = new Checkout(baseCategoryInst);
+            if (checkout.exists()) {
+                final var inputStream = checkout.execute();
+                final var checkin = new Checkin(clonedInst);
+                checkin.execute(checkout.getFileName(), inputStream,
+                                Long.valueOf(checkout.getFileLength()).intValue());
+            }
+        }
 
         // clone product connections
         final var productEval = EQL.builder().print()
@@ -87,13 +101,13 @@ public class Category
 
         while (productEval.next()) {
             EQL.builder().insert(CIPOS.Category2Product)
-                            .set(CIPOS.Category2Product.FromLink, cloneInst)
+                            .set(CIPOS.Category2Product.FromLink, clonedInst)
                             .set(CIPOS.Category2Product.ToLink, productEval.get(CIPOS.Category2Product.ToLink))
                             .set(CIPOS.Category2Product.SortWeight, productEval.get(CIPOS.Category2Product.SortWeight))
                             .execute();
         }
 
-        // clone product connections
+        // clone child categories
         final var categoryEval = EQL.builder().print()
                         .query(CIPOS.Category)
                         .where()
@@ -102,8 +116,8 @@ public class Category
                         .oid()
                         .evaluate();
         while (categoryEval.next()) {
-            clone(categoryEval.inst(), null, cloneInst);
+            clone(categoryEval.inst(), null, clonedInst);
         }
-        return cloneInst;
+        return clonedInst;
     }
 }
