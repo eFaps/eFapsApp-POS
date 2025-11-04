@@ -22,6 +22,9 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>POS_CategoryMyDesk_Menu_Action_Clone</name>
+        <access>
+            <role>Administration</role>
+        </access>
         <target>
             <form>POS_Category_CloneForm</form>
             <execute program="org.efaps.esjp.pos.Category" method="clone"/>
