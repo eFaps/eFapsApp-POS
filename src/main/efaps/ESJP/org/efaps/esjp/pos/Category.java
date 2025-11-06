@@ -81,12 +81,18 @@ public class Category
 
         // clone image
         if (Pos.CATEGORY_ACTIVATEIMAGE.get()) {
-            final var checkout = new Checkout(baseCategoryInst);
-            if (checkout.exists()) {
-                final var inputStream = checkout.execute();
-                final var checkin = new Checkin(clonedInst);
-                checkin.execute(checkout.getFileName(), inputStream,
-                                Long.valueOf(checkout.getFileLength()).intValue());
+            try {
+                final var checkout = new Checkout(baseCategoryInst);
+                if (checkout.exists()) {
+                    final var inputStream = checkout.execute();
+                    if (inputStream != null) {
+                        final var checkin = new Checkin(clonedInst);
+                        checkin.execute(checkout.getFileName(), inputStream,
+                                        Long.valueOf(checkout.getFileLength()).intValue());
+                    }
+                }
+            } catch (final Exception e) {
+                LOG.error("Something went wrong while coneing the image", e);
             }
         }
 
