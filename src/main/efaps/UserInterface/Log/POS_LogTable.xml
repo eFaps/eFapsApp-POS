@@ -57,8 +57,12 @@
             <property name="Label">POS_Log/Value.Label</property>
         </field>
         <field name="created">
-            <property name="Select">attribute[Created]</property>
+            <property name="Attribute">Created</property>
             <property name="Label">POS_Backend/Created.Label</property>
+            <property name="FilterType">FREETEXT</property>
+            <property name="FilterRequired">TRUE</property>
+            <property name="FilterBase">DATABASE</property>
+            <property name="FilterDefault">TODAY</property>
         </field>
     </definition>
 </ui-table>
