@@ -75,6 +75,12 @@
             <sqltable>POS_MonitoringSQLTable</sqltable>
             <sqlcolumn>DATE1</sqlcolumn>
         </attribute>
+         <attribute>
+            <name>Payload</name>
+            <type>String</type>
+            <sqltable>POS_MonitoringSQLTable</sqltable>
+            <sqlcolumn>PAYLOAD</sqlcolumn>
+        </attribute>
         <attribute>
             <name>Creator</name>
             <type>CreatorLink</type>

@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @EFapsUUID("7f5c44d3-ea2e-4d49-a1ba-b69715db111d")
 @EFapsApplication("eFapsApp-POS")
@@ -51,8 +50,6 @@ public abstract class Config_Base
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Config.class);
-
-    private final ObjectMapper mapper = getObjectMapper();
 
     public Response getConfig(final String identifier)
         throws EFapsException
@@ -94,12 +91,7 @@ public abstract class Config_Base
                                     final var fieldObject = FieldUtils.readStaticField(field);
                                     if (fieldObject instanceof final PropertiesSysConfAttribute sysConfAttr) {
                                         final var properties = sysConfAttr.get();
-
-                                        try {
-                                            config.put(sysConfAttr.getKey(), mapper.writeValueAsString(properties));
-                                        } catch (final JsonProcessingException e1) {
-                                            LOG.error("Catched", e1);
-                                        }
+                                        config.put(sysConfAttr.getKey(), propsToString(properties));
                                     } else if (fieldObject instanceof AbstractSysConfAttribute) {
                                         final var sysConfAttr = (AbstractSysConfAttribute<?, ?>) fieldObject;
                                         config.put(sysConfAttr.getKey(), String.valueOf(sysConfAttr.get()));
@@ -153,7 +145,7 @@ public abstract class Config_Base
     {
         String ret = null;
         try {
-            ret = mapper.writeValueAsString(properties);
+            ret = getObjectMapper().writeValueAsString(properties);
         } catch (final JsonProcessingException e) {
             LOG.error("Catched", e);
             ret = "Could not convert to string";

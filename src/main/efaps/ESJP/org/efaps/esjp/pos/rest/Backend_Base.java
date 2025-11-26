@@ -30,6 +30,8 @@ import org.efaps.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 @EFapsUUID("bed0d26f-3dd6-40dc-a75c-dbf0a075e353")
 @EFapsApplication("eFapsApp-POS")
 public abstract class Backend_Base
@@ -68,6 +70,13 @@ public abstract class Backend_Base
         checkAccess(identifier, ACCESSROLE.BE);
         LOG.debug("Recieved request for report to base");
 
+        String payload = null;
+        try {
+            payload = getObjectMapper().writeValueAsString(dto.getDetails());
+        } catch (final JsonProcessingException e) {
+            LOG.error("Catched", e);
+        }
+
         final var beInst = getBackendInstance(identifier);
         EQL.builder()
                         .insert(CIPOS.MonitoringReportToBase)
@@ -75,6 +84,7 @@ public abstract class Backend_Base
                         .set(CIPOS.MonitoringReportToBase.Version, dto.getVersion())
                         .set(CIPOS.MonitoringReportToBase.InstalationId, dto.getInstalationId())
                         .set(CIPOS.MonitoringReportToBase.RegisteredAt, dto.getCreatedAt())
+                        .set(CIPOS.MonitoringReportToBase.Payload, payload)
                         .execute();
         return Response.ok().build();
     }

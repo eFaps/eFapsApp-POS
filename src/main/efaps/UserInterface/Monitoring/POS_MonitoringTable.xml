@@ -49,6 +49,10 @@
             <property name="Select">attribute[DateTime1]</property>
             <property name="Label">POS_Monitoring/DateTime1.Label</property>
         </field>
+         <field name="payload">
+            <property name="Select">attribute[Payload]</property>
+            <property name="Label">POS_Monitoring/Payload.Label</property>
+        </field>
         <field name="created">
             <property name="Attribute">Created</property>
             <property name="Label">POS_Backend/Created.Label</property>

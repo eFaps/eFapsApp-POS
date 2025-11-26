@@ -27,6 +27,7 @@ import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.common.serialization.SerializationUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.MonitoringService;
 import org.efaps.util.EFapsException;
@@ -34,8 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @EFapsUUID("4f3f9a28-2cb4-440c-bbe0-98dac596c3b8")
 @EFapsApplication("eFapsApp-POS")
@@ -136,10 +135,7 @@ public abstract class AbstractRest_Base
 
     protected ObjectMapper getObjectMapper()
     {
-        final var mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        return mapper;
+        return SerializationUtil.getObjectMapper();
     }
 
     public enum ACCESSROLE
