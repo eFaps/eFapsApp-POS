@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,7 @@ import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.file.FileUtil;
+import org.efaps.esjp.common.history.History;
 import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
@@ -90,7 +92,6 @@ import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
-import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.efaps.util.OIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -191,18 +192,18 @@ public abstract class Product_Base
      * @return the products
      * @throws EFapsException the eFaps exception
      */
-    public List<ProductDto> getProducts(final String _identifier,
+    public List<ProductDto> getProducts(final String identifier,
                                         final int limit,
                                         final int offset,
                                         final OffsetDateTime afterParameter,
                                         final boolean caching)
         throws EFapsException
     {
-        LOG.debug("Received request for product sync from {}", _identifier);
-        final var query = EQL.builder().print()
-                        .query(CIProducts.ProductAbstract);
-
+        LOG.debug("Received request for product sync from {}", identifier);
+        Print print = null;
         if (afterParameter == null) {
+            final var query = EQL.builder().print()
+                            .query(CIProducts.ProductAbstract);
             if (Pos.CATEGORY_ACTIVATE.get() && Pos.CATEGORY_PRODFILTER.get()) {
                 final var categoryQuery = EQL.builder().nestedQuery(CIPOS.Category)
                                 .where()
@@ -225,44 +226,24 @@ public abstract class Product_Base
             } else {
                 query.where().attribute(CIProducts.ProductAbstract.Active).eq("true").up();
             }
+
+            print = query.select().orderBy(CIProducts.ProductAbstract.ID);
+            if (limit > 0) {
+                print.limit(limit);
+            }
+            if (offset > 0) {
+                print.offset(offset);
+            }
+
         } else {
-            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
-
-            final var posQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistPosition)
-                            .where()
-                            .attribute(CIProducts.ProductPricelistPosition.Modified).greater(String.valueOf(after))
-                            .up()
-                            .selectable(Selectables.attribute(CIProducts.ProductPricelistPosition.ProductPricelist));
-
-            final var listQuery = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
-                            .where()
-                            .attribute(CIProducts.ProductPricelistAbstract.ID).in(posQuery)
-                            .up()
-                            .selectable(Selectables.attribute(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-
-            final var listQuery2 = EQL.builder().nestedQuery(CIProducts.ProductPricelistAbstract)
-                            .where()
-                            .attribute(CIProducts.ProductPricelistAbstract.Modified).greater(String.valueOf(after))
-                            .up()
-                            .selectable(Selectables.attribute(CIProducts.ProductPricelistAbstract.ProductAbstractLink));
-
-            query.where()
-                            .attribute(CIProducts.ProductAbstract.ID).in(listQuery)
-                            .or()
-                            .attribute(CIProducts.ProductAbstract.ID).in(listQuery2)
-                            .or()
-                            .attribute(CIProducts.ProductAbstract.Modified).greater(String.valueOf(after));
+            final var prodInstances = new History().getLatest(afterParameter, CIProducts.ProductAbstract);
+            LOG.info("Found {} altered product instances since {}", prodInstances.size(), afterParameter);
+            LOG.debug("Instances: {}", prodInstances);
+            if (prodInstances.size() > 0) {
+                print = EQL.builder().print(prodInstances.toArray(new Instance[prodInstances.size()]));
+            }
         }
-        final var select = query.select().orderBy(CIProducts.ProductAbstract.ID);
-
-        if (limit > 0) {
-            select.limit(limit);
-        }
-        if (offset > 0) {
-            select.offset(offset);
-        }
-
-        return evalProducts(_identifier, select, caching);
+        return print == null ?  Collections.emptyList() : evalProducts(identifier, print, caching);
     }
 
     @SuppressWarnings("unchecked")
