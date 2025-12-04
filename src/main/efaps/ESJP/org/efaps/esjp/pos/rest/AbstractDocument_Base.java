@@ -57,6 +57,7 @@ import org.efaps.esjp.erp.Currency;
 import org.efaps.esjp.erp.CurrencyInst;
 import org.efaps.esjp.erp.RateInfo;
 import org.efaps.esjp.erp.util.ERP;
+import org.efaps.esjp.loyalty.LoyaltyService;
 import org.efaps.esjp.loyalty.Points;
 import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
@@ -111,43 +112,43 @@ public abstract class AbstractDocument_Base
     protected abstract CIType getDepartment2DocumentType();
 
     protected Instance createDocument(final Status _status,
-                                      final AbstractDocumentDto _dto)
+                                      final AbstractDocumentDto dto)
         throws EFapsException
     {
         final Insert insert = new Insert(getDocumentType());
-        insert.add(CISales.DocumentSumAbstract.Name, _dto.getNumber());
-        insert.add(CISales.DocumentSumAbstract.Date, _dto.getDate());
+        insert.add(CISales.DocumentSumAbstract.Name, dto.getNumber());
+        insert.add(CISales.DocumentSumAbstract.Date, dto.getDate());
         insert.add(CISales.DocumentSumAbstract.StatusAbstract, _status);
-        insert.add(CISales.DocumentSumAbstract.Note, _dto.getNote());
+        insert.add(CISales.DocumentSumAbstract.Note, dto.getNote());
 
-        final Instance contactInst = Instance.get(_dto.getContactOid());
+        final Instance contactInst = Instance.get(dto.getContactOid());
         if (InstanceUtils.isValid(contactInst)) {
             insert.add(CISales.DocumentSumAbstract.Contact, contactInst);
         }
 
-        final BigDecimal rateNetTotal = _dto.getNetTotal() == null ? BigDecimal.ZERO : _dto.getNetTotal();
-        final BigDecimal rateCrossTotal = _dto.getCrossTotal() == null ? BigDecimal.ZERO : _dto.getCrossTotal();
+        final BigDecimal rateNetTotal = dto.getNetTotal() == null ? BigDecimal.ZERO : dto.getNetTotal();
+        final BigDecimal rateCrossTotal = dto.getCrossTotal() == null ? BigDecimal.ZERO : dto.getCrossTotal();
 
         insert.add(CISales.DocumentSumAbstract.NetTotal,
-                        DocumentUtils.exchange(rateNetTotal, _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(rateNetTotal, dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.DocumentSumAbstract.CrossTotal,
-                        DocumentUtils.exchange(rateCrossTotal, _dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.exchange(rateCrossTotal, dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.DocumentSumAbstract.DiscountTotal, BigDecimal.ZERO);
         insert.add(CISales.DocumentSumAbstract.RateNetTotal, rateNetTotal);
         insert.add(CISales.DocumentSumAbstract.RateCrossTotal, rateCrossTotal);
         insert.add(CISales.DocumentSumAbstract.RateDiscountTotal, BigDecimal.ZERO);
         insert.add(CISales.DocumentSumAbstract.CurrencyId, ERP.CURRENCYBASE.get());
         insert.add(CISales.DocumentSumAbstract.RateCurrencyId,
-                        DocumentUtils.getCurrencyInst(_dto.getCurrency()).getInstance());
-        insert.add(CISales.DocumentSumAbstract.Rate, DocumentUtils.getRate(_dto.getCurrency(), _dto.getExchangeRate()));
+                        DocumentUtils.getCurrencyInst(dto.getCurrency()).getInstance());
+        insert.add(CISales.DocumentSumAbstract.Rate, DocumentUtils.getRate(dto.getCurrency(), dto.getExchangeRate()));
         insert.add(CISales.DocumentSumAbstract.Taxes,
-                        getTaxes(_dto.getDate(), _dto.getTaxes(), _dto.getCurrency(), _dto.getExchangeRate()));
-        insert.add(CISales.DocumentSumAbstract.RateTaxes, getRateTaxes(_dto.getDate(), _dto.getTaxes()));
+                        getTaxes(dto.getDate(), dto.getTaxes(), dto.getCurrency(), dto.getExchangeRate()));
+        insert.add(CISales.DocumentSumAbstract.RateTaxes, getRateTaxes(dto.getDate(), dto.getTaxes()));
         insert.execute();
 
         final Instance ret = insert.getInstance();
 
-        final Instance workspaceInst = Instance.get(_dto.getWorkspaceOid());
+        final Instance workspaceInst = Instance.get(dto.getWorkspaceOid());
         if (InstanceUtils.isValid(workspaceInst)) {
             final var eval = EQL.builder().with(StmtFlag.TRIGGEROFF)
                             .print(workspaceInst)
@@ -172,8 +173,8 @@ public abstract class AbstractDocument_Base
             }
         }
 
-        if (_dto instanceof AbstractPayableDocumentDto) {
-            final Instance balanceInst = Instance.get(((AbstractPayableDocumentDto) _dto).getBalanceOid());
+        if (dto instanceof AbstractPayableDocumentDto) {
+            final Instance balanceInst = Instance.get(((AbstractPayableDocumentDto) dto).getBalanceOid());
             if (InstanceUtils.isKindOf(balanceInst, CIPOS.Balance)) {
                 final Insert relInsert = new Insert(CIPOS.Balance2Document);
                 relInsert.add(CIPOS.Balance2Document.FromLink, balanceInst);
@@ -182,8 +183,8 @@ public abstract class AbstractDocument_Base
             }
         }
 
-        if (getEmployee2DocumentType() != null && CollectionUtils.isNotEmpty(_dto.getEmployeeRelations())) {
-            for (final var relation : _dto.getEmployeeRelations()) {
+        if (getEmployee2DocumentType() != null && CollectionUtils.isNotEmpty(dto.getEmployeeRelations())) {
+            for (final var relation : dto.getEmployeeRelations()) {
                 final var employeeInst = Instance.get(relation.getEmployeeOid());
                 if (InstanceUtils.isKindOf(employeeInst, CIHumanResource.EmployeeAbstract)) {
                     switch (relation.getType()) {
@@ -197,7 +198,18 @@ public abstract class AbstractDocument_Base
                 }
             }
         }
+        evalLoyalty(ret, dto);
         return ret;
+    }
+
+    protected void evalLoyalty(final Instance docInst,
+                               final AbstractDocumentDto dto)
+        throws EFapsException
+    {
+        // register the points the client won
+        if (org.efaps.esjp.loyalty.utils.Loyalty.ACTIVATE.get()) {
+            new LoyaltyService().gain(docInst, dto.getLoyaltyContactOid());
+        }
     }
 
     protected void createTransactions(final AbstractDocumentDto documentDto,
@@ -650,7 +662,8 @@ public abstract class AbstractDocument_Base
         throws EFapsException
     {
         Instance ret = null;
-        final var contactInst = Instance.get(dto.getContactOid());
+        final var contactInst = dto.getLoyaltyContactOid() == null ? Instance.get(dto.getContactOid())
+                        : Instance.get(dto.getLoyaltyContactOid());
         if (InstanceUtils.isKindOf(contactInst, CIContacts.ContactAbstract)) {
             switch (paymentDto.getType()) {
                 case LOYALTY_POINTS: {
