@@ -668,7 +668,7 @@ public abstract class AbstractDocument_Base
         if (InstanceUtils.isKindOf(contactInst, CIContacts.ContactAbstract)) {
             switch (paymentDto.getType()) {
                 case LOYALTY_POINTS: {
-                    ret = new Points().evalProgramInstance4Contact(contactInst);
+                    ret = new Points().evalProgramInstance4Contact(contactInst, null);
                     break;
                 }
                 default:
