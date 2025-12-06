@@ -206,6 +206,7 @@ public abstract class AbstractDocument_Base
                                final AbstractDocumentDto dto)
         throws EFapsException
     {
+        LOG.debug("evaluating Loyalty for {}, {}", docInst, dto);
         // register the points the client won
         if (org.efaps.esjp.loyalty.utils.Loyalty.ACTIVATE.get()) {
             new LoyaltyService().gain(docInst, dto.getLoyaltyContactOid());
