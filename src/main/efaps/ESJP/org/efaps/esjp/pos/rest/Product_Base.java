@@ -237,13 +237,14 @@ public abstract class Product_Base
 
         } else {
             final var prodInstances = new History().getLatest(afterParameter, CIProducts.ProductAbstract);
-            LOG.info("Found {} altered product instances since {}", prodInstances.size(), afterParameter);
+            LOG.info("Found {} altered product instances since {} for {}", prodInstances.size(), afterParameter,
+                            identifier);
             LOG.debug("Instances: {}", prodInstances);
             if (prodInstances.size() > 0) {
                 print = EQL.builder().print(prodInstances.toArray(new Instance[prodInstances.size()]));
             }
         }
-        return print == null ?  Collections.emptyList() : evalProducts(identifier, print, caching);
+        return print == null ? Collections.emptyList() : evalProducts(identifier, print, caching);
     }
 
     @SuppressWarnings("unchecked")
