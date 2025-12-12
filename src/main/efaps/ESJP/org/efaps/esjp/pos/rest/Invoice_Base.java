@@ -74,21 +74,22 @@ public abstract class Invoice_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addInvoice(final String _identifier,
-                               final InvoiceDto _invoiceDto)
+    public Response addInvoice(final String identifier,
+                               final InvoiceDto invoiceDto)
         throws EFapsException
     {
-        checkAccess(_identifier);
-        LOG.debug("Recieved: {}", _invoiceDto);
+        checkAccess(identifier);
+        LOG.debug("Recieved: {}", invoiceDto);
         final ReceiptDto dto;
-        if (_invoiceDto.getOid() == null) {
-            final Instance docInst = createDocument(Status.find(CISales.InvoiceStatus.Paid), _invoiceDto);
-            createPositions(docInst, _invoiceDto);
-            addPayments(docInst, _invoiceDto);
-            createTransactions(_invoiceDto, docInst);
-            afterCreate(docInst, _invoiceDto);
+        if (invoiceDto.getOid() == null) {
+            final Instance docInst = createDocument(Status.find(CISales.InvoiceStatus.Paid), invoiceDto);
+            createPositions(docInst, invoiceDto);
+            addPayments(docInst, invoiceDto);
+            createTransactions(invoiceDto, docInst);
+            evalLoyalty(docInst, invoiceDto);
+            afterCreate(docInst, invoiceDto);
             dto = ReceiptDto.builder()
-                            .withId(_invoiceDto.getId())
+                            .withId(invoiceDto.getId())
                             .withOID(docInst.getOid())
                             .build();
         } else {

@@ -78,10 +78,10 @@ public abstract class Receipt_Base
      * @return the categories
      * @throws EFapsException the eFaps exception
      */
-    public Response addReceipt(final String _identifier, final ReceiptDto receiptDto)
+    public Response addReceipt(final String identifier, final ReceiptDto receiptDto)
         throws EFapsException
     {
-        checkAccess(_identifier);
+        checkAccess(identifier);
         LOG.debug("Recieved: {}", receiptDto);
         final ReceiptDto dto;
         if (receiptDto.getOid() == null) {
@@ -89,6 +89,7 @@ public abstract class Receipt_Base
             createPositions(docInst, receiptDto);
             addPayments(docInst, receiptDto);
             createTransactions(receiptDto, docInst);
+            evalLoyalty(docInst, receiptDto);
             afterCreate(docInst, receiptDto);
             dto = ReceiptDto.builder()
                             .withId(receiptDto.getId())

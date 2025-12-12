@@ -188,17 +188,23 @@ public abstract class AbstractDocument_Base
                 final var employeeInst = Instance.get(relation.getEmployeeOid());
                 if (InstanceUtils.isKindOf(employeeInst, CIHumanResource.EmployeeAbstract)) {
                     switch (relation.getType()) {
-                        case SELLER:
-                        default:
+                        case SELLER -> {
                             final Insert relInsert = new Insert(getEmployee2DocumentType());
                             relInsert.add(CIHumanResource.Employee2DocumentAbstract.FromAbstractLink, employeeInst);
                             relInsert.add(CIHumanResource.Employee2DocumentAbstract.ToAbstractLink, ret);
                             relInsert.execute();
+                        }
+                        default -> {
+                            final Insert relInsert = new Insert(getEmployee2DocumentType());
+                            relInsert.add(CIHumanResource.Employee2DocumentAbstract.FromAbstractLink, employeeInst);
+                            relInsert.add(CIHumanResource.Employee2DocumentAbstract.ToAbstractLink, ret);
+                            relInsert.execute();
+                        }
                     }
+                    ;
                 }
             }
         }
-        evalLoyalty(ret, dto);
         return ret;
     }
 
