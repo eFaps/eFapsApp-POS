@@ -241,7 +241,22 @@ public abstract class Product_Base
                             identifier);
             LOG.debug("Instances: {}", prodInstances);
             if (prodInstances.size() > 0) {
-                print = EQL.builder().print(prodInstances.toArray(new Instance[prodInstances.size()]));
+                final var activeInstances = new HashSet<Instance>();
+
+                final var activeProdEval = EQL.builder()
+                                .print(prodInstances.toArray(new Instance[prodInstances.size()]))
+                                .attribute(CIProducts.ProductAbstract.Active)
+                                .evaluate();
+                while (activeProdEval.next()) {
+                    final Boolean active = activeProdEval.get(CIProducts.ProductAbstract.Active);
+                    if (BooleanUtils.isTrue(active)) {
+                        activeInstances.add(activeProdEval.inst());
+                    }
+                }
+                LOG.info("acive prodInstance: {}", activeInstances.size());
+                if (activeInstances.size() > 0) {
+                    print = EQL.builder().print(prodInstances.toArray(new Instance[activeInstances.size()]));
+                }
             }
         }
         return print == null ? Collections.emptyList() : evalProducts(identifier, print, caching);
