@@ -17,10 +17,12 @@ package org.efaps.esjp.pos.rest;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Classification;
@@ -292,6 +294,9 @@ public abstract class Contact_Base
                         .as("firstLastName")
                         .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
                         .as("secondLastName")
+                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("Email").as("email")
+                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("ElectronicBilling")
+                        .as("electronicBilling")
                         .evaluate();
         if (eval.next()) {
             String idNumber = eval.get("taxNumber");
@@ -312,6 +317,26 @@ public abstract class Contact_Base
                     };
                 }
             }
+            String email = null;
+            if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
+                final Object emailObj = eval.get("email");
+                final Object electronicBillingObj = eval.get("electronicBilling");
+                if (emailObj instanceof final Collection emails) {
+                    @SuppressWarnings("unchecked")
+                    final var electronicBillings = ((Collection<Boolean>) electronicBillingObj).iterator();
+                    for (final var emailStr : emails) {
+                        if (BooleanUtils.isTrue(electronicBillings.next())) {
+                            email = (String) emailStr;
+                        }
+                    }
+                    // in case there is no with the flag electronicBilling
+                    if (email == null) {
+                        email = (String) emails.iterator().next();
+                    }
+                } else if (emailObj != null) {
+                    email = (String) emailObj;
+                }
+            }
             ret = ContactDto.builder()
                             .withOID(eval.inst().getOid())
                             .withName(eval.get(CIContacts.Contact.Name))
@@ -320,6 +345,7 @@ public abstract class Contact_Base
                             .withForename(eval.get("forename"))
                             .withFirstLastName(eval.get("firstLastName"))
                             .withSecondLastName(eval.get("secondLastName"))
+                            .withEmail(email)
                             .build();
         }
         return ret;
