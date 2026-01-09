@@ -253,7 +253,7 @@ public abstract class Product_Base
                         activeInstances.add(activeProdEval.inst());
                     }
                 }
-                LOG.info("acive prodInstance: {}", activeInstances.size());
+                LOG.info("active prodInstances: {}", activeInstances.size());
                 if (activeInstances.size() > 0) {
                     print = EQL.builder().print(prodInstances.toArray(new Instance[activeInstances.size()]));
                 }
