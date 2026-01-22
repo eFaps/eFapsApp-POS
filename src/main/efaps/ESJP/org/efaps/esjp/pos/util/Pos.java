@@ -349,7 +349,8 @@ public class Pos
         COPY,
         BALANCE,
         BALANCE_DETAILED,
-        SALESREPORT;
+        SALESREPORT,
+        CASHENTRIES;
 
         @Override
         public int getInt()
