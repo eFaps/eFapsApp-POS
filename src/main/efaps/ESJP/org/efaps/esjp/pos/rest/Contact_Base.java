@@ -136,7 +136,7 @@ public abstract class Contact_Base
                 } else {
                     idType = switch (doiType) {
                         case "01" -> IdentificationType.DNI;
-                        case "02" -> IdentificationType.PASSPORT;
+                        case "07" -> IdentificationType.PASSPORT;
                         case "04" -> IdentificationType.CE;
                         default -> IdentificationType.OTHER;
                     };
