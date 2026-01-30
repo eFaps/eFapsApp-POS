@@ -43,6 +43,7 @@
             <foreign key="BEID"         name="T_POSMONITORING_FK_BEID"         reference="T_POSBE(ID)"/>
             <foreign key="CREATOR"      name="T_POSMONITORING_FK_CRTR"         reference="T_USERPERSON(ID)"/>
             <foreign key="MODIFIER"     name="T_POSMONITORING_FK_MDFR"         reference="T_USERPERSON(ID)"/>
+             <index  name="T_POSMONITORING_INDEX_TYPEID_COMPANYID_BEID_DATE1" columns="TYPEID,COMPANYID,BEID,DATE1"/>
         </database>
     </definition>
 </datamodel-sqltable>
