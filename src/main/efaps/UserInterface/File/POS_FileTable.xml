@@ -38,5 +38,11 @@
             <property name="Label">POS_FileForm.fileName.Label</property>
             <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
         </field>
+        <field name="checkout">
+            <property name="HRef">${ROOTURL}/servlet/checkout</property>
+            <property name="Target">popup</property>
+            <property name="SortAble">false</property>
+            <property name="Width">15px</property>
+        </field>
     </definition>
 </ui-table>
