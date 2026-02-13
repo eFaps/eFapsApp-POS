@@ -41,12 +41,14 @@ import org.efaps.pos.dto.TaxDto;
 import org.efaps.pos.dto.TaxEntryDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
-import org.jfree.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("8ea293cf-3e64-4e2d-85ec-1d28cbd1592b")
 @EFapsApplication("eFapsApp-POS")
 public class DocumentUtils
 {
+    private static final Logger LOG = LoggerFactory.getLogger(DocumentUtils.class);
 
     public static CurrencyInst getCurrencyInst(final org.efaps.pos.dto.Currency currency)
         throws EFapsException
@@ -55,7 +57,7 @@ public class DocumentUtils
             try {
                 return CurrencyInst.get(Currency.getBaseCurrency());
             } catch (final EFapsException e) {
-                Log.error("Catched {}", e);
+                LOG.error("Catched {}", e);
             }
             return null;
         });
