@@ -151,9 +151,10 @@ public class UpdateDefinition
     }
 
     public void confirm(final Instance backendInst,
-                        UpdateConfirmationDto dto)
+                        final UpdateConfirmationDto dto)
         throws EFapsException
     {
+        LOG.info("Got update of status for version: {} for {}", dto, backendInst);
         final var eval = EQL.builder().print()
                         .query(CIPOS.UpdateDefinition2Backend)
                         .where()
@@ -169,12 +170,12 @@ public class UpdateDefinition
                         .oid()
                         .evaluate();
         if (eval.next()) {
-            LOG.info("Get update of status for version: {} for {}", dto, backendInst);
             final var value = EnumUtils.getEnum(org.efaps.esjp.pos.util.Pos.UpdateStatus.class, dto.getStatus().name());
             EQL.builder().update(eval.inst())
                 .set(CIPOS.UpdateDefinition2Backend.UpdateStatus, value)
                 .execute();
+        } else {
+            LOG.warn("Did not find data entry to be updated!");
         }
     }
-
 }
