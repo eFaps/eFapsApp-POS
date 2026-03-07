@@ -25,6 +25,7 @@
         <field name="fileLink">
             <property name="Label">POS_UpdateInstructionForm.fileLink.Label</property>
             <property name="Phrase">$&lt;linkto[FileLink].attribute[Name]&gt; - $&lt;linkto[FileLink].attribute[Description]&gt;</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
             <property name="ModeEdit">NONE</property>
             <property name="HRef">TREE</property>
         </field>
