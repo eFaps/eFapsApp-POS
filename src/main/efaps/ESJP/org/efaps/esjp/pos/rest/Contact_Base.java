@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -27,17 +28,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.event.Parameter;
+import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Insert;
 import org.efaps.db.Instance;
-import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
+import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
+import org.efaps.eql.builder.Selectables;
+import org.efaps.eql.builder.Where;
 import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIContacts;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.db.InstanceUtils;
+import org.efaps.esjp.pos.rest.dto.DumpDto;
+import org.efaps.esjp.pos.util.DumpUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.pos.dto.IdentificationType;
@@ -55,7 +63,6 @@ public abstract class Contact_Base
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(Contact.class);
 
-    @SuppressWarnings("unchecked")
     public Response getContacts(final String _identifier,
                                 final int limit,
                                 final int offset,
@@ -64,116 +71,72 @@ public abstract class Contact_Base
         throws EFapsException
     {
         checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
-        final List<ContactDto> contacts = new ArrayList<>();
-        final QueryBuilder queryBldr = new QueryBuilder(CIContacts.Contact);
-        queryBldr.addWhereClassification((Classification) CIContacts.ClassClient.getType());
-        queryBldr.addWhereAttrEqValue(CIContacts.Contact.Status, Status.find(CIContacts.ContactStatus.Active));
-        queryBldr.addOrderByAttributeAsc(CIContacts.Contact.ID);
+
+        final List<ContactDto> dtos = new ArrayList<>();
+        final var query = EQL.builder()
+                        .with(StmtFlag.TRIGGEROFF)
+                        .print().query(CIContacts.Contact);
+
+        Where where = null;
+        if (afterParameter != null) {
+            where = query.where();
+            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
+            query.where().attribute(CIContacts.Contact.Modified).greater(after);
+        }
+
+        if (StringUtils.isNotEmpty(doiNumber)) {
+            if (where == null) {
+                where = query.where();
+            }
+
+            if (doiNumber.length() == 11) {
+                where.attribute(CIContacts.Contact.ID).in(
+                                EQL.builder()
+                                                .nestedQuery(CIContacts.ClassOrganisation)
+                                                .where()
+                                                .attribute(CIContacts.ClassOrganisation.TaxNumber).eq(doiNumber)
+                                                .up()
+                                                .selectable(Selectables.attribute(
+                                                                CIContacts.ClassOrganisation.ContactLink)));
+
+            } else {
+                where.attribute(CIContacts.Contact.ID).in(
+                                EQL.builder()
+                                                .nestedQuery(CIContacts.ClassPerson)
+                                                .where()
+                                                .attribute(CIContacts.ClassPerson.IdentityCard).eq(doiNumber)
+                                                .up()
+                                                .selectable(Selectables.attribute(
+                                                                CIContacts.ClassPerson.ContactLink)));
+            }
+        }
+
+        final var print = query.select()
+                        .orderBy(CIContacts.Contact.ID);
         if (limit > 0) {
-            queryBldr.setLimit(limit);
+            print.limit(limit);
         }
         if (offset > 0) {
-            queryBldr.setOffset(offset);
+            print.offset(offset);
         }
-        if (afterParameter != null) {
-            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
-            queryBldr.addWhereAttrGreaterValue(CIContacts.Contact.Modified, after);
-        }
-        if (StringUtils.isNotEmpty(doiNumber)) {
-            if (doiNumber.length() == 11) {
-                final var attrQueryBldr = new QueryBuilder(CIContacts.ClassOrganisation);
-                attrQueryBldr.addWhereAttrEqValue(CIContacts.ClassOrganisation.TaxNumber, doiNumber);
-                final var attrQuery = attrQueryBldr.getAttributeQuery(CIContacts.ClassOrganisation.ContactLink);
-                queryBldr.addWhereAttrInQuery(CIContacts.Contact.ID, attrQuery);
-            } else {
-                final var attrQueryBldr = new QueryBuilder(CIContacts.ClassPerson);
-                attrQueryBldr.addWhereAttrEqValue(CIContacts.ClassPerson.IdentityCard, doiNumber);
-                final var attrQuery = attrQueryBldr.getAttributeQuery(CIContacts.ClassPerson.ContactLink);
-                queryBldr.addWhereAttrInQuery(CIContacts.Contact.ID, attrQuery);
-            }
-        }
-        final MultiPrintQuery multi = queryBldr.getPrint();
-        final SelectBuilder selTaxNumber = SelectBuilder.get()
-                        .clazz(CIContacts.ClassOrganisation)
-                        .attribute(CIContacts.ClassOrganisation.TaxNumber);
-        final SelectBuilder selIdentityCard = SelectBuilder.get()
-                        .clazz(CIContacts.ClassPerson)
-                        .attribute(CIContacts.ClassPerson.IdentityCard);
-        final SelectBuilder selDOIType = SelectBuilder.get()
-                        .clazz(CIContacts.ClassPerson)
-                        .linkto(CIContacts.ClassPerson.DOITypeLink)
-                        .attribute(CIContacts.AttributeDefinitionDOIType.Value);
 
-        final SelectBuilder selForename = SelectBuilder.get()
-                        .clazz(CIContacts.ClassPerson)
-                        .attribute(CIContacts.ClassPerson.Forename);
-        final SelectBuilder selFirstLastName = SelectBuilder.get()
-                        .clazz(CIContacts.ClassPerson)
-                        .attribute(CIContacts.ClassPerson.FirstLastName);
-        final SelectBuilder selSecondLastName = SelectBuilder.get()
-                        .clazz(CIContacts.ClassPerson)
-                        .attribute(CIContacts.ClassPerson.SecondLastName);
+        select(print);
 
-        final SelectBuilder selEmails = SelectBuilder.get().clazz(CIContacts.Class)
-                        .attributeset(CIContacts.Class.EmailSet, "attribute[ElectronicBilling]==true")
-                        .attribute("Email");
-        if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
-            multi.addSelect(selEmails);
-        }
-        multi.addAttribute(CIContacts.Contact.Name);
-        multi.addSelect(selTaxNumber, selIdentityCard, selDOIType, selForename, selFirstLastName, selSecondLastName);
-        multi.execute();
-        while (multi.next()) {
-            String idNumber = multi.getSelect(selTaxNumber);
-            IdentificationType idType;
-            if (StringUtils.isNotBlank(idNumber)) {
-                idType = IdentificationType.RUC;
-            } else {
-                idNumber = multi.getSelect(selIdentityCard);
-                final String doiType = multi.getSelect(selDOIType);
-                if (StringUtils.isBlank(doiType)) {
-                    idType = IdentificationType.OTHER;
-                } else {
-                    idType = switch (doiType) {
-                        case "01" -> IdentificationType.DNI;
-                        case "07" -> IdentificationType.PASSPORT;
-                        case "04" -> IdentificationType.CE;
-                        default -> IdentificationType.OTHER;
-                    };
-                }
-            }
-            String email = null;
-            if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
-                final Object obj = multi.getSelect(selEmails);
-                if (obj instanceof List) {
-                    email = ((List<String>) obj).get(0);
-                } else if (obj != null) {
-                    email = (String) obj;
-                }
-            }
-
-            contacts.add(ContactDto.builder()
-                            .withOID(multi.getCurrentInstance().getOid())
-                            .withName(multi.getAttribute(CIContacts.Contact.Name))
-                            .withIdType(idType)
-                            .withIdNumber(idNumber)
-                            .withForename(multi.getSelect(selForename))
-                            .withFirstLastName(multi.getSelect(selFirstLastName))
-                            .withSecondLastName(multi.getSelect(selSecondLastName))
-                            .withEmail(email)
-                            .build());
+        final var eval = print.evaluate();
+        while (eval.next()) {
+            dtos.add(toDto(eval));
         }
         final Response ret = Response.ok()
-                        .entity(contacts)
+                        .entity(dtos)
                         .build();
         return ret;
     }
 
-    public Response getContact(final String _identifier,
+    public Response getContact(final String identifier,
                                final String oid)
         throws EFapsException
     {
-        checkAccess(_identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
+        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
         Response ret = null;
         final var contactInstance = Instance.get(oid);
         if (InstanceUtils.isType(contactInstance, CIContacts.Contact)) {
@@ -274,83 +237,6 @@ public abstract class Contact_Base
         return ret;
     }
 
-    public ContactDto toDto(final Instance contactInstance)
-        throws EFapsException
-    {
-        ContactDto ret = null;
-        final var eval = EQL.builder()
-                        .with(StmtFlag.TRIGGEROFF)
-                        .print(contactInstance)
-                        .attribute(CIContacts.Contact.Name)
-                        .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
-                        .as("taxNumber")
-                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
-                        .as("identityCard")
-                        .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
-                        .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
-                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.Forename)
-                        .as("forename")
-                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.FirstLastName)
-                        .as("firstLastName")
-                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
-                        .as("secondLastName")
-                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("Email").as("email")
-                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("ElectronicBilling")
-                        .as("electronicBilling")
-                        .evaluate();
-        if (eval.next()) {
-            String idNumber = eval.get("taxNumber");
-            IdentificationType idType;
-            if (StringUtils.isNotBlank(idNumber)) {
-                idType = IdentificationType.RUC;
-            } else {
-                idNumber = eval.get("identityCard");
-                final String doiType = eval.get("doiType");
-                if (StringUtils.isBlank(doiType)) {
-                    idType = IdentificationType.OTHER;
-                } else {
-                    idType = switch (doiType) {
-                        case "01" -> IdentificationType.DNI;
-                        case "07" -> IdentificationType.PASSPORT;
-                        case "04" -> IdentificationType.CE;
-                        default -> IdentificationType.OTHER;
-                    };
-                }
-            }
-            String email = null;
-            if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
-                final Object emailObj = eval.get("email");
-                final Object electronicBillingObj = eval.get("electronicBilling");
-                if (emailObj instanceof final Collection emails) {
-                    @SuppressWarnings("unchecked")
-                    final var electronicBillings = ((Collection<Boolean>) electronicBillingObj).iterator();
-                    for (final var emailStr : emails) {
-                        if (BooleanUtils.isTrue(electronicBillings.next())) {
-                            email = (String) emailStr;
-                        }
-                    }
-                    // in case there is no with the flag electronicBilling
-                    if (email == null) {
-                        email = (String) emails.iterator().next();
-                    }
-                } else if (emailObj != null) {
-                    email = (String) emailObj;
-                }
-            }
-            ret = ContactDto.builder()
-                            .withOID(eval.inst().getOid())
-                            .withName(eval.get(CIContacts.Contact.Name))
-                            .withIdType(idType)
-                            .withIdNumber(idNumber)
-                            .withForename(eval.get("forename"))
-                            .withFirstLastName(eval.get("firstLastName"))
-                            .withSecondLastName(eval.get("secondLastName"))
-                            .withEmail(email)
-                            .build();
-        }
-        return ret;
-    }
-
     public Instance createContactInstance(final ContactDto contactDto)
         throws EFapsException
     {
@@ -433,6 +319,168 @@ public abstract class Contact_Base
             attrSetInsert.execute();
         }
         return insert.getInstance();
+    }
+
+    public ContactDto toDto(final Instance contactInstance)
+        throws EFapsException
+    {
+        ContactDto ret = null;
+
+        final var print = EQL.builder()
+                        .with(StmtFlag.TRIGGEROFF)
+                        .print(contactInstance);
+
+        select(print);
+
+        final var eval = print.evaluate();
+
+        if (eval.next()) {
+            ret = toDto(eval);
+        }
+        return ret;
+    }
+
+    public ContactDto toDto(Evaluator eval)
+        throws EFapsException
+    {
+        String idNumber = eval.get("taxNumber");
+        IdentificationType idType;
+        if (StringUtils.isNotBlank(idNumber)) {
+            idType = IdentificationType.RUC;
+        } else {
+            idNumber = eval.get("identityCard");
+            final String doiType = eval.get("doiType");
+            if (StringUtils.isBlank(doiType)) {
+                idType = IdentificationType.OTHER;
+            } else {
+                idType = switch (doiType) {
+                    case "01" -> IdentificationType.DNI;
+                    case "07" -> IdentificationType.PASSPORT;
+                    case "04" -> IdentificationType.CE;
+                    default -> IdentificationType.OTHER;
+                };
+            }
+        }
+        String email = null;
+        if (Pos.CONTACT_ACTIVATEEMAIL.get()) {
+            final Object emailObj = eval.get("email");
+            final Object electronicBillingObj = eval.get("electronicBilling");
+            if (emailObj instanceof final Collection emails) {
+                @SuppressWarnings("unchecked") final var electronicBillings = ((Collection<Boolean>) electronicBillingObj)
+                                .iterator();
+                for (final var emailStr : emails) {
+                    if (BooleanUtils.isTrue(electronicBillings.next())) {
+                        email = (String) emailStr;
+                    }
+                }
+                // in case there is no with the flag electronicBilling
+                if (email == null) {
+                    email = (String) emails.iterator().next();
+                }
+            } else if (emailObj != null) {
+                email = (String) emailObj;
+            }
+        }
+        return ContactDto.builder()
+                        .withOID(eval.inst().getOid())
+                        .withName(eval.get(CIContacts.Contact.Name))
+                        .withIdType(idType)
+                        .withIdNumber(idNumber)
+                        .withForename(eval.get("forename"))
+                        .withFirstLastName(eval.get("firstLastName"))
+                        .withSecondLastName(eval.get("secondLastName"))
+                        .withEmail(email)
+                        .build();
+    }
+
+    public List<Object> getContacts(int limit,
+                                    int offset)
+        throws EFapsException
+    {
+        final List<Object> ret = new ArrayList<>();
+        final var print = EQL.builder()
+                        .with(StmtFlag.TRIGGEROFF)
+                        .print().query(CIContacts.Contact)
+                        .select()
+                        .limit(limit).offset(offset)
+                        .orderBy(CIContacts.Contact.ID);
+
+        select(print);
+
+        final var eval = print.evaluate();
+        while (eval.next()) {
+            ret.add(toDto(eval));
+        }
+        return ret;
+    }
+
+    protected void select(Print print)
+    {
+        print.attribute(CIContacts.Contact.ID, CIContacts.Contact.Name)
+                        .clazz(CIContacts.ClassOrganisation).attribute(CIContacts.ClassOrganisation.TaxNumber)
+                        .as("taxNumber")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.IdentityCard)
+                        .as("identityCard")
+                        .clazz(CIContacts.ClassPerson).linkto(CIContacts.ClassPerson.DOITypeLink)
+                        .attribute(CIContacts.AttributeDefinitionDOIType.Value).as("doiType")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.Forename)
+                        .as("forename")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.FirstLastName)
+                        .as("firstLastName")
+                        .clazz(CIContacts.ClassPerson).attribute(CIContacts.ClassPerson.SecondLastName)
+                        .as("secondLastName")
+                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("Email").as("email")
+                        .clazz(CIContacts.Class).attributeSet(CIContacts.Class.EmailSet).attribute("ElectronicBilling")
+                        .as("electronicBilling");
+    }
+
+    public Return prepareContactsDump(final Parameter parameter)
+        throws EFapsException
+    {
+        LOG.info("Preparing dump for Contacts");
+
+        new DumpUtils()
+        {
+
+            @Override
+            protected List<Object> getObjects(int limit,
+                                              int offset)
+                throws EFapsException
+            {
+                return getContacts(limit, offset);
+            }
+
+            @Override
+            protected int getLimit()
+            {
+                return 2500;
+            }
+
+        }.prepareDump(CIPOS.ContactsDump);
+
+        return new Return();
+    }
+
+    public Response getContactsDump(@PathParam("identifier") final String _identifier)
+        throws EFapsException
+    {
+        Response ret = null;
+        if (Pos.CONTACT_DUMP_ACTIVATE.get()) {
+            final var eval = EQL.builder().print()
+                            .query(CIPOS.ContactsDump)
+                            .select()
+                            .attribute(CIPOS.ContactsDump.UpdatedAt)
+                            .evaluate();
+            if (eval.next()) {
+                ret = Response.ok().entity(
+                                DumpDto.builder()
+                                                .withOid(eval.inst().getOid())
+                                                .withUpdateAt(eval.get(CIPOS.ContactsDump.UpdatedAt))
+                                                .build())
+                                .build();
+            }
+        }
+        return ret == null ? Response.noContent().build() : ret;
     }
 
 }

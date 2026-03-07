@@ -184,6 +184,12 @@ public class Pos
                     .key(BASE + "Product.Dump.Activate")
                     .description("Activate the dump mechanism for products.");
 
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute CONTACT_DUMP_ACTIVATE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Contact.Dump.Activate")
+                    .description("Activate the dump mechanism for contacts.");
+
     /** See description. */
     @EFapsSysConfAttribute
     public static final PropertiesSysConfAttribute BALANCE_REPORT = new PropertiesSysConfAttribute()

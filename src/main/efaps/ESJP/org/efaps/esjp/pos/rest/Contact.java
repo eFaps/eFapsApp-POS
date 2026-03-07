@@ -89,4 +89,14 @@ public class Contact
     {
         return super.updateContact(identifier, oid, contact);
     }
+
+    @Override
+    @Path("/{identifier}/contacts/dump")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getContactsDump(@PathParam("identifier") final String identifier)
+        throws EFapsException
+    {
+        return super.getContactsDump(identifier);
+    }
 }
