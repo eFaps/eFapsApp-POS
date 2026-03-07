@@ -15,13 +15,22 @@
  */
 package org.efaps.esjp.pos;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.examples.Expander;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -30,11 +39,14 @@ import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Checkin;
+import org.efaps.db.Checkout;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.common.file.FileUtil;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.UpdateConfirmationDto;
 import org.efaps.pos.dto.UpdateDto;
 import org.efaps.pos.dto.UpdateInstructionDto;
@@ -73,29 +85,38 @@ public class UpdateDefinition
                         .limit(1)
                         .evaluate();
         if (eval.next()) {
-            final var instructionEval = EQL.builder().print()
-                            .query(CIPOS.UpdateInstruction)
-                            .where()
-                            .attribute(CIPOS.UpdateInstruction.DefinitionLink).eq(eval.inst())
-                            .select()
-                            .attribute(CIPOS.UpdateInstruction.TargetPath, CIPOS.UpdateInstruction.Expand)
-                            .linkto(CIPOS.UpdateInstruction.FileLink).oid().as("fileOid")
-                            .evaluate();
-            final var instructions = new ArrayList<UpdateInstructionDto>();
-            while (instructionEval.next()) {
-                instructions.add(UpdateInstructionDto.builder()
-                                .withTargetPath(instructionEval.get(CIPOS.UpdateInstruction.TargetPath))
-                                .withFileOid(instructionEval.get("fileOid"))
-                                .withExpand(instructionEval.get(CIPOS.UpdateInstruction.Expand))
-                                .build());
-            }
-            updateDto = UpdateDto.builder()
-                            .withVersion(eval.get(CIPOS.UpdateDefinition.Version))
-                            .withTargetFolder(eval.get(CIPOS.UpdateDefinition.TargetFolder))
-                            .withInstructions(instructions)
-                            .build();
+            updateDto = toDto(eval.inst(), eval.get(CIPOS.UpdateDefinition.Version),
+                            eval.get(CIPOS.UpdateDefinition.TargetFolder));
         }
         return updateDto;
+    }
+
+    public UpdateDto toDto(final Instance defInst,
+                           final String version,
+                           final String targetFolder)
+        throws EFapsException
+    {
+        final var instructionEval = EQL.builder().print()
+                        .query(CIPOS.UpdateInstruction)
+                        .where()
+                        .attribute(CIPOS.UpdateInstruction.DefinitionLink).eq(defInst)
+                        .select()
+                        .attribute(CIPOS.UpdateInstruction.TargetPath, CIPOS.UpdateInstruction.Expand)
+                        .linkto(CIPOS.UpdateInstruction.FileLink).oid().as("fileOid")
+                        .evaluate();
+        final var instructions = new ArrayList<UpdateInstructionDto>();
+        while (instructionEval.next()) {
+            instructions.add(UpdateInstructionDto.builder()
+                            .withTargetPath(instructionEval.get(CIPOS.UpdateInstruction.TargetPath))
+                            .withFileOid(instructionEval.get("fileOid"))
+                            .withExpand(instructionEval.get(CIPOS.UpdateInstruction.Expand))
+                            .build());
+        }
+        return UpdateDto.builder()
+                        .withVersion(version)
+                        .withTargetFolder(targetFolder)
+                        .withInstructions(instructions)
+                        .build();
     }
 
     public Return autoComplete4UpdateFile(final Parameter _parameter)
@@ -172,10 +193,121 @@ public class UpdateDefinition
         if (eval.next()) {
             final var value = EnumUtils.getEnum(org.efaps.esjp.pos.util.Pos.UpdateStatus.class, dto.getStatus().name());
             EQL.builder().update(eval.inst())
-                .set(CIPOS.UpdateDefinition2Backend.UpdateStatus, value)
-                .execute();
+                            .set(CIPOS.UpdateDefinition2Backend.UpdateStatus, value)
+                            .execute();
         } else {
             LOG.warn("Did not find data entry to be updated!");
         }
+    }
+
+    public Return download(final Parameter parameter)
+        throws EFapsException
+    {
+        final var ret = new Return();
+        final var defInst = parameter.getInstance();
+        if (InstanceUtils.isType(defInst, CIPOS.UpdateDefinition)) {
+            final var eval = EQL.builder().print(defInst)
+                            .attribute(CIPOS.UpdateDefinition.Version, CIPOS.UpdateDefinition.TargetFolder)
+                            .evaluate();
+            if (eval.next()) {
+                final var dto = toDto(defInst, eval.get(CIPOS.UpdateDefinition.Version),
+                                eval.get(CIPOS.UpdateDefinition.TargetFolder));
+                LOG.info("evaluated UpdateDto: {}", dto);
+                final var zipFile = adhereInstructions(dto);
+                if (zipFile != null) {
+                    ret.put(ReturnValues.VALUES, zipFile);
+                }
+            }
+        } else {
+            LOG.error("What? {}", defInst);
+        }
+        return ret;
+    }
+
+    protected File adhereInstructions(final UpdateDto updateDto)
+        throws EFapsException
+    {
+        File ret = null;
+        try {
+            final var tempFolder = new FileUtil().getUserTemp();
+
+            final var defPath = tempFolder.toPath().resolve("UpdateDefinition-" + updateDto.getVersion());
+            if (defPath.toFile().exists()) {
+                FileUtils.deleteDirectory(defPath.toFile());
+            }
+
+            Files.deleteIfExists(defPath);
+
+            final var defFolder = Files.createDirectories(defPath);
+
+            LOG.info("UpdateFolder: {}", defFolder);
+            final var basePath = defFolder;
+
+            for (final var instruction : updateDto.getInstructions()) {
+                if (instruction.getFileOid() != null) {
+                    final var checkout = new Checkout(instruction.getFileOid());
+                    final var inputStream = checkout.execute();
+
+                    final var targetPath = basePath.resolve(instruction.getTargetPath()).normalize();
+                    LOG.info("targetPath: {}", targetPath);
+                    final var localFile = new File(targetPath.toFile(), checkout.getFileName());
+                    FileUtils.createParentDirectories(localFile);
+                    Files.createFile(localFile.toPath());
+                    IOUtils.copy(inputStream, new FileOutputStream(localFile));
+
+                    if (instruction.isExpand()) {
+                        new Expander().expand(localFile.toPath(), targetPath);
+                        Files.delete(localFile.toPath());
+                    }
+                }
+            }
+            final var zipPath = tempFolder.toPath().resolve("UpdateDefinition-" + updateDto.getVersion() + ".zip");
+            Files.deleteIfExists(zipPath);
+
+            ret = zipPath.toFile();
+            final var fos = new FileOutputStream(ret);
+            final var zipOut = new ZipOutputStream(fos);
+
+            zipFile(defFolder.toFile(), defFolder.toFile().getName(), zipOut);
+            zipOut.close();
+            fos.close();
+
+        } catch (final Exception e) {
+            LOG.error("Catched", e);
+        }
+        return ret;
+    }
+
+    private static void zipFile(File fileToZip,
+                                String fileName,
+                                ZipOutputStream zipOut)
+        throws IOException
+    {
+        if (fileToZip.isHidden()) {
+            return;
+        }
+        if (fileToZip.isDirectory()) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            final File[] children = fileToZip.listFiles();
+            for (final File childFile : children) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        final FileInputStream fis = new FileInputStream(fileToZip);
+        final ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        final byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
     }
 }
