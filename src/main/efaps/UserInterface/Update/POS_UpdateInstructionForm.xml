@@ -39,8 +39,9 @@
             </trigger>
         </field>
         <field name="fileLink4View">
-            <property name="Select">linkto[FileLink].attribute[Name]</property>
             <property name="ModeEdit">NONE</property>
+            <property name="Label">POS_UpdateInstructionForm.fileLink.Label</property>
+            <property name="Phrase">$&lt;linkto[FileLink].attribute[Name]&gt; - $&lt;linkto[FileLink].attribute[Description]&gt;</property>
         </field>
         <field name="targetPath">
             <property name="ModeCreate">EDITABLE</property>

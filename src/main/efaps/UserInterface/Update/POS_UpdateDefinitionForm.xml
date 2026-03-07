@@ -35,11 +35,25 @@
             <property name="ModeEdit">EDITABLE</property>
             <property name="Attribute">Status</property>
         </field>
+        <field character="Group" name="descriptionGroup">
+            <property name="GroupCount">2</property>
+            <property name="ModeCreate">READONLY</property>
+            <property name="ModeEdit">READONLY</property>
+        </field>
         <field name="description">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">Description</property>
+        </field>
+        <field name="remark">
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+            <property name="ModeSearch">EDITABLE</property>
+            <property name="Attribute">Remark</property>
+            <property name="RowSpan">2</property>
+            <property name="Rows">5</property>
+            <property name="Columns">50</property>
         </field>
          <field name="targetFolder">
             <property name="ModeCreate">EDITABLE</property>
@@ -49,27 +63,33 @@
         </field>
         <field character="Group" name="createGroup">
             <property name="GroupCount">2</property>
+            <property name="ModeEdit">NONE</property>
         </field>
         <field name="creator">
             <property name="SelectAlternateOID">linkto[Creator].oid</property>
             <property name="Attribute">Creator</property>
             <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
             <property name="ShowTypeIcon">true</property>
+            <property name="ModeEdit">NONE</property>
         </field>
         <field name="created">
             <property name="Attribute">Created</property>
+            <property name="ModeEdit">NONE</property>
         </field>
         <field character="Group" name="modifyGroup">
             <property name="GroupCount">2</property>
+            <property name="ModeEdit">NONE</property>
         </field>
         <field name="modifier">
             <property name="SelectAlternateOID">linkto[Modifier].oid</property>
             <property name="Attribute">Modifier</property>
             <property name="HRef">${COMMONURL}/MenuTree.jsp</property>
             <property name="ShowTypeIcon">true</property>
+            <property name="ModeEdit">NONE</property>
         </field>
         <field name="modified">
             <property name="Attribute">Modified</property>
+            <property name="ModeEdit">NONE</property>
         </field>
     </definition>
 </ui-form>
