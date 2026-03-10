@@ -49,7 +49,6 @@ import org.efaps.esjp.pos.util.DumpUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.ContactDto;
 import org.efaps.pos.dto.IdentificationType;
-import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,8 +79,7 @@ public abstract class Contact_Base
         Where where = null;
         if (afterParameter != null) {
             where = query.where();
-            final var after = afterParameter.atZoneSameInstant(DateTimeUtil.getDBZoneId()).toLocalDateTime().toString();
-            query.where().attribute(CIContacts.Contact.Modified).greater(after);
+            query.where().attribute(CIContacts.Contact.Modified).greater(afterParameter.toString());
         }
 
         if (StringUtils.isNotEmpty(doiNumber)) {

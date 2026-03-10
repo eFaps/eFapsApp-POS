@@ -186,12 +186,17 @@ public class UpdateDefinition
                                                         .where()
                                                         .attribute(CIPOS.UpdateDefinition.Version)
                                                         .eq(dto.getVersion())
-                                                        .up())
+                                                        .up()
+                                            .selectable(Selectables
+                                                            .attribute(CIPOS.UpdateDefinition.ID)))
                         .select()
                         .oid()
                         .evaluate();
+
+
         if (eval.next()) {
             final var value = EnumUtils.getEnum(org.efaps.esjp.pos.util.Pos.UpdateStatus.class, dto.getStatus().name());
+            LOG.info("Setting new UpdateStatus of {} on {}", value, eval.inst());
             EQL.builder().update(eval.inst())
                             .set(CIPOS.UpdateDefinition2Backend.UpdateStatus, value)
                             .execute();
