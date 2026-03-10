@@ -61,8 +61,10 @@ public class StatusReportController
         final List<BackendStatusDto> backendStatus = new ArrayList<>();
         while (eval.next()) {
             final String identifier = eval.get(CIPOS.BackendAbstract.Identifier);
-            OffsetDateTime lastSeenAt = MonitoringService.getLastRequestCache().get(identifier);
-            if (lastSeenAt != null) {
+            OffsetDateTime lastSeenAt = null;
+            final String lastSeenAtStr = MonitoringService.getLastRequestCache().get(identifier);
+            if (lastSeenAtStr != null) {
+                lastSeenAt = OffsetDateTime.parse(lastSeenAtStr);
                 final var offset = Context.getThreadContext().getZoneId().getRules().getOffset(LocalDateTime.now());
                 lastSeenAt = lastSeenAt.withOffsetSameInstant(offset);
             }

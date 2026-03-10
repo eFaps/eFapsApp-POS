@@ -113,7 +113,7 @@ public abstract class AbstractRest_Base
             LOG.error("Access denied due to being a Mobile only endpoint");
             throw new ForbiddenException("Mobile only endpoint");
         }
-        MonitoringService.getLastRequestCache().put(identifier, OffsetDateTime.now());
+        MonitoringService.getLastRequestCache().put(identifier, OffsetDateTime.now().toString());
     }
 
     protected Instance getBackendInstance(final String identifier)

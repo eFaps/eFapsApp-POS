@@ -15,8 +15,6 @@
  */
 package org.efaps.esjp.pos;
 
-import java.time.OffsetDateTime;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.cache.InfinispanCache;
@@ -28,7 +26,7 @@ public class MonitoringService
 {
     private static String REQCACHENAME = MonitoringService.class.getName() + ".ReqCache";
 
-    public static Cache<String, OffsetDateTime> getLastRequestCache() {
+    public static Cache<String, String> getLastRequestCache() {
         if (!InfinispanCache.get().exists(REQCACHENAME)) {
             InfinispanCache.get().initCache(REQCACHENAME);
         }
