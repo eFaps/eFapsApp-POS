@@ -18,20 +18,18 @@
 -->
 <ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>bb891246-4741-42bd-b404-0f9f60083491</uuid>
+    <uuid>345e1ca3-2dfa-488f-a308-8e16b1c28908</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_UpdateDefinitionTree</name>
+        <name>POS_UpdateTemplateTree</name>
         <target>
-            <menu>POS_UpdateDefinitionTree_Menu</menu>
-            <form>POS_UpdateDefinitionForm</form>
+            <menu>POS_UpdateTemplateTree_Menu</menu>
+            <form>POS_UpdateTemplateForm</form>
         </target>
-        <type>POS_UpdateDefinition</type>
+        <type>POS_UpdateTemplate</type>
         <childs>
-            <child>POS_UpdateDefinitionTree_Instruction</child>
-            <child>POS_UpdateDefinitionTree_Template</child>
-            <child>POS_UpdateDefinitionTree_Backends</child>
+            <child>POS_UpdateTemplateTree_Mapping</child>
         </childs>
         <property name="Target">content</property>
         <property name="TargetMode">view</property>

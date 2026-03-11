@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright © 2003 - 2024 The eFaps Team (-)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>4dc8d27e-2f5f-48a5-92bc-bef115b66f68</uuid>
+    <file-application>eFapsApp-POS</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>POS_UpdateTemplateMapping</name>
+        <parent>POS_ObjectAbstract</parent>
+        <attribute>
+            <name>TemplateLink</name>
+            <type>Link</type>
+            <typelink>POS_UpdateTemplate</typelink>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>INT1</sqlcolumn>
+        </attribute>
+        <attribute>
+            <name>BackendLink</name>
+            <type>Link</type>
+            <typelink>POS_Backend</typelink>
+            <sqltable>POS_ObjectSQLTable</sqltable>
+            <sqlcolumn>INT2</sqlcolumn>
+        </attribute>
+        <attributeset>
+            <name>MappingSet</name>
+            <type>MultiLineArray</type>
+            <parent>POS_AttributeSetAbstract</parent>
+            <sqltable>POS_AttributeSetSQLTable</sqltable>
+            <sqlcolumn>RELID</sqlcolumn>
+            <uuid>57217dad-d55a-436a-8cc0-f1fc56b669d3</uuid>
+            <attribute>
+                <name>Key</name>
+                <type>String</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>STR1</sqlcolumn>
+            </attribute>
+            <attribute>
+                <name>Value</name>
+                <type>String</type>
+                <sqltable>POS_AttributeSetSQLTable</sqltable>
+                <sqlcolumn>STR2</sqlcolumn>
+            </attribute>
+        </attributeset>
+    </definition>
+</datamodel-type>
