@@ -32,6 +32,7 @@ import org.apache.commons.compress.archivers.examples.Expander;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
@@ -187,12 +188,11 @@ public class UpdateDefinition
                                                         .attribute(CIPOS.UpdateDefinition.Version)
                                                         .eq(dto.getVersion())
                                                         .up()
-                                            .selectable(Selectables
-                                                            .attribute(CIPOS.UpdateDefinition.ID)))
+                                                        .selectable(Selectables
+                                                                        .attribute(CIPOS.UpdateDefinition.ID)))
                         .select()
                         .oid()
                         .evaluate();
-
 
         if (eval.next()) {
             final var value = EnumUtils.getEnum(org.efaps.esjp.pos.util.Pos.UpdateStatus.class, dto.getStatus().name());
@@ -314,5 +314,38 @@ public class UpdateDefinition
             zipOut.write(bytes, 0, length);
         }
         fis.close();
+    }
+
+    public Return getTemplateMappingPreview(final Parameter parameter)
+        throws EFapsException
+    {
+        final var ret = new Return();
+        final var mappingInst = parameter.getInstance();
+        LOG.info("Evaluating TemplateMappingPreview for {}", mappingInst);
+
+        String content = "no template?";
+
+        final var eval = EQL.builder().print(mappingInst)
+                        .linkto(CIPOS.UpdateTemplateMapping.TemplateLink).attribute(CIPOS.UpdateTemplate.Template)
+                        .attributeSet(CIPOS.UpdateTemplateMapping.MappingSet).attribute("Key").as("key")
+                        .attributeSet(CIPOS.UpdateTemplateMapping.MappingSet).attribute("Value").as("value")
+                        .evaluate();
+        if (eval.next()) {
+            final var template = eval.get(CIPOS.UpdateTemplate.Template);
+            LOG.info("template: {}", template);
+
+            final var mapping = new HashMap<String, Object>();
+            final var keys = eval.<List<String>>get("key");
+            final var values = eval.<List<String>>get("value");
+            if (keys != null) {
+                final var keysIter = keys.iterator();
+                for (final String value : values) {
+                    mapping.put(keysIter.next(), value);
+                }
+            }
+            content = StringSubstitutor.replace(template, mapping);
+        }
+        ret.put(ReturnValues.VALUES, content);
+        return ret;
     }
 }
