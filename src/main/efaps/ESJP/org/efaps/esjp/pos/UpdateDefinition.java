@@ -44,6 +44,7 @@ import org.efaps.db.Checkout;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
 import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.common.file.FileUtil;
@@ -51,6 +52,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.UpdateConfirmationDto;
 import org.efaps.pos.dto.UpdateDto;
 import org.efaps.pos.dto.UpdateInstructionDto;
+import org.efaps.pos.dto.UpdateTemplateDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,10 +115,27 @@ public class UpdateDefinition
                             .withExpand(instructionEval.get(CIPOS.UpdateInstruction.Expand))
                             .build());
         }
+
+        final var templateEval = EQL.builder().print()
+                        .query(CIPOS.UpdateTemplate)
+                        .where()
+                        .attribute(CIPOS.UpdateTemplate.DefinitionLink).eq(defInst)
+                        .select()
+                        .attribute(CIPOS.UpdateTemplate.TargetPath, CIPOS.UpdateTemplate.Name)
+                        .evaluate();
+        final var templates = new ArrayList<UpdateTemplateDto>();
+        while (templateEval.next()) {
+            templates.add(UpdateTemplateDto.builder()
+                            .withTemplateOid(templateEval.inst().getOid())
+                            .withTargetPath(templateEval.get(CIPOS.UpdateTemplate.TargetPath))
+                            .withName(templateEval.get(CIPOS.UpdateTemplate.Name))
+                            .build());
+        }
         return UpdateDto.builder()
                         .withVersion(version)
                         .withTargetFolder(targetFolder)
                         .withInstructions(instructions)
+                        .withTemplates(templates)
                         .build();
     }
 
@@ -323,10 +342,18 @@ public class UpdateDefinition
         final var mappingInst = parameter.getInstance();
         LOG.info("Evaluating TemplateMappingPreview for {}", mappingInst);
 
-        String content = "no template?";
+        final var print = EQL.builder().print(mappingInst);
+        final var content = fillInTemplate(print);
 
-        final var eval = EQL.builder().print(mappingInst)
-                        .linkto(CIPOS.UpdateTemplateMapping.TemplateLink).attribute(CIPOS.UpdateTemplate.Template)
+        ret.put(ReturnValues.VALUES, content);
+        return ret;
+    }
+
+    public String fillInTemplate(final Print print)
+        throws EFapsException
+    {
+        String content = "no template?";
+        final var eval = print.linkto(CIPOS.UpdateTemplateMapping.TemplateLink).attribute(CIPOS.UpdateTemplate.Template)
                         .attributeSet(CIPOS.UpdateTemplateMapping.MappingSet).attribute("Key").as("key")
                         .attributeSet(CIPOS.UpdateTemplateMapping.MappingSet).attribute("Value").as("value")
                         .evaluate();
@@ -345,7 +372,21 @@ public class UpdateDefinition
             }
             content = StringSubstitutor.replace(template, mapping);
         }
-        ret.put(ReturnValues.VALUES, content);
-        return ret;
+
+        return content;
     }
+
+    public String getFilledInTemplate(final Instance backendInst,
+                                      final String templateOid)
+        throws EFapsException
+    {
+        final var templateInst = Instance.get(templateOid);
+        final var print = EQL.builder().print().query(CIPOS.UpdateTemplateMapping).where()
+                        .attribute(CIPOS.UpdateTemplateMapping.BackendLink).eq(backendInst)
+                        .and()
+                        .attribute(CIPOS.UpdateTemplateMapping.TemplateLink).eq(templateInst)
+                        .select();
+        return fillInTemplate(print);
+    }
+
 }

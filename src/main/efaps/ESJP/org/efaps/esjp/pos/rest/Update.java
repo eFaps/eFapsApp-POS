@@ -64,4 +64,21 @@ public class Update
                         .build();
         return ret;
     }
+
+    @Path("/{identifier}/update/filled-in-template/{templateOid}")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
+    public Response getFilledInTemplate(@PathParam("identifier") final String identifier,
+                                        @PathParam("templateOid") final String templateOid)
+        throws EFapsException
+    {
+        checkAccess(identifier, ACCESSROLE.BE);
+        final var backendInst = getBackendInstance(identifier);
+        final var filledInTemplate = new UpdateDefinition().getFilledInTemplate(backendInst, templateOid);
+        final Response ret = Response.ok()
+                        .entity(filledInTemplate)
+                        .build();
+        return ret;
+    }
+
 }
