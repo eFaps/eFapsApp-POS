@@ -72,6 +72,7 @@ public class UpdateDefinition
                         .query(CIPOS.UpdateDefinition)
                         .where()
                         .attribute(CIPOS.UpdateDefinition.Status).eq(CIPOS.UpdateDefinitionStatus.Active)
+                        .and()
                         .attribute(CIPOS.UpdateDefinition.ID).in(
                                         EQL.builder()
                                                         .nestedQuery(CIPOS.UpdateDefinition2Backend)
