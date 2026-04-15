@@ -46,6 +46,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Dimension;
 import org.efaps.admin.datamodel.Dimension.UoM;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -90,6 +91,7 @@ import org.efaps.pos.dto.Product2CategoryDto;
 import org.efaps.pos.dto.ProductDto;
 import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.ProductRelationType;
+import org.efaps.pos.dto.ProductStatus;
 import org.efaps.pos.dto.ProductType;
 import org.efaps.pos.dto.TaxDto;
 import org.efaps.util.EFapsException;
@@ -224,7 +226,9 @@ public abstract class Product_Base
                                 .attribute(CIProducts.ProductAbstract.ID)
                                 .in(textPosQuery);
             } else {
-                query.where().attribute(CIProducts.ProductAbstract.Active).eq("true").up();
+                query.where().attribute(CIProducts.ProductAbstract.StatusAbstract)
+                    .in(CIProducts.ProductStatus.Active, CIProducts.ProductStatus.Draft,
+                                    CIProducts.ProductStatus.Unlisted).up();
             }
 
             print = query.select().orderBy(CIProducts.ProductAbstract.ID);
@@ -241,22 +245,7 @@ public abstract class Product_Base
                             identifier);
             LOG.debug("Instances: {}", prodInstances);
             if (prodInstances.size() > 0) {
-                final var activeInstances = new HashSet<Instance>();
-
-                final var activeProdEval = EQL.builder()
-                                .print(prodInstances.toArray(new Instance[prodInstances.size()]))
-                                .attribute(CIProducts.ProductAbstract.Active)
-                                .evaluate();
-                while (activeProdEval.next()) {
-                    final Boolean active = activeProdEval.get(CIProducts.ProductAbstract.Active);
-                    if (BooleanUtils.isTrue(active)) {
-                        activeInstances.add(activeProdEval.inst());
-                    }
-                }
-                LOG.info("active prodInstances: {}", activeInstances.size());
-                if (activeInstances.size() > 0) {
-                    print = EQL.builder().print(prodInstances.toArray(new Instance[activeInstances.size()]));
-                }
+                print = EQL.builder().print(prodInstances.toArray(new Instance[prodInstances.size()]));
             }
         }
         return print == null ? Collections.emptyList() : evalProducts(identifier, print, caching);
@@ -272,7 +261,8 @@ public abstract class Product_Base
 
         print.attribute(CIProducts.ProductAbstract.ID, CIProducts.ProductAbstract.Name,
                         CIProducts.ProductAbstract.Description, CIProducts.ProductAbstract.Note,
-                        CIProducts.ProductAbstract.DefaultUoM, CIProducts.ProductAbstract.Individual)
+                        CIProducts.ProductAbstract.DefaultUoM, CIProducts.ProductAbstract.Individual,
+                        CIProducts.ProductAbstract.StatusAbstract)
                         .linkfrom(CIPOS.Category2Product.ToLink).linkto(CIPOS.Category2Product.FromLink).oid()
                         .as("selCat")
                         .linkfrom(CIPOS.Category2Product.ToLink).attribute(CIPOS.Category2Product.SortWeight)
@@ -401,7 +391,7 @@ public abstract class Product_Base
             }
 
             final ProductDto dto = ProductDto.builder()
-                            .withSKU(productEval.get(CIProducts.ProductAbstract.Name))
+                            .withSku(productEval.get(CIProducts.ProductAbstract.Name))
                             .withType(productType)
                             .withDescription(productEval.get(CIProducts.ProductAbstract.Description))
                             .withNote(productEval.get(CIProducts.ProductAbstract.Note))
@@ -421,11 +411,32 @@ public abstract class Product_Base
                             .withConfigurationBOMs(configBomPair.getRight())
                             .withIndividual(EnumUtils.getEnum(org.efaps.pos.dto.ProductIndividual.class,
                                             productIndividual == null ? null : productIndividual.name()))
+                            .withStatus(evalStatus(productEval.get(CIProducts.ProductAbstract.StatusAbstract)))
                             .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
         }
         return products;
+    }
+
+    protected ProductStatus evalStatus(final Long statusId)
+        throws CacheReloadException
+    {
+        final ProductStatus status;
+        final var dbStatus = Status.get(statusId);
+        if (CIProducts.ProductStatus.Active.key.equals(dbStatus.getKey())) {
+            status = ProductStatus.ACTIVE;
+        } else if (CIProducts.ProductStatus.Archived.key.equals(dbStatus.getKey())) {
+            status = ProductStatus.ARCHIVED;
+        } else if (CIProducts.ProductStatus.Draft.key.equals(dbStatus.getKey())) {
+            status = ProductStatus.DRAFT;
+        } else if (CIProducts.ProductStatus.Unlisted.key.equals(dbStatus.getKey())) {
+            status = ProductStatus.UNLISTED;
+        } else {
+            status = ProductStatus.ACTIVE;
+            LOG.warn("Product without valid status id");
+        }
+        return status;
     }
 
     protected Pair<Set<BOMGroupConfigDto>, Set<ConfigurationBOMDto>> evalConfigurationBOM(final Instance producInst)
