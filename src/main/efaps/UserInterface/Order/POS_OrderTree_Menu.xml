@@ -16,24 +16,15 @@
     limitations under the License.
 
 -->
-
-
 <ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>26804fe4-56df-4d24-bb2f-3356ec54eab9</uuid>
-    <file-application>eFapsApp-POS</file-application>
-    <definition>
-        <version-expression>(version==latest)</version-expression>
-        <name>POS_OrderTree</name>
-        <target>
-            <menu>POS_OrderTree_Menu</menu>
-            <form>POS_OrderForm</form>
-        </target>
-        <type>POS_Order</type>
-        <childs>
-            <child>POS_OrderTree_Doc</child>
-        </childs>
-        <property name="Target">content</property>
-        <property name="TargetMode">view</property>
-    </definition>
+  <uuid>b8986ce2-8040-45d8-a5a4-4516f598607b</uuid>
+  <file-application>eFapsApp-POS</file-application>
+  <definition>
+    <version-expression>(version==latest)</version-expression>
+    <name>POS_OrderTree_Menu</name>
+    <childs>
+      <child>POS_OrderTree_Menu_Action</child>
+    </childs>
+  </definition>
 </ui-menu>
