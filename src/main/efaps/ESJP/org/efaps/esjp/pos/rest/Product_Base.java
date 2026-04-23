@@ -241,12 +241,27 @@ public abstract class Product_Base
             }
 
         } else {
-            final var prodInstances = new History().getLatest(afterParameter, CIProducts.ProductAbstract);
-            LOG.info("Found {} altered product instances since {} for {}", prodInstances.size(), afterParameter,
+            final var prodInstanceSet = new History().getLatest(afterParameter, CIProducts.ProductAbstract);
+            LOG.info("Found {} altered product instances since {} for {}", prodInstanceSet.size(), afterParameter,
                             identifier);
-            LOG.debug("Instances: {}", prodInstances);
-            if (prodInstances.size() > 0) {
-                print = EQL.builder().print(prodInstances.toArray(new Instance[prodInstances.size()]));
+            if (prodInstanceSet.size() > 0) {
+                LOG.debug("Instances: {}", prodInstanceSet);
+
+                final var prodInstances = prodInstanceSet.stream()
+                                .sorted((inst0,
+                                         inst1) -> Long.valueOf(inst0.getId()).compareTo(inst1.getId()))
+                                .toList();
+
+                var toIndex = prodInstances.size();
+                if (offset + limit < prodInstances.size()) {
+                    toIndex = offset + limit;
+                }
+                LOG.info("sublist fromIndex: {} - toIndex: {}", offset, toIndex);
+                final var page = prodInstances.subList(offset, toIndex);
+                LOG.info("Page: {}", page);
+                if (page.size() > 0) {
+                    print = EQL.builder().print(page.toArray(new Instance[page.size()]));
+                }
             }
         }
         return print == null ? Collections.emptyList() : evalProducts(identifier, print, caching);
