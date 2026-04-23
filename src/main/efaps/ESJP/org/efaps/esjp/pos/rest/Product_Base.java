@@ -227,8 +227,9 @@ public abstract class Product_Base
                                 .in(textPosQuery);
             } else {
                 query.where().attribute(CIProducts.ProductAbstract.StatusAbstract)
-                    .in(CIProducts.ProductStatus.Active, CIProducts.ProductStatus.Draft,
-                                    CIProducts.ProductStatus.Unlisted).up();
+                                .in(CIProducts.ProductStatus.Active, CIProducts.ProductStatus.Draft,
+                                                CIProducts.ProductStatus.Unlisted)
+                                .up();
             }
 
             print = query.select().orderBy(CIProducts.ProductAbstract.ID);
@@ -411,7 +412,8 @@ public abstract class Product_Base
                             .withConfigurationBOMs(configBomPair.getRight())
                             .withIndividual(EnumUtils.getEnum(org.efaps.pos.dto.ProductIndividual.class,
                                             productIndividual == null ? null : productIndividual.name()))
-                            .withStatus(evalStatus(productEval.get(CIProducts.ProductAbstract.StatusAbstract)))
+                            .withStatus(evalStatus(productEval.get(CIProducts.ProductAbstract.StatusAbstract),
+                                            productEval.inst().getOid()))
                             .build();
             LOG.debug("Product {}", dto);
             products.add(dto);
@@ -419,9 +421,14 @@ public abstract class Product_Base
         return products;
     }
 
-    protected ProductStatus evalStatus(final Long statusId)
+    protected ProductStatus evalStatus(final Long statusId,
+                                       final String oid)
         throws CacheReloadException
     {
+        if (statusId == null) {
+            LOG.warn("Product has no status id: {}", oid);
+            return ProductStatus.ACTIVE;
+        }
         final ProductStatus status;
         final var dbStatus = Status.get(statusId);
         if (CIProducts.ProductStatus.Active.key.equals(dbStatus.getKey())) {
@@ -434,7 +441,7 @@ public abstract class Product_Base
             status = ProductStatus.UNLISTED;
         } else {
             status = ProductStatus.ACTIVE;
-            LOG.warn("Product without valid status id");
+            LOG.warn("Product without valid status id: {}", oid);
         }
         return status;
     }
