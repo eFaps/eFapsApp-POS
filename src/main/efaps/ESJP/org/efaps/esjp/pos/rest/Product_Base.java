@@ -587,15 +587,17 @@ public abstract class Product_Base
                                     .evaluate();
                     while (barcodeEval.next()) {
                         final String prodOid = barcodeEval.get("prodOid");
-                        if (!cache.containsKey(prodOid)) {
-                            cache.put(prodOid, new HashSet<>(), 30, TimeUnit.MINUTES);
+                        if (prodOid != null) {
+                            if (!cache.containsKey(prodOid)) {
+                                cache.put(prodOid, new HashSet<>(), 30, TimeUnit.MINUTES);
+                            }
+                            final var currentBarCodes = cache.get(prodOid);
+                            currentBarCodes.add(BarcodeDto.builder()
+                                            .withCode(barcodeEval.get("Code"))
+                                            .withType(barcodeEval.get("BarcodeType"))
+                                            .build());
+                            cache.put(prodOid, currentBarCodes, 30, TimeUnit.MINUTES);
                         }
-                        final var currentBarCodes = cache.get(prodOid);
-                        currentBarCodes.add(BarcodeDto.builder()
-                                        .withCode(barcodeEval.get("Code"))
-                                        .withType(barcodeEval.get("BarcodeType"))
-                                        .build());
-                        cache.put(prodOid, currentBarCodes, 30, TimeUnit.MINUTES);
                     }
                 }
                 barcodes = cache.get(prodInst.getOid());
