@@ -26,6 +26,7 @@
         <childs>
             <child>POS_UpdateFileTree_Menu_Action_Edit</child>
             <child>POS_UpdateFileTree_Menu_Action_Checkin</child>
+            <child>ERP_DocumentAbstractTree_Action_Checkout</child>
         </childs>
     </definition>
 </ui-menu>
