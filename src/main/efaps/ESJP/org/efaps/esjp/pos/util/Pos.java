@@ -436,7 +436,8 @@ public class Pos
         CREDITNOTE,
         REDEEM_CREDITNOTE,
         IGNORE_PRODUCTSTATUS,
-        OVERWRITE_STOCK;
+        OVERWRITE_STOCK,
+        ADMIN_SYNC;
 
         @Override
         public int getInt()
