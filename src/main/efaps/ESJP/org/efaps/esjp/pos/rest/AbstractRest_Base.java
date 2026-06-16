@@ -82,7 +82,6 @@ public abstract class AbstractRest_Base
             checkAccess(roles);
         }
         final var backendEval = EQL.builder()
-                        .with(StmtFlag.REQCACHED)
                         .print().query(CIPOS.BackendAbstract)
                         .where()
                         .attribute(CIPOS.BackendAbstract.StatusAbstract).eq(CIPOS.BackendStatus.Active)
