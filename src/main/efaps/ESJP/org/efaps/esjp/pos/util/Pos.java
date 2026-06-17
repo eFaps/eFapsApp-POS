@@ -24,12 +24,10 @@ import org.efaps.admin.datamodel.attributetype.BitEnumType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.api.annotation.EFapsSysConfAttribute;
-import org.efaps.api.annotation.EFapsSysConfLink;
 import org.efaps.api.annotation.EFapsSystemConfiguration;
 import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
-import org.efaps.esjp.admin.common.systemconfiguration.SysConfLink;
 import org.efaps.esjp.ci.CINumGenPOS;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.pos.dto.ProductRelationType;
@@ -160,9 +158,9 @@ public class Pos
 
     /** See description. */
     @EFapsSysConfAttribute
-    public static final PropertiesSysConfAttribute PRODREL = new PropertiesSysConfAttribute()
+    public static final PropertiesSysConfAttribute PROD_REL = new PropertiesSysConfAttribute()
                     .sysConfUUID(SYSCONFUUID)
-                    .key(BASE + "ProductRelations")
+                    .key(BASE + "Product.Relations")
                     .addDefaultValue("Select", "linkfrom[Products_AlternativeBOM#From].linkto[To].oid")
                     .addDefaultValue("Label", "Puede ser replacado por")
                     .addDefaultValue("QuantitySelect", "linkfrom[Products_AlternativeBOM#From].attribute[Quantity]")
@@ -176,6 +174,14 @@ public class Pos
                     .addDefaultValue("QuantitySelect02", "linkfrom[Products_SalesBOM#From].attribute[Quantity]")
                     .addDefaultValue("RelationType02", ProductRelationType.SALESBOM.name())
                     .description("Configurations of product relations to be included.");
+
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute PROD_SEL = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "Product.Selects")
+                    .addDefaultValue("Select01", "class[ProductClass].attribute[AnAttribute]")
+                    .addDefaultValue("Key01", "aKey")
+                    .description("Configurations of product selects to be included.");
 
     /** See description. */
     @EFapsSysConfAttribute
@@ -203,13 +209,6 @@ public class Pos
                     .sysConfUUID(SYSCONFUUID)
                     .key(BASE + "Balance.ActivateCashEntry")
                     .description("Activate the possibility to set Cash Entries for Balances.");
-
-
-    @EFapsSysConfLink
-    public static final SysConfLink PRODDOCTYPE4DOC = new SysConfLink()
-                    .sysConfUUID(SYSCONFUUID)
-                    .key(BASE + "ProductDocumentType4TransactionDocumentShadow")
-                    .description("ProductDocumentType to be used for registration of TransactionDocumentShadow");
 
     /** See description. */
     @EFapsSysConfAttribute

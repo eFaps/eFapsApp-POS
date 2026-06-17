@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -287,11 +288,19 @@ public abstract class Product_Base
                         .linkto(CIProducts.Product2ImageAbstract.ImageAbstractLink)
                         .oid().as("selImageOid");
 
-        if (Pos.PRODREL.exists()) {
-            final Properties properties = Pos.PRODREL.get();
-            final Map<Integer, String> relQuantity = PropertiesUtil.analyseProperty(properties,
-                            "QuantitySelect", 0);
-            final Map<Integer, String> relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+        if (Pos.PROD_SEL.exists()) {
+            final var properties = Pos.PROD_SEL.get();
+            final var selects = PropertiesUtil.analyseProperty(properties, "Select", 0);
+            PropertiesUtil.analyseProperty(properties, "Key", 0);
+            for (final var entry : selects.entrySet()) {
+                print.select(entry.getValue()).as("PRODSEL_" + entry.getKey());
+            }
+        }
+
+        if (Pos.PROD_REL.exists()) {
+            final Properties properties = Pos.PROD_REL.get();
+            final var relQuantity = PropertiesUtil.analyseProperty(properties, "QuantitySelect", 0);
+            final var relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
             for (final Entry<Integer, String> entry : relSelects.entrySet()) {
                 print.select(entry.getValue()).as("relation" + entry.getKey());
             }
@@ -352,9 +361,24 @@ public abstract class Product_Base
                     LOG.error("Catched", e);
                 }
             });
+
+            Map<String,Object> extension = null;
+            if (Pos.PROD_SEL.exists()) {
+                extension = new HashMap<>();
+                final var properties = Pos.PROD_SEL.get();
+                final var keyMap = PropertiesUtil.analyseProperty(properties, "Key", 0);
+                for (final var entry : keyMap.entrySet()) {
+                    final var value = productEval.get("PRODSEL_" + entry.getKey());
+                    if (value != null) {
+                        extension.put(entry.getValue(), value);
+                    }
+                }
+                LOG.debug("extension {}", extension);
+            }
+
             final Set<ProductRelationDto> relations = new HashSet<>();
-            if (Pos.PRODREL.exists()) {
-                final Properties properties = Pos.PRODREL.get();
+            if (Pos.PROD_REL.exists()) {
+                final Properties properties = Pos.PROD_REL.get();
                 final Map<Integer, String> relSelects = PropertiesUtil.analyseProperty(properties, "Select", 0);
                 final Map<Integer, String> relLabels = PropertiesUtil.analyseProperty(properties, "Label", 0);
                 final Map<Integer, String> relTypes = PropertiesUtil.analyseProperty(properties, "RelationType", 0);
@@ -429,6 +453,7 @@ public abstract class Product_Base
                                             productIndividual == null ? null : productIndividual.name()))
                             .withStatus(evalStatus(productEval.get(CIProducts.ProductAbstract.StatusAbstract),
                                             productEval.inst().getOid()))
+                            .withExtension(extension)
                             .build();
             LOG.debug("Product {}", dto);
             products.add(dto);

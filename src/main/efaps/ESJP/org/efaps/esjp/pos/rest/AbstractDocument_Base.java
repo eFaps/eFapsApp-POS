@@ -201,7 +201,7 @@ public abstract class AbstractDocument_Base
                             relInsert.execute();
                         }
                     }
-                    ;
+
                 }
             }
         }
@@ -238,7 +238,8 @@ public abstract class AbstractDocument_Base
         if (InstanceUtils.isKindOf(warehouseInst, CIProducts.Warehouse)) {
 
             // create shadow document
-            final var docShadowCiType = documentDto instanceof CreditNoteDto ? CISales.TransactionDocumentShadowIn
+            final var docShadowCiType = documentDto instanceof CreditNoteDto
+                            ? CISales.TransactionDocumentShadowIn
                             : CISales.TransactionDocumentShadowOut;
             final var positionCiType = documentDto instanceof CreditNoteDto
                             ? CISales.TransactionDocumentShadowInPosition
