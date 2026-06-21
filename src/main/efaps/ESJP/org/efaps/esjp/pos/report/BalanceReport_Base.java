@@ -18,7 +18,6 @@ package org.efaps.esjp.pos.report;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,16 +44,15 @@ import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.jasperreport.AbstractDynamicReport;
-import org.efaps.esjp.common.parameter.ParameterUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.erp.FilteredReport;
 import org.efaps.esjp.erp.rest.modules.IFilteredReportProvider;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
+import org.efaps.esjp.ui.rest.dto.ValueDto.Builder;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,58 +130,72 @@ public abstract class BalanceReport_Base
         return new DynBalanceReport(this);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public Object evalDefaultValue4Key(final String key)
+    {
+        return switch (key) {
+            case "dateFrom": {
+                try {
+                    final var zoneId = Context.getThreadContext().getZoneId();
+                    final var adjuster = evalTemporalAdjuster(Pos.BALANCE_REPORT.get(), "DefaultDateFrom");
+                    yield LocalDate.now(zoneId).with(adjuster);
+                } catch (final EFapsException e) {
+                    LOG.error("Catched", e);
+                }
+            }
+            case "dateTo": {
+                try {
+                    final var zoneId = Context.getThreadContext().getZoneId();
+                    yield LocalDate.now(zoneId);
+                } catch (final EFapsException e) {
+                    LOG.error("Catched", e);
+                }
+            }
+            default:
+                yield null;
+        };
+    }
+
     @Override
     public List<ValueDto> getFilters()
     {
-        ZoneId zoneId = ZoneId.systemDefault();
-        try {
-            clearCache(ParameterUtil.instance());
-            zoneId = Context.getThreadContext().getZoneId();
-        } catch (final EFapsException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+
+        final List<ValueDto> ret = new ArrayList<>();
         final var filterMap = getFilterMap();
-        String dateFromValue = null;
-        String dateToValue = null;
-        List<String> groupByValue=  null;
-        if (filterMap != null && filterMap.containsKey("dateFrom")) {
-            dateFromValue = ((DateTime) filterMap.get("dateFrom")).toLocalDate().toString();
-        } else {
-            dateFromValue = LocalDate.now(zoneId).toString();
+        try {
+            for (final var filterDef : getFilterDefinitions()) {
+                final var value = filterMap.get(filterDef.getName());
+                switch (filterDef.getName()) {
+                    default -> ret.add(filterDef.withValue(value).build());
+                }
+            }
+        } catch (final EFapsException e) {
+            LOG.error("Catched", e);
         }
+        return ret;
+    }
 
-        if (filterMap != null && filterMap.containsKey("dateTo")) {
-            dateToValue = ((DateTime) filterMap.get("dateTo")).toLocalDate().toString();
-        } else {
-            dateToValue = LocalDate.now(zoneId).toString();
-        }
+    @Override
+    public List<Builder> getFilterDefinitions()
+        throws EFapsException
+    {
+        final List<Builder> ret = new ArrayList<>();
 
-        if (filterMap != null && filterMap.containsKey("groupBy")) {
-            groupByValue = ((List<Grouping>) filterMap.get("groupBy")).stream().map(Grouping::name).toList();
-        }
-
-        final var dateFrom = ValueDto.builder()
+        ret.add(ValueDto.builder()
                         .withName("dateFrom")
-                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.dateFrom"))
+                        .withLabel(getLabel("dateFrom"))
                         .withType(ValueType.DATE)
-                        .withRequired(true)
-                        .withValue(dateFromValue)
-                        .build();
-        final var dateTo = ValueDto.builder()
+                        .withRequired(true));
+        ret.add(ValueDto.builder()
                         .withName("dateTo")
-                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.dateTo"))
+                        .withLabel(getLabel("dateTo"))
                         .withType(ValueType.DATE)
-                        .withRequired(true)
-                        .withValue(dateToValue)
-                        .build();
+                        .withRequired(true));
 
-        final var groupBy = ValueDto.builder()
+        ret.add(ValueDto.builder()
                         .withName("groupBy")
-                        .withLabel(DBProperties.getProperty("org.efaps.esjp.pos.report.BalanceReport.groupBy"))
+                        .withLabel(getLabel("groupBy"))
                         .withType(ValueType.PICKLIST)
-                        .withValue(groupByValue)
                         .withOptions(Arrays.asList(OptionDto.builder()
                                         .withLabel(DBProperties.getProperty(
                                                         "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.BALANCE"))
@@ -203,9 +215,8 @@ public abstract class BalanceReport_Base
                                                         .withLabel(DBProperties.getProperty(
                                                                         "org.efaps.esjp.pos.report.BalanceReport_Base$Grouping.USER"))
                                                         .withValue(Grouping.USER.name())
-                                                        .build()))
-                        .build();
-        return Arrays.asList(dateFrom, dateTo, groupBy);
+                                                        .build())));
+        return ret;
     }
 
     @Override
@@ -418,24 +429,14 @@ public abstract class BalanceReport_Base
         }
 
         protected void add2QueryBldr(final Parameter _parameter,
-                                     final QueryBuilder _queryBldr)
+                                     final QueryBuilder queryBldr)
             throws EFapsException
         {
-            final Map<String, Object> filterMap = filteredReport.getFilterMap(_parameter);
-            final DateTime dateFrom;
-            if (filterMap.containsKey("dateFrom")) {
-                dateFrom = (DateTime) filterMap.get("dateFrom");
-            } else {
-                dateFrom = new DateTime();
-            }
-            final DateTime dateTo;
-            if (filterMap.containsKey("dateTo")) {
-                dateTo = (DateTime) filterMap.get("dateTo");
-            } else {
-                dateTo = new DateTime();
-            }
-            _queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, dateFrom.withTimeAtStartOfDay().minusMinutes(1));
-            _queryBldr.addWhereAttrLessValue(CIPOS.Balance.StartAt, dateTo.plusDays(1).withTimeAtStartOfDay());
+            final Map<String, Object> filter = filteredReport.getFilterMap();
+            final var dateFrom = (LocalDate) filter.get("dateFrom");
+            final var dateTo = (LocalDate) filter.get("dateTo");
+            queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, dateFrom.minusDays(1));
+            queryBldr.addWhereAttrLessValue(CIPOS.Balance.StartAt, dateTo.plusDays(1));
         }
 
         /**
@@ -530,7 +531,8 @@ public abstract class BalanceReport_Base
         }
 
         @SuppressWarnings("unchecked")
-        protected List<Grouping> evalGroupBy(final Object rawGroupBy) {
+        protected List<Grouping> evalGroupBy(final Object rawGroupBy)
+        {
             List<Grouping> entries = null;
             if (rawGroupBy != null) {
                 if (rawGroupBy instanceof final GroupByFilterValue groupBy) {
