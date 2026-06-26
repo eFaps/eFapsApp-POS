@@ -120,6 +120,7 @@ public class DocumentUtils
             case CHANGE -> negate ? CISales.PaymentCash : CISales.PaymentCashOut;
             case FREE -> CISales.PaymentInternal;
             case LOYALTY_POINTS -> CILoyalty.PaymentPoints;
+            case LOYALTY_VOUCHER -> CILoyalty.PaymentVoucher;
             case REDEEM_CREDITNOTE -> CISales.PaymentRedeemCreditNote;
             default -> CISales.PaymentInternal;
         };
@@ -139,6 +140,7 @@ public class DocumentUtils
                             : Status.find(CISales.PaymentCashOutStatus.Closed);
             case FREE -> Status.find(CISales.PaymentInternalStatus.Closed);
             case LOYALTY_POINTS -> Status.find(CILoyalty.PaymentPointsStatus.Closed);
+            case LOYALTY_VOUCHER -> Status.find(CILoyalty.PaymentVoucherStatus.Closed);
             case REDEEM_CREDITNOTE -> Status.find(CISales.PaymentRedeemCreditNoteStatus.Closed);
             default -> Status.find(CISales.PaymentInternalStatus.Closed);
         };

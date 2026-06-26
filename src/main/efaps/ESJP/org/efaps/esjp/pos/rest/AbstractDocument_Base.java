@@ -44,7 +44,6 @@ import org.efaps.db.SelectBuilder;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql2.StmtFlag;
-import org.efaps.esjp.ci.CIContacts;
 import org.efaps.esjp.ci.CIERP;
 import org.efaps.esjp.ci.CIHumanResource;
 import org.efaps.esjp.ci.CILoyalty;
@@ -59,6 +58,7 @@ import org.efaps.esjp.erp.RateInfo;
 import org.efaps.esjp.erp.util.ERP;
 import org.efaps.esjp.loyalty.LoyaltyService;
 import org.efaps.esjp.loyalty.Points;
+import org.efaps.esjp.loyalty.Voucher;
 import org.efaps.esjp.pos.listener.IOnDocument;
 import org.efaps.esjp.pos.util.DocumentUtils;
 import org.efaps.esjp.pos.util.Pos;
@@ -83,6 +83,7 @@ import org.efaps.pos.dto.PaymentChangeDto;
 import org.efaps.pos.dto.PaymentElectronicDto;
 import org.efaps.pos.dto.PaymentFreeDto;
 import org.efaps.pos.dto.PaymentLoyaltyPointsDto;
+import org.efaps.pos.dto.PaymentLoyaltyVoucherDto;
 import org.efaps.pos.dto.PaymentRedeemCreditNoteDto;
 import org.efaps.pos.dto.PromoDetailDto;
 import org.efaps.pos.dto.PromoInfoDto;
@@ -481,7 +482,9 @@ public abstract class AbstractDocument_Base
                     case ELECTRONIC:
                         yield evalElectronicPayment(dto, (PaymentElectronicDto) payment);
                     case LOYALTY_POINTS:
-                        yield evalLoyaltyPayment(dto, (PaymentLoyaltyPointsDto) payment);
+                        yield evalLoyaltyPointsPayment(dto, (PaymentLoyaltyPointsDto) payment);
+                    case LOYALTY_VOUCHER:
+                        yield evalLoyaltyVoucherPayment(dto, (PaymentLoyaltyVoucherDto) payment);
                     case CARD:
                         yield evalCardPayment(dto, (PaymentCardDto) payment);
                     case CASH:
@@ -586,8 +589,8 @@ public abstract class AbstractDocument_Base
         return insert.getInstance();
     }
 
-    protected Instance evalLoyaltyPayment(final AbstractPayableDocumentDto dto,
-                                          final PaymentLoyaltyPointsDto paymentDto)
+    protected Instance evalLoyaltyPointsPayment(final AbstractPayableDocumentDto dto,
+                                                final PaymentLoyaltyPointsDto paymentDto)
         throws EFapsException
     {
         final var insert = getPaymentInsert(dto, paymentDto);
@@ -602,6 +605,17 @@ public abstract class AbstractDocument_Base
         insert.add(CILoyalty.PaymentPoints.Authorization, paymentDto.getAuthorization());
         insert.add(CILoyalty.PaymentPoints.OperationId, paymentDto.getOperationId());
         insert.add(CILoyalty.PaymentPoints.Info, paymentDto.getInfo());
+        insert.execute();
+        return insert.getInstance();
+    }
+
+    protected Instance evalLoyaltyVoucherPayment(final AbstractPayableDocumentDto dto,
+                                                 final PaymentLoyaltyVoucherDto paymentDto)
+        throws EFapsException
+    {
+        final var insert = getPaymentInsert(dto, paymentDto);
+        insert.add(CILoyalty.PaymentVoucher.VoucherLink, evalLoyaltyProgram(dto, paymentDto));
+        insert.add(CILoyalty.PaymentVoucher.Info, paymentDto.getInfo());
         insert.execute();
         return insert.getInstance();
     }
@@ -669,20 +683,20 @@ public abstract class AbstractDocument_Base
                                           final IPaymentDto paymentDto)
         throws EFapsException
     {
-        Instance ret = null;
         final var contactInst = dto.getLoyaltyContactOid() == null ? Instance.get(dto.getContactOid())
                         : Instance.get(dto.getLoyaltyContactOid());
-        if (InstanceUtils.isKindOf(contactInst, CIContacts.ContactAbstract)) {
-            switch (paymentDto.getType()) {
-                case LOYALTY_POINTS: {
-                    ret = new Points().evalProgramInstance4Contact(contactInst, null);
-                    break;
-                }
-                default:
-                    throw new IllegalArgumentException("Unexpected value: " + paymentDto);
+
+        return switch (paymentDto.getType()) {
+            case LOYALTY_POINTS: {
+                yield new Points().evalProgramInstance4Contact(contactInst, null);
             }
-        }
-        return ret;
+            case LOYALTY_VOUCHER: {
+                final var loyaltyDto = (PaymentLoyaltyVoucherDto) paymentDto;
+                yield new Voucher().evalProgramInstance4Identifier(contactInst, loyaltyDto.getIdentifier());
+            }
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + paymentDto);
+        };
     }
 
     protected Instance evalAttrDefByKey(final CIType ciType,
