@@ -76,7 +76,7 @@ public class CreditNote
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response redeemValidity(@PathParam("identifier") final String identifier,
-                                   @PathParam("identifier") final String oid)
+                                   @PathParam("oid") final String oid)
         throws EFapsException
     {
         return super.redeemValidity(identifier, oid);
