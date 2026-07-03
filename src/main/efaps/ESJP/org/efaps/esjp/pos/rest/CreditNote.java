@@ -42,7 +42,8 @@ public class CreditNote
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addCreditNote(@PathParam("identifier") final String _identifier, final CreditNoteDto _creditNote)
+    public Response addCreditNote(@PathParam("identifier") final String _identifier,
+                                  final CreditNoteDto _creditNote)
         throws EFapsException
     {
         return super.addCreditNote(_identifier, _creditNote);
@@ -59,7 +60,6 @@ public class CreditNote
         return super.getCreditNote(identifier, oid);
     }
 
-
     @Override
     @Path("/{identifier}/creditnotes")
     @GET
@@ -70,5 +70,15 @@ public class CreditNote
     {
         return super.retrieveCreditNotes(identifier, number);
     }
-}
 
+    @Override
+    @Path("/{identifier}/creditnotes/{oid}/redeem-validity")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response redeemValidity(@PathParam("identifier") final String identifier,
+                                   @PathParam("identifier") final String oid)
+        throws EFapsException
+    {
+        return super.redeemValidity(identifier, oid);
+    }
+}

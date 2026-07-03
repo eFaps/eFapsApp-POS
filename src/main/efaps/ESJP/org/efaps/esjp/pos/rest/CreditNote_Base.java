@@ -31,6 +31,8 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.CreditNoteDto;
+import org.efaps.pos.dto.RedeemValidityDto;
+import org.efaps.pos.dto.RedeemValidityStatus;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,4 +151,32 @@ public abstract class CreditNote_Base
         return ret;
     }
 
+    public Response redeemValidity(final String identifier,
+                                   final String oid)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        LOG.debug("Request to check for redeemValidity of: {}", oid);
+        final Response ret;
+        final var instance = Instance.get(oid);
+        if (InstanceUtils.isType(instance, CISales.CreditNote)) {
+            final var eval = EQL.builder().print()
+                            .query(CISales.PaymentRedeemCreditNote)
+                            .where()
+                            .attribute(CISales.PaymentRedeemCreditNote.CreditNoteLink).eq(instance)
+                            .select().oid()
+                            .evaluate();
+            final var status = eval.next() ? RedeemValidityStatus.FULLY : RedeemValidityStatus.OPEN;
+            ret = Response.ok()
+                            .entity(RedeemValidityDto.builder()
+                                            .withStatus(status)
+                                            .build())
+                            .build();
+        } else {
+            LOG.warn("Invalid GET request to check for redeemValidity of: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
+        }
+        return ret;
+    }
 }
