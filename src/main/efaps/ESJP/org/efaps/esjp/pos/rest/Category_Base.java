@@ -20,17 +20,12 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 
-import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.db.Instance;
-import org.efaps.db.MultiPrintQuery;
-import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.CategoryDto;
 import org.efaps.util.EFapsException;
@@ -62,44 +57,43 @@ public abstract class Category_Base
         checkAccess(_identifier);
         LOG.debug("Responding to request for Categories for {}", _identifier);
         final List<CategoryDto> categories = new ArrayList<>();
-        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category);
-        queryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
-        final MultiPrintQuery multi = queryBldr.getPrint();
-        final var selParentInst = SelectBuilder.get().linkto(CIPOS.Category.ParentLink).instance();
-        multi.addSelect(selParentInst);
-        multi.addAttribute(CIPOS.Category.Name,
+
+        final var eval = EQL.builder().print().query(CIPOS.Category)
+            .where()
+            .attribute(CIPOS.Category.Status).eq(CIPOS.CategoryStatus.Active)
+            .select()
+            .attribute(CIPOS.Category.Name,
                         CIPOS.Category.Description,
                         CIPOS.Category.Label,
-                        CIPOS.Category.Weight);
-        multi.execute();
-        while (multi.next()) {
+                        CIPOS.Category.Weight)
+            .linkto(CIPOS.Category.ParentLink).oid().as("parentOid")
+            .evaluate();
+
+        final var store = Store.get(CIPOS.Category.getType().getStoreId());
+
+        while (eval.next()) {
             String imageOid = null;
             if (Pos.CATEGORY_ACTIVATEIMAGE.get()) {
-                final Resource resource = Store.get(multi.getCurrentInstance().getType().getStoreId())
-                                .getResource(multi.getCurrentInstance());
+                final Resource resource = store.getResource(eval.inst());
                 if (resource.exists()) {
-                    imageOid = multi.getCurrentInstance().getOid();
+                    imageOid = eval.inst().getOid();
                 }
             }
-            final Instance parentInst = multi.getSelect(selParentInst);
-            String parentOid = null;
-            if (InstanceUtils.isValid(parentInst)) {
-                parentOid = parentInst.getOid();
-            }
+            final String parentOid = eval.get("parentOid");
             categories.add(CategoryDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
-                .withName(multi.getAttribute(CIPOS.Category.Name))
-                .withDescription(multi.getAttribute(CIPOS.Category.Description))
-                .withLabel(multi.getAttribute(CIPOS.Category.Label))
-                .withWeight(multi.getAttribute(CIPOS.Category.Weight))
+                .withOID(eval.inst().getOid())
+                .withName(eval.get(CIPOS.Category.Name))
+                .withDescription(eval.get(CIPOS.Category.Description))
+                .withLabel(eval.get(CIPOS.Category.Label))
+                .withWeight(eval.get(CIPOS.Category.Weight))
                 .withImageOid(imageOid)
                 .withParentOid(parentOid)
                 .build());
         }
+        LOG.debug("categories: {}", categories);
         final Response ret = Response.ok()
                         .entity(categories)
                         .build();
         return ret;
     }
-
 }
