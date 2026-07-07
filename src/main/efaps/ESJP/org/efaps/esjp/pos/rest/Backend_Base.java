@@ -15,6 +15,7 @@
  */
 package org.efaps.esjp.pos.rest;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.datamodel.Status;
@@ -24,6 +25,7 @@ import org.efaps.db.Insert;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.pos.util.Pos;
+import org.efaps.pos.dto.ReportStartupDto;
 import org.efaps.pos.dto.ReportToBaseDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
@@ -85,6 +87,31 @@ public abstract class Backend_Base
                         .set(CIPOS.MonitoringReportToBase.InstalationId, dto.getInstalationId())
                         .set(CIPOS.MonitoringReportToBase.RegisteredAt, dto.getCreatedAt())
                         .set(CIPOS.MonitoringReportToBase.Payload, payload)
+                        .execute();
+        return Response.ok().build();
+    }
+
+    public Response reportStartup(@PathParam("identifier") final String identifier,
+                                  final ReportStartupDto dto)
+        throws EFapsException
+    {
+        checkAccess(identifier, ACCESSROLE.BE);
+        LOG.debug("Recieved request for report startup");
+
+        String payload = null;
+        try {
+            payload = getObjectMapper().writeValueAsString(dto.getDetails());
+        } catch (final JsonProcessingException e) {
+            LOG.error("Catched", e);
+        }
+
+        final var beInst = getBackendInstance(identifier);
+        EQL.builder().insert(CIPOS.MonitoringStartup)
+                        .set(CIPOS.MonitoringStartup.BackendLink, beInst)
+                        .set(CIPOS.MonitoringStartup.Version, dto.getVersion())
+                        .set(CIPOS.MonitoringStartup.InstalationId, dto.getInstalationId())
+                        .set(CIPOS.MonitoringStartup.RegisteredAt, dto.getCreatedAt())
+                        .set(CIPOS.MonitoringStartup.Payload, payload)
                         .execute();
         return Response.ok().build();
     }

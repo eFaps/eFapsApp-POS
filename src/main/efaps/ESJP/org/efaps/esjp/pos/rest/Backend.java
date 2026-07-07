@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.pos.dto.ReportStartupDto;
 import org.efaps.pos.dto.ReportToBaseDto;
 import org.efaps.util.EFapsException;
 
@@ -55,5 +56,16 @@ public class Backend
         throws EFapsException
     {
         return super.reportToBase(_identifier, dto);
+    }
+
+    @Override
+    @Path("/{identifier}/report-startup")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response reportStartup(@PathParam("identifier") final String identifier,
+                                  final ReportStartupDto dto)
+        throws EFapsException
+    {
+        return super.reportStartup(identifier, dto);
     }
 }
