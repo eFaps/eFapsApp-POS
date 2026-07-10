@@ -35,6 +35,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.pos.listener.IOnLog;
 import org.efaps.pos.dto.LogEntryDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.LogMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,20 @@ public class Log
                 insert.set(CIPOS.Log.BackendLink, backendInst)
                                 .set(CIPOS.Log.Ident, dto.getIdent());
             }
+
+            @Override
+            public String logInfo() {
+                return LogMsg.builder("PosLog")
+                                .info("key", getKey())
+                                .info("level", getLevel())
+                                .info("logDateTime", getLogDateTime())
+                                .info("message", getMessage())
+                                .info("value", getValue())
+                                .info("type", getType())
+                                .info("backendLink", backendInst)
+                                .build();
+            }
+
         }.withKey(dto.getKey())
                 .withLevel(dto.getLevel().name())
                 .withLogDateTime(dto.getCreatedAt())
