@@ -435,7 +435,7 @@ public abstract class Product_Base
                             .withType(productType)
                             .withDescription(productEval.get(CIProducts.ProductAbstract.Description))
                             .withNote(productEval.get(CIProducts.ProductAbstract.Note))
-                            .withOID(productEval.inst().getOid())
+                            .withOid(productEval.inst().getOid())
                             .withCategories(prod2cats)
                             .withNetPrice(calculator.getNetUnitPrice())
                             .withCrossPrice(calculator.getCrossUnitPrice())
@@ -515,7 +515,7 @@ public abstract class Product_Base
                                                 .reduce(0, Integer::sum);
 
                 bomGroupConfigs.add(BOMGroupConfigDto.builder()
-                                .withOID(groupConfigEval.inst().getOid())
+                                .withOid(groupConfigEval.inst().getOid())
                                 .withName(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Name))
                                 .withDescription(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Description))
                                 .withWeight(groupConfigEval.get(CIProducts.BOMGroupConfiguration.Weight))
@@ -575,7 +575,7 @@ public abstract class Product_Base
                     }
                 }
                 configurationBOMs.add(ConfigurationBOMDto.builder()
-                                .withOID(configBomEval.inst().getOid())
+                                .withOid(configBomEval.inst().getOid())
                                 .withToProductOid(configBomEval.get("toOid"))
                                 .withPosition(configBomEval.get(CIProducts.ConfigurationBOM.Position))
                                 .withQuantity(configBomEval.get(CIProducts.ConfigurationBOM.Quantity))
@@ -810,7 +810,7 @@ public abstract class Product_Base
                         }
 
                         indications.add(IndicationDto.builder()
-                                        .withOID(multi.getCurrentInstance().getOid())
+                                        .withOid(multi.getCurrentInstance().getOid())
                                         .withValue(multi.getAttribute(CIPOS.Indication.Value))
                                         .withDescription(multi.getAttribute(CIPOS.Indication.Description))
                                         .withImageOid(imageOid)
@@ -832,7 +832,7 @@ public abstract class Product_Base
                         }
                     }
                     ret.add(IndicationSetDto.builder()
-                                    .withOID(setMulti.getCurrentInstance().getOid())
+                                    .withOid(setMulti.getCurrentInstance().getOid())
                                     .withName(setMulti.getAttribute(CIPOS.IndicationSet.Name))
                                     .withDescription(setMulti.getAttribute(CIPOS.IndicationSet.Description))
                                     .withRequired(setMulti.getAttribute(CIPOS.IndicationSet.Required))

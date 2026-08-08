@@ -89,7 +89,7 @@ public abstract class Ticket_Base
             afterCreate(docInst, ticketDto);
             dto = TicketDto.builder()
                             .withId(ticketDto.getId())
-                            .withOID(docInst.getOid())
+                            .withOid(docInst.getOid())
                             .build();
         } else {
             dto = TicketDto.builder().build();

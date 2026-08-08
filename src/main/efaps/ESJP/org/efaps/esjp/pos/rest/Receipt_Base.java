@@ -93,7 +93,7 @@ public abstract class Receipt_Base
             afterCreate(docInst, receiptDto);
             dto = ReceiptDto.builder()
                             .withId(receiptDto.getId())
-                            .withOID(docInst.getOid())
+                            .withOid(docInst.getOid())
                             .build();
         } else {
             dto = ReceiptDto.builder().build();

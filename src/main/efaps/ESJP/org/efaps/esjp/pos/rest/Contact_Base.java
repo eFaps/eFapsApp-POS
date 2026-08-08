@@ -162,7 +162,7 @@ public abstract class Contact_Base
         if (contactDto.getOid() == null) {
             final var contactInstance = createContactInstance(contactDto);
             dto = ContactDto.builder()
-                            .withOID(contactInstance.getOid())
+                            .withOid(contactInstance.getOid())
                             .build();
         } else {
             dto = ContactDto.builder().build();
@@ -380,7 +380,7 @@ public abstract class Contact_Base
             }
         }
         return ContactDto.builder()
-                        .withOID(eval.inst().getOid())
+                        .withOid(eval.inst().getOid())
                         .withName(eval.get(CIContacts.Contact.Name))
                         .withIdType(idType)
                         .withIdNumber(idNumber)

@@ -81,7 +81,7 @@ public abstract class Category_Base
             }
             final String parentOid = eval.get("parentOid");
             categories.add(CategoryDto.builder()
-                .withOID(eval.inst().getOid())
+                .withOid(eval.inst().getOid())
                 .withName(eval.get(CIPOS.Category.Name))
                 .withDescription(eval.get(CIPOS.Category.Description))
                 .withLabel(eval.get(CIPOS.Category.Label))

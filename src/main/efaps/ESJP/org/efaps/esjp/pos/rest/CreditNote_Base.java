@@ -94,7 +94,7 @@ public abstract class CreditNote_Base
             // createTransactionDocument(_creditNoteDto, docInst);
             dto = CreditNoteDto.builder()
                             .withId(creditNoteDto.getId())
-                            .withOID(docInst.getOid())
+                            .withOid(docInst.getOid())
                             .build();
         } else {
             dto = CreditNoteDto.builder().build();

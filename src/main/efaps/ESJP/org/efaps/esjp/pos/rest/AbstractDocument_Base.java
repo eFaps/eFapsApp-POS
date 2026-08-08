@@ -754,8 +754,7 @@ public abstract class AbstractDocument_Base
 
         final var rateInfo = RateInfo.getRateInfo(docEval.get(CISales.DocumentSumAbstract.Rate));
 
-        bldr.withOID(instance.getOid())
-                        .withOID(instance.getOid())
+        bldr.withOid(instance.getOid())
                         .withId(instance.getOid())
                         .withNumber(docEval.get(CISales.DocumentAbstract.Name))
                         .withNetTotal(docEval.get(CISales.DocumentSumAbstract.RateNetTotal))

@@ -58,7 +58,7 @@ public abstract class Printer_Base
         while (multi.next()) {
             final PrinterType printerType = multi.getAttribute(CIPOS.Printer.PrinterType);
             printers.add(PrinterDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
+                .withOid(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.Printer.Name))
                 .withType(EnumUtils.getEnum(org.efaps.pos.dto.PrinterType.class, printerType.name()))
                 .build());

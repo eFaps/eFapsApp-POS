@@ -73,7 +73,7 @@ public class File
             }
 
             files.add(FileDto.builder()
-                            .withOID(eval.inst().getOid())
+                            .withOid(eval.inst().getOid())
                             .withName(eval.get(CIPOS.File.Name))
                             .withFileName(eval.get("fileName"))
                             .withDescription(eval.get(CIPOS.File.Description))

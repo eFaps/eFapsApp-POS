@@ -90,7 +90,7 @@ public abstract class Invoice_Base
             afterCreate(docInst, invoiceDto);
             dto = ReceiptDto.builder()
                             .withId(invoiceDto.getId())
-                            .withOID(docInst.getOid())
+                            .withOid(docInst.getOid())
                             .build();
         } else {
             dto = ReceiptDto.builder().build();

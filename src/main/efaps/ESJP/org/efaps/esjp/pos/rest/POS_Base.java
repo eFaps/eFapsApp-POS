@@ -90,7 +90,7 @@ public abstract class POS_Base
         while (multi.next()) {
             final var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, multi.getSelect(selCurrency));
             poss.add(PosDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
+                .withOid(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIPOS.POS.Name))
                 .withCurrency(currency)
                 .withDefaultContactOid(multi.getSelect(selContactOid))

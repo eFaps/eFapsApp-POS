@@ -45,7 +45,7 @@ public abstract class Sequence_Base
         multi.execute();
         while(multi.next()) {
             sequences.add(SequenceDto.builder()
-                            .withOID(multi.getCurrentInstance().getOid())
+                            .withOid(multi.getCurrentInstance().getOid())
                             .withSeq(multi.getAttribute(CIPOS.Sequence.Value))
                             .withFormat(multi.getAttribute(CIPOS.Sequence.Format))
                             .build());

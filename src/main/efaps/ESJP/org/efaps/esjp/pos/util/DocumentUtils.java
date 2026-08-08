@@ -189,7 +189,7 @@ public class DocumentUtils
         throws EFapsException
     {
         return TaxDto.builder()
-                        .withOID(tax.getInstance().getOid())
+                        .withOid(tax.getInstance().getOid())
                         .withKey(tax.getUUID().toString())
                         .withCatKey(tax.getTaxCat().getUuid().toString())
                         .withName(tax.getName())

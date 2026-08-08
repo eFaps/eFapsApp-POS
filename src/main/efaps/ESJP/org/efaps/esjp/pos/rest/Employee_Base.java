@@ -52,7 +52,7 @@ public abstract class Employee_Base
                         .evaluate();
         while (eval.next()) {
             employees.add(EmployeeDto.builder()
-                            .withOID(eval.inst().getOid())
+                            .withOid(eval.inst().getOid())
                             .withFirstName(eval.get(CIHumanResource.Employee.FirstName))
                             .withSurName(eval.get(CIHumanResource.Employee.LastName))
                             .build());

@@ -13,37 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.efaps.esjp.pos.rest;
+package org.efaps.esjp.pos.listener;
 
+import java.util.List;
 import java.util.Set;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.util.EFapsException;
+import org.efaps.admin.program.esjp.IEsjpListener;
+import org.efaps.pos.dto.InventoryEntryDto;
 
-@EFapsUUID("eff754e6-bfc5-45a5-8cad-bb7053ca82ee")
+@EFapsUUID("76d45b9b-5c64-4c8d-bf25-3d9956dfe47c")
 @EFapsApplication("eFapsApp-POS")
-@Path("/pos")
-public class Inventory
-    extends Inventory_Base
+public interface IInventoryProvider
+    extends IEsjpListener
 {
 
-    @Override
-    @Path("/{identifier}/inventory")
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON })
-    public Response getInventory(@PathParam("identifier") final String identifier,
-                                 @QueryParam("productOid") final Set<String> productOids)
-        throws EFapsException
-    {
-        return super.getInventory(identifier, productOids);
-    }
+    boolean evalInventory(final List<InventoryEntryDto> entries,
+                          final Set<String> productOids);
 }

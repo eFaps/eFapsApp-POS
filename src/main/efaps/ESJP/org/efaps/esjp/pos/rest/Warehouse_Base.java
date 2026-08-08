@@ -54,7 +54,7 @@ public abstract class Warehouse_Base
         multi.execute();
         while (multi.next()) {
             warehouses.add(WarehouseDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
+                .withOid(multi.getCurrentInstance().getOid())
                 .withName(multi.getAttribute(CIProducts.Warehouse.Name))
                 .build());
         }

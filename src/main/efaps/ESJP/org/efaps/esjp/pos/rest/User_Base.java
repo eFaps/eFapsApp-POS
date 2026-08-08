@@ -99,7 +99,7 @@ public abstract class User_Base
                 wsOids.add((String) ws);
             }
             users.add(UserDto.builder()
-                .withOID(multi.getCurrentInstance().getOid())
+                .withOid(multi.getCurrentInstance().getOid())
                 .withUsername(multi.getAttribute(CIPOS.User.Name))
                 .withPassword(multi.getAttribute(CIPOS.User.Password))
                 .withVisible(multi.getAttribute(CIPOS.User.Visible))

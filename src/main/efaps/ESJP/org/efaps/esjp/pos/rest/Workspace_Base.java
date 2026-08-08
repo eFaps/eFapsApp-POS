@@ -114,15 +114,14 @@ public abstract class Workspace_Base
             final Map<String, Object> printCmds = print.getAttributeSet(CIPOS.Workspace.PrintCmdSet.name);
             if (printCmds != null) {
                 LOG.trace("PrintCmds: {} for {}", printCmds, multi.getCurrentInstance());
-                final Iterator<Long> printerLinkIter = ((ArrayList<Long>) printCmds.get("PrinterLink")).iterator();
                 final Iterator<PrintTarget> printTargetIter = ((ArrayList<PrintTarget>) printCmds.get("PrintTarget"))
                                 .iterator();
                 final Iterator<Long> targetLinkIter = ((ArrayList<Long>) printCmds.get("TargetLink")).iterator();
                 final Iterator<Long> reportLinkIter = ((ArrayList<Long>) printCmds.get("ReportLink")).iterator();
 
-                while (printerLinkIter.hasNext()) {
+                for (final Long element : ((ArrayList<Long>) printCmds.get("PrinterLink"))) {
                     printCmdDtos.add(PrintCmdDto.builder()
-                                    .withPrinterOid(Instance.get(CIPOS.Printer.getType(), printerLinkIter.next())
+                                    .withPrinterOid(Instance.get(CIPOS.Printer.getType(), element)
                                                     .getOid())
                                     .withTarget(EnumUtils.getEnum(org.efaps.pos.dto.PrintTarget.class,
                                                     printTargetIter.hasNext() ? printTargetIter.next().name()
@@ -141,16 +140,15 @@ public abstract class Workspace_Base
             final Map<String, Object> discounts = print2.getAttributeSet(CIPOS.Workspace.DiscountSet.name);
             if (discounts != null) {
                 LOG.trace("Discounts: {} for {}", discounts, multi.getCurrentInstance());
-                final Iterator<DiscountType> discountTypeIter = ((ArrayList<DiscountType>) discounts
-                                .get("DiscountType")).iterator();
                 final Iterator<BigDecimal> valueIter = ((ArrayList<BigDecimal>) discounts.get("Value")).iterator();
                 final Iterator<String> labelIter = ((ArrayList<String>) discounts.get("Label")).iterator();
                 final Iterator<Long> productLinkIter = ((ArrayList<Long>) discounts.get("ProductLink")).iterator();
 
-                while (discountTypeIter.hasNext()) {
+                for (final DiscountType element : ((ArrayList<DiscountType>) discounts
+                                .get("DiscountType"))) {
                     discountDtos.add(DiscountDto.builder()
                                     .withType(EnumUtils.getEnum(org.efaps.pos.dto.DiscountType.class,
-                                                    discountTypeIter.next().name()))
+                                                    element.name()))
                                     .withValue(valueIter.hasNext() ? valueIter.next() : BigDecimal.ZERO)
                                     .withLabel(labelIter.hasNext() ? labelIter.next() : "No Label")
                                     .withProductOid(Instance.get(CIProducts.ProductTextPosition.getType(),
@@ -166,10 +164,8 @@ public abstract class Workspace_Base
             final Map<String, Object> cards = print3.getAttributeSet(CIPOS.Workspace.CardSet.name);
             if (cards != null) {
                 LOG.trace("Cards: {} for {}", cards, multi.getCurrentInstance());
-                final Iterator<Long> cardTypeIter = ((ArrayList<Long>) cards.get("CardType")).iterator();
                 final Iterator<String> labelIter = ((ArrayList<String>) cards.get("CardLabel")).iterator();
-                while (cardTypeIter.hasNext()) {
-                    final Long cartTypeId = cardTypeIter.next();
+                for (final Long cartTypeId : ((ArrayList<Long>) cards.get("CardType"))) {
                     String label = labelIter.next();
                     if (StringUtils.isEmpty(label)) {
                         final PrintQuery labelPrint = new PrintQuery(
@@ -207,12 +203,12 @@ public abstract class Workspace_Base
                 final List<SpotDto> spots = new ArrayList<>();
                 while (spotMulti.next()) {
                     spots.add(SpotDto.builder()
-                                    .withOID(spotMulti.getCurrentInstance().getOid())
+                                    .withOid(spotMulti.getCurrentInstance().getOid())
                                     .withLabel(spotMulti.getAttribute(CIPOS.Spot.Label))
                                     .build());
                 }
                 floors.add(FloorDto.builder()
-                                .withOID(floorMulti.getCurrentInstance().getOid())
+                                .withOid(floorMulti.getCurrentInstance().getOid())
                                 .withName(floorMulti.getAttribute(CIPOS.Floor.Name))
                                 .withSpots(spots)
                                 .withImageOid(checkout.getFileLength() > 0 ? floorMulti.getCurrentInstance().getOid()
@@ -245,7 +241,7 @@ public abstract class Workspace_Base
                             : flags.stream().map(WorkspaceFlag::getInt).reduce(0, Integer::sum);
 
             workspaces.add(WorkspaceDto.builder()
-                            .withOID(multi.getCurrentInstance().getOid())
+                            .withOid(multi.getCurrentInstance().getOid())
                             .withName(multi.getAttribute(CIPOS.Workspace.Name))
                             .withPosOid(multi.getSelect(selPosOID))
                             .withWarehouseOid(multi.getSelect(selWarehouseOID))

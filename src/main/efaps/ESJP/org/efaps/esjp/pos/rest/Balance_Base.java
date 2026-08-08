@@ -58,7 +58,7 @@ public abstract class Balance_Base
 
             dto = BalanceDto.builder()
                             .withId(_balanceDto.getId())
-                            .withOID(insert.getInstance().getOid())
+                            .withOid(insert.getInstance().getOid())
                             .build();
         } else {
             dto = BalanceDto.builder().build();

@@ -16,24 +16,19 @@
 package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.efaps.admin.datamodel.Status;
-import org.efaps.admin.event.Parameter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.program.esjp.Listener;
 import org.efaps.db.Instance;
-import org.efaps.db.MultiPrintQuery;
-import org.efaps.db.QueryBuilder;
-import org.efaps.db.SelectBuilder;
-import org.efaps.esjp.ci.CIPOS;
-import org.efaps.esjp.common.parameter.ParameterUtil;
-import org.efaps.esjp.products.Inventory;
-import org.efaps.esjp.products.Inventory_Base.InventoryBean;
+import org.efaps.eql.EQL;
+import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.pos.listener.IInventoryProvider;
 import org.efaps.pos.dto.InventoryEntryDto;
 import org.efaps.util.EFapsException;
 
@@ -49,40 +44,40 @@ public abstract class Inventory_Base
      * @return the inventory
      * @throws EFapsException the e faps exception
      */
-    public Response getInventory(final String _identifier)
+    public Response getInventory(final String identifier,
+                                 final Set<String> productOids)
         throws EFapsException
     {
-        checkAccess(_identifier);
+        checkAccess(identifier);
         final List<InventoryEntryDto> entries = new ArrayList<>();
-        final QueryBuilder attrQueryBldr = new QueryBuilder(CIPOS.Category);
-        attrQueryBldr.addWhereAttrEqValue(CIPOS.Category.Status, Status.find(CIPOS.CategoryStatus.Active));
 
-        final Set<Instance> prodInstances = new HashSet<>();
-        final QueryBuilder queryBldr = new QueryBuilder(CIPOS.Category2Product);
-        queryBldr.addWhereAttrInQuery(CIPOS.Category2Product.FromLink,
-                        attrQueryBldr.getAttributeQuery(CIPOS.Category.ID));
-        final MultiPrintQuery multi = queryBldr.getPrint();
-        final SelectBuilder selProdInst = SelectBuilder.get().linkto(CIPOS.Category2Product.ToLink).instance();
-        multi.addSelect(selProdInst);
-        multi.executeWithoutAccessCheck();
-        while (multi.next()) {
-            prodInstances.add(multi.getSelect(selProdInst));
+        boolean carryOn = true;
+        for (final var provider : Listener.get().<IInventoryProvider>invoke(IInventoryProvider.class)) {
+            carryOn = provider.evalInventory(entries, productOids);
         }
 
-        final Inventory inventory = new Inventory();
-        final Parameter parameter = ParameterUtil.instance();
-        inventory.setShowStorage(true);
-        final List<? extends InventoryBean> beans = inventory.getInventory(parameter);
-        for (final InventoryBean bean : beans) {
-            if (prodInstances.contains(bean.getProdInstance())) {
+        if (carryOn) {
+            final var query = EQL.builder().print().query(CIProducts.InventoryAbstract);
+            if (CollectionUtils.isNotEmpty(productOids)) {
+                query.where()
+                                .attribute(CIProducts.InventoryAbstract.Product)
+                                .in(productOids.stream().map(Instance::get).toList());
+            }
+            final var eval = query.select()
+                            .attribute(CIProducts.InventoryAbstract.Quantity, CIProducts.InventoryAbstract.Modified)
+                            .linkto(CIProducts.InventoryAbstract.Product).oid().as("productOid")
+                            .linkto(CIProducts.InventoryAbstract.Storage).oid().as("warehouseOid")
+                            .evaluate();
+            while (eval.next()) {
                 entries.add(InventoryEntryDto.builder()
-                            .withQuantity(bean.getQuantity())
-                            .withProductOid(bean.getProdOID())
-                            .withWarehouseOid(bean.getStorageInstance().getOid())
-                            .build());
+                                .withOid(eval.inst().getOid())
+                                .withQuantity(eval.get(CIProducts.InventoryAbstract.Quantity))
+                                .withUpdatedAt(eval.get(CIProducts.InventoryAbstract.Modified))
+                                .withProductOid(eval.get("productOid"))
+                                .withWarehouseOid(eval.get("warehouseOid"))
+                                .build());
             }
         }
-        final Response ret = Response.ok().entity(entries).build();
-        return ret;
+        return Response.ok().entity(entries).build();
     }
 }

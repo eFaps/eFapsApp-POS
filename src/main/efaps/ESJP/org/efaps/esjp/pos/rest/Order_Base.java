@@ -152,7 +152,7 @@ public abstract class Order_Base
             afterCreate(docInst, orderDto);
             dto = OrderDto.builder()
                             .withId(orderDto.getId())
-                            .withOID(docInst.getOid())
+                            .withOid(docInst.getOid())
                             .build();
         } else {
             dto = OrderDto.builder().build();
@@ -243,7 +243,7 @@ public abstract class Order_Base
         throws EFapsException
     {
         return org.efaps.esjp.humanresource.Employee.getEmployee4Person(
-                        Long.valueOf(Context.getThreadContext().getPersonId()));
+                        Context.getThreadContext().getPersonId());
     }
 
     protected void upsertItems(final CreateDocumentDto dto,
