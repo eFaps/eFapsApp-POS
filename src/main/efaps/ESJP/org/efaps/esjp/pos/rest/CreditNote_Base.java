@@ -34,6 +34,7 @@ import org.efaps.pos.dto.CreditNoteDto;
 import org.efaps.pos.dto.RedeemValidityDto;
 import org.efaps.pos.dto.RedeemValidityStatus;
 import org.efaps.util.EFapsException;
+import org.efaps.util.OIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,27 @@ public abstract class CreditNote_Base
             final Instance docInst = createDocument(Status.find(CISales.CreditNoteStatus.Paid), creditNoteDto);
             createPositions(docInst, creditNoteDto);
             addPayments(docInst, creditNoteDto);
+
+            Instance reasonInst = null;
+            final var reasonStr = creditNoteDto.getCreditReason() == null ? "01" : creditNoteDto.getCreditReason();
+            if (OIDUtil.isOID(reasonStr)) {
+                reasonInst = Instance.get(reasonStr);
+            } else {
+
+                final var eval = EQL.builder().print().query(CISales.AttributeDefinitionCreditReason)
+                                .where()
+                                .attribute(CISales.AttributeDefinitionCreditReason.Value).eq(reasonStr)
+                                .select()
+                                .oid()
+                                .evaluate();
+                if (eval.next()) {
+                    reasonInst = eval.inst();
+                }
+            }
+            if (InstanceUtils.isType(reasonInst, CISales.AttributeDefinitionCreditReason)) {
+                EQL.builder().update(docInst).set(CISales.CreditNote.CreditReason, reasonInst).execute();
+            }
+
             // connect CreditNote and source document
             final var sourceDocInst = Instance.get(creditNoteDto.getSourceDocOid());
             final Insert insert = new Insert(
