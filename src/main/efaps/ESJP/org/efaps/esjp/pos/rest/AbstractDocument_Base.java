@@ -813,8 +813,8 @@ public abstract class AbstractDocument_Base
             dto = orderDtoBldr.withItems(items).build();
         } else if (bldr instanceof final TicketDto.Builder ticketDtoBldr) {
             dto = ticketDtoBldr.withItems(items).build();
-        } else if (bldr instanceof final CreditNoteDto.Builder crditNoteDtoBldr) {
-            dto = crditNoteDtoBldr.withItems(items).build();
+        } else if (bldr instanceof final CreditNoteDto.Builder creditNoteDtoBldr) {
+            dto = creditNoteDtoBldr.withItems(items).build();
         }
         return dto;
     }

@@ -201,4 +201,19 @@ public abstract class CreditNote_Base
         }
         return ret;
     }
+
+    @Override
+    public AbstractDocumentDto toDto(final AbstractDocumentDto.Builder<?> bldr,
+                                     final Instance instance)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print(instance)
+                        .linkto(CISales.CreditNote.CreditReason)
+                        .attribute(CISales.AttributeDefinitionCreditReason.Value).as("CreditReason")
+                        .evaluate();
+        if (eval.next()) {
+            ((CreditNoteDto.Builder) bldr).withCreditReason(eval.get("CreditReason"));
+        }
+        return super.toDto(bldr, instance);
+    }
 }
