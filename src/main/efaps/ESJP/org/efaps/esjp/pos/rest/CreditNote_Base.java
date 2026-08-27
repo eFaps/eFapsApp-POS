@@ -16,6 +16,7 @@
 package org.efaps.esjp.pos.rest;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -182,13 +183,29 @@ public abstract class CreditNote_Base
         final Response ret;
         final var instance = Instance.get(oid);
         if (InstanceUtils.isType(instance, CISales.CreditNote)) {
+            // check if the creditnote has any payments
             final var eval = EQL.builder().print()
-                            .query(CISales.PaymentRedeemCreditNote)
+                            .query(CISales.Payment)
                             .where()
-                            .attribute(CISales.PaymentRedeemCreditNote.CreditNoteLink).eq(instance)
-                            .select().oid()
+                            .attribute(CISales.Payment.CreateDocument).eq(instance)
+                            .select()
+                            .linkto(CISales.Payment.TargetDocument).instance().as("payDocInst")
                             .evaluate();
-            final var status = eval.next() ? RedeemValidityStatus.FULLY : RedeemValidityStatus.OPEN;
+            final var payDocInsts = new HashSet<Instance>();
+            while (eval.next()) {
+                payDocInsts.add(eval.get("payDocInst"));
+            }
+            LOG.debug("payDocInstss: {}", payDocInsts);
+            final RedeemValidityStatus status;
+            if (payDocInsts.isEmpty()) {
+                // no payments, all fine
+                status = RedeemValidityStatus.OPEN;
+            } else {
+                final var hasRedeem = payDocInsts.stream()
+                                .anyMatch(inst -> InstanceUtils.isType(inst, CISales.PaymentRedeemCreditNote));
+                status = hasRedeem ? RedeemValidityStatus.FULLY : RedeemValidityStatus.INVALID;
+            }
+
             ret = Response.ok()
                             .entity(RedeemValidityDto.builder()
                                             .withStatus(status)
