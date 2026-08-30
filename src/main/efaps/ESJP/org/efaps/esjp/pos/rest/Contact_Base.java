@@ -245,7 +245,9 @@ public abstract class Contact_Base
 
         final Instance contactInst = insert.getInstance();
 
-        if (IdentificationType.RUC.equals(contactDto.getIdType())) {
+        final var idType = evalIdType(contactDto);
+
+        if (IdentificationType.RUC.equals(idType)) {
             final Classification classification = (Classification) CIContacts.ClassOrganisation.getType();
             final Insert relInsert = new Insert(classification.getClassifyRelationType());
             relInsert.add(classification.getRelLinkAttributeName(), contactInst);
@@ -270,7 +272,7 @@ public abstract class Contact_Base
             classInsert.add(CIContacts.ClassPerson.FirstLastName, contactDto.getFirstLastName());
             classInsert.add(CIContacts.ClassPerson.SecondLastName, contactDto.getSecondLastName());
 
-            final String doiType = switch (contactDto.getIdType()) {
+            final String doiType = switch (idType) {
                 case DNI -> "01";
                 case PASSPORT -> "07";
                 case CE -> "04";
@@ -317,6 +319,32 @@ public abstract class Contact_Base
             attrSetInsert.execute();
         }
         return insert.getInstance();
+    }
+
+    protected IdentificationType evalIdType(final ContactDto contactDto)
+    {
+        if (contactDto.getIdType() != null) {
+            return contactDto.getIdType();
+        }
+        LOG.warn("ContactDto without IdType: {}", contactDto);
+        IdentificationType type = null;
+        if (contactDto.getIdNumber().length() == 11) {
+            LOG.warn("set by length to RUC for: {}", contactDto.getIdNumber());
+            type = IdentificationType.RUC;
+        } else if (contactDto.getIdNumber().length() == 8) {
+            LOG.warn("set by length to DNI for: {}", contactDto.getIdNumber());
+            type = IdentificationType.DNI;
+        } else if (contactDto.getIdNumber().length() == 9) {
+            LOG.warn("set by length to CE for: {}", contactDto.getIdNumber());
+            type = IdentificationType.CE;
+        } else if (contactDto.getIdNumber().length() > 3 && StringUtils.isAlphanumeric(contactDto.getIdNumber())) {
+            LOG.warn("set to PASSPORT for: {}", contactDto.getIdNumber());
+            type = IdentificationType.PASSPORT;
+        } else {
+            LOG.warn("set to OTHER for: {}", contactDto.getIdNumber());
+            type = IdentificationType.OTHER;
+        }
+        return type;
     }
 
     public ContactDto toDto(final Instance contactInstance)
