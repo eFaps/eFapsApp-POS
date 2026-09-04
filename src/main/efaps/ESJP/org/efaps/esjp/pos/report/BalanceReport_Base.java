@@ -435,7 +435,7 @@ public abstract class BalanceReport_Base
             final Map<String, Object> filter = filteredReport.getFilterMap();
             final var dateFrom = (LocalDate) filter.get("dateFrom");
             final var dateTo = (LocalDate) filter.get("dateTo");
-            queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, dateFrom.minusDays(1));
+            queryBldr.addWhereAttrGreaterValue(CIPOS.Balance.StartAt, dateFrom);
             queryBldr.addWhereAttrLessValue(CIPOS.Balance.StartAt, dateTo.plusDays(1));
         }
 
