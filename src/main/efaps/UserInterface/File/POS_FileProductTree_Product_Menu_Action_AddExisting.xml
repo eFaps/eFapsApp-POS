@@ -15,14 +15,22 @@
     limitations under the License.
 
 -->
-<datamodel-type xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>f0af1c48-86ec-477e-9c5a-80271baac91a</uuid>
+    <uuid>2daeca04-c877-4630-a991-d8bfa84b0ee3</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_File</name>
-        <parent>POS_FileAbstract</parent>
-        <store name="POS_VFSStore"/>
+        <name>POS_FileProductTree_Product_Menu_Action_AddExisting</name>
+        <target>
+            <search>POS_FileProductTree_Product_Menu_Action_AddExisting_Search</search>
+            <execute program="org.efaps.esjp.common.uisearch.Connect">
+                <property name="ConnectChildAttribute">ToLink</property>
+                <property name="ConnectParentAttribute">FromLink</property>
+                <property name="ConnectType">POS_FileProduct2Product</property>
+                <property name="AllowMultiple">true</property>
+            </execute>
+        </target>
+        <property name="Target">modal</property>
     </definition>
-</datamodel-type>
+</ui-command>

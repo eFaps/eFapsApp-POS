@@ -16,35 +16,30 @@
     limitations under the License.
 
 -->
-
-<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-command xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>73aa0da8-fb47-4136-b19c-5c5c8dd5309e</uuid>
+    <uuid>64c8d1bc-7392-4e9d-a3e9-f94ae47b2e73</uuid>
     <file-application>eFapsApp-POS</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>POS_MyDesk</name>
-        <icon>POS_MyDeskImg</icon>
+        <name>POS_FileProductMyDesk</name>
         <access>
             <role>Administration</role>
             <role>POS_Admin</role>
-            <role>POS_Modifier</role>
-            <role>POS_Reader</role>
         </access>
         <target>
-            <trigger event="UI_ACCESSCHECK" method="configCheck" name="POS_MyDesk.UI_ACCESSCHECK"
+            <menu>POS_FileProductMyDesk_Menu</menu>
+            <table>POS_FileProductTable</table>
+            <evaluate program="org.efaps.esjp.common.uitable.MultiPrint">
+                <property name="Type">POS_FileProduct</property>
+            </evaluate>
+            <trigger event="UI_ACCESSCHECK" method="configCheck" name="POS_FileProductMyDesk.UI_ACCESSCHECK"
                 program="org.efaps.esjp.admin.access.AccessCheck4UI">
                 <property name="SystemConfig">b038bf69-b588-431d-8c02-f53d4aac46c9</property>
-                <property name="Attribute">org.efaps.pos.Activate</property>
+                <property name="Attribute">org.efaps.pos.FileProduct.Activate</property>
             </trigger>
         </target>
-        <childs>
-            <child>POS_ConfigMyDesk</child>
-            <child>POS_ReportMyDesk</child>
-            <child>POS_CategoryMyDesk</child>
-            <child>POS_BalanceMyDesk</child>
-            <child>POS_OrderMyDesk</child>
-            <child>POS_FilesMyDesk</child>
-        </childs>
+        <property name="Target">content</property>
+        <property name="TargetShowCheckBoxes">true</property>
     </definition>
-</ui-menu>
+</ui-command>
