@@ -23,8 +23,12 @@ import java.util.Map;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Selectables;
 import org.efaps.esjp.ci.CIPOS;
+import org.efaps.esjp.ci.CIProducts;
+import org.efaps.esjp.pos.util.Pos;
 import org.efaps.pos.dto.FileDto;
+import org.efaps.pos.dto.FileProductEntryDto;
 import org.efaps.util.EFapsException;
 
 import jakarta.ws.rs.GET;
@@ -57,8 +61,8 @@ public class File
                         .attribute(CIPOS.File.Name, CIPOS.File.Description)
                         .attributeSet(CIPOS.File.TagSet).attribute("Tag").as("TagValue")
                         .attributeSet(CIPOS.File.TagSet)
-                            .linkto("TagTypeLink")
-                            .attribute(CIPOS.AttributeDefinitionFileTagType.Value).as("TagKey")
+                        .linkto("TagTypeLink")
+                        .attribute(CIPOS.AttributeDefinitionFileTagType.Value).as("TagKey")
                         .evaluate();
 
         while (eval.next()) {
@@ -79,6 +83,55 @@ public class File
                             .withDescription(eval.get(CIPOS.File.Description))
                             .withTags(tags)
                             .build());
+        }
+
+        if (Pos.FILEPROD_ACTIVATE.get()) {
+            final var prodFileEval = EQL.builder().print()
+                            .query(CIPOS.FileProduct)
+                            .where()
+                            .attribute(CIPOS.FileProduct.ID).in(EQL.builder()
+                                            .nestedQuery(CIPOS.FileProduct2Product)
+                                            .where()
+                                            .linkto(CIPOS.FileProduct2Product.ToLink)
+                                            .attribute(CIProducts.ProductAbstract.StatusAbstract)
+                                            .in(CIProducts.ProductStatus.Active, CIProducts.ProductStatus.Draft)
+                                            .up()
+                                            .selectable(Selectables.attribute(
+                                                            CIPOS.FileProduct2Product.FromLink)))
+                            .select()
+                            .file().label().as("fileName")
+                            .attribute(CIPOS.FileProduct.Name, CIPOS.FileProduct.Description)
+                            .attributeSet(CIPOS.FileProduct.TagSet).attribute("Tag").as("TagValue")
+                            .attributeSet(CIPOS.FileProduct.TagSet)
+                            .linkto("TagTypeLink")
+                            .attribute(CIPOS.AttributeDefinitionFileTagType.Value).as("TagKey")
+                            .linkfrom(CIPOS.FileProduct2Product.FromLink).linkto(CIPOS.FileProduct2Product.ToLink).oid()
+                            .as("prodOids")
+                            .evaluate();
+            while (prodFileEval.next()) {
+                final Map<String, String> tags = new HashMap<>();
+                final var tagValues = prodFileEval.<List<String>>get("TagValue");
+                final var tagKeys = prodFileEval.<List<String>>get("TagKey");
+                if (tagKeys != null) {
+                    final var tagValuesIter = tagValues.iterator();
+                    for (final String tagKey : tagKeys) {
+                        tags.put(tagKey, tagValuesIter.next());
+                    }
+                }
+                final var products = prodFileEval.<List<String>>get("prodOids").stream()
+                                .map(value -> FileProductEntryDto.builder()
+                                                .withProductOid(value)
+                                                .build())
+                                .toList();
+                files.add(FileDto.builder()
+                                .withOid(prodFileEval.inst().getOid())
+                                .withName(prodFileEval.get(CIPOS.FileProduct.Name))
+                                .withFileName(prodFileEval.get("fileName"))
+                                .withDescription(prodFileEval.get(CIPOS.FileProduct.Description))
+                                .withTags(tags)
+                                .withProducts(products)
+                                .build());
+            }
         }
         final Response ret = Response.ok()
                         .entity(files)
