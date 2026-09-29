@@ -43,6 +43,7 @@ import org.efaps.db.Checkout;
 import org.efaps.db.Instance;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.db.store.Resource;
 import org.efaps.db.store.Store;
 import org.efaps.eql.EQL;
@@ -72,6 +73,7 @@ import org.efaps.pos.dto.IndicationDto;
 import org.efaps.pos.dto.IndicationSetDto;
 import org.efaps.pos.dto.Product2CategoryDto;
 import org.efaps.pos.dto.ProductDto;
+import org.efaps.pos.dto.ProductDto.Builder;
 import org.efaps.pos.dto.ProductRelationDto;
 import org.efaps.pos.dto.ProductRelationType;
 import org.efaps.pos.dto.ProductStatus;
@@ -171,35 +173,6 @@ public class DefaultProductProvider
                 };
             }
 
-            final Parameter parameter = ParameterUtil.instance();
-            ParameterUtil.setParameterValues(parameter, "identifier", identifier);
-
-            final Calculator calculator = new Calculator(parameter, null, productEval.inst(), BigDecimal.ONE,
-                            null, BigDecimal.ZERO, true, getCalcConf());
-
-            final Set<TaxDto> taxes = new HashSet<>();
-            calculator.getTaxes().forEach(tax -> {
-                try {
-                    taxes.add(DocumentUtils.getDtoTax(tax));
-                } catch (final EFapsException e) {
-                    LOG.error("Catched", e);
-                }
-            });
-
-            Map<String, Object> extension = null;
-            if (Pos.PROD_SEL.exists()) {
-                extension = new HashMap<>();
-                final var properties = Pos.PROD_SEL.get();
-                final var keyMap = PropertiesUtil.analyseProperty(properties, "Key", 0);
-                for (final var entry : keyMap.entrySet()) {
-                    final var value = productEval.get("PRODSEL_" + entry.getKey());
-                    if (value != null) {
-                        extension.put(entry.getValue(), value);
-                    }
-                }
-                LOG.debug("extension {}", extension);
-            }
-
             final Set<ProductRelationDto> relations = new HashSet<>();
             if (Pos.PROD_REL.exists()) {
                 final Properties properties = Pos.PROD_REL.get();
@@ -243,28 +216,20 @@ public class DefaultProductProvider
 
             final var barcodes = evalBarcodes(productEval.inst(), caching);
 
+            final var extension = evalExtension(productEval);
+
             final ProductIndividual productIndividual = productEval.get(CIProducts.ProductAbstract.Individual);
             evalIndividual(productEval.inst(), productIndividual, relations, caching);
 
             final UoM uoM = Dimension.getUoM(productEval.get(CIProducts.ProductAbstract.DefaultUoM));
 
-            final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
-            var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
-            if (currency == null) {
-                currency = org.efaps.pos.dto.Currency.PEN;
-            }
-
-            final ProductDto dto = ProductDto.builder()
+            final var bldr = ProductDto.builder()
                             .withSku(productEval.get(CIProducts.ProductAbstract.Name))
                             .withType(productType)
                             .withDescription(productEval.get(CIProducts.ProductAbstract.Description))
                             .withNote(productEval.get(CIProducts.ProductAbstract.Note))
                             .withOid(productEval.inst().getOid())
                             .withCategories(prod2cats)
-                            .withNetPrice(calculator.getNetUnitPrice())
-                            .withCrossPrice(calculator.getCrossUnitPrice())
-                            .withCurrency(currency)
-                            .withTaxes(taxes)
                             .withImageOid(imageOid)
                             .withUoM(uoM.getSymbol())
                             .withUoMCode(uoM.getCommonCode())
@@ -277,12 +242,66 @@ public class DefaultProductProvider
                                             productIndividual == null ? null : productIndividual.name()))
                             .withStatus(evalStatus(productEval.get(CIProducts.ProductAbstract.StatusAbstract),
                                             productEval.inst().getOid()))
-                            .withExtension(extension)
-                            .build();
+                            .withExtension(extension);
+
+            evalPrice(identifier, productEval.inst(), bldr);
+
+            final var dto = bldr.build();
             LOG.debug("Product {}", dto);
             products.add(dto);
         }
         return products;
+    }
+
+    protected Map<String, Object> evalExtension(final Evaluator productEval)
+        throws EFapsException
+    {
+        Map<String, Object> extension = null;
+        if (Pos.PROD_SEL.exists()) {
+            extension = new HashMap<>();
+            final var properties = Pos.PROD_SEL.get();
+            final var keyMap = PropertiesUtil.analyseProperty(properties, "Key", 0);
+            for (final var entry : keyMap.entrySet()) {
+                final var value = productEval.get("PRODSEL_" + entry.getKey());
+                if (value != null) {
+                    extension.put(entry.getValue(), value);
+                }
+            }
+            LOG.debug("extension {}", extension);
+        }
+        return extension;
+    }
+
+    protected void evalPrice(final String identifier,
+                             final Instance productInst,
+                             final Builder dtoBldr)
+        throws EFapsException
+    {
+        final Parameter parameter = ParameterUtil.instance();
+        ParameterUtil.setParameterValues(parameter, "identifier", identifier);
+
+        final Calculator calculator = new Calculator(parameter, null, productInst, BigDecimal.ONE,
+                        null, BigDecimal.ZERO, true, getCalcConf());
+
+        final Set<TaxDto> taxes = new HashSet<>();
+        calculator.getTaxes().forEach(tax -> {
+            try {
+                taxes.add(DocumentUtils.getDtoTax(tax));
+            } catch (final EFapsException e) {
+                LOG.error("Catched", e);
+            }
+        });
+
+        final var currencyInst = CurrencyInst.get(calculator.getProductNetUnitPrice().getCurrentCurrencyInstance());
+        var currency = EnumUtils.getEnum(org.efaps.pos.dto.Currency.class, currencyInst.getISOCode());
+        if (currency == null) {
+            currency = org.efaps.pos.dto.Currency.PEN;
+        }
+
+        dtoBldr.withNetPrice(calculator.getNetUnitPrice())
+                        .withCrossPrice(calculator.getCrossUnitPrice())
+                        .withCurrency(currency)
+                        .withTaxes(taxes);
     }
 
     protected ProductType getProductType(final Instance instance)
