@@ -117,7 +117,6 @@ public class DefaultProductProvider
         if (Pos.PROD_SEL.exists()) {
             final var properties = Pos.PROD_SEL.get();
             final var selects = PropertiesUtil.analyseProperty(properties, "Select", 0);
-            PropertiesUtil.analyseProperty(properties, "Key", 0);
             for (final var entry : selects.entrySet()) {
                 print.select(entry.getValue()).as("PRODSEL_" + entry.getKey());
             }
