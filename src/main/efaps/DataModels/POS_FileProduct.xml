@@ -24,6 +24,9 @@
         <version-expression>(version==latest)</version-expression>
         <name>POS_FileProduct</name>
         <parent>POS_FileAbstract</parent>
+        <trigger program="org.efaps.esjp.pos.File" name="POS_FileProduct.DELETE_PRE"
+            event="DELETE_PRE"
+            method="preDeleteTrigger"/>
         <store name="POS_VFSStore"/>
     </definition>
 </datamodel-type>

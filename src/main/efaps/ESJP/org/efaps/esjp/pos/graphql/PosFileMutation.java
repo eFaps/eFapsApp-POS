@@ -18,7 +18,7 @@ package org.efaps.esjp.pos.graphql;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsListener;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIType;
 import org.efaps.db.Checkin;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
@@ -89,7 +90,7 @@ public class PosFileMutation
                            final String reference)
     {
         String oid = null;
-        LOG.info("preapring for file - reference: {} -> {}", file, reference);
+        LOG.info("preparing for file - reference: {} -> {}", file, reference);
         final var mapStr = Caching.getUtilCache().get(reference);
         LOG.info("mapstr: {}", mapStr);
         try {
@@ -98,13 +99,13 @@ public class PosFileMutation
                             {
                             });
             LOG.info("map: {}", map);
-            final String name = (String) map.get("name");
+            final var name = (String) map.get("name");
             if (StringUtils.isEmpty(name)) {
                 LOG.error("Missing required value for 'name'");
             } else {
 
-                final String description = (String) map.get("description");
-                final var inst = EQL.builder().insert(map.containsKey("productOid") ? CIPOS.FileProduct : CIPOS.File)
+                final var description = (String) map.get("description");
+                final var inst = EQL.builder().insert(evalType(map))
                                 .set(CIPOS.FileAbstract.Name, name)
                                 .set(CIPOS.FileAbstract.Description, description)
                                 .execute();
@@ -114,17 +115,16 @@ public class PosFileMutation
                 checkin.execute(file.getName(), inputStream, Long.valueOf(file.length()).intValue());
                 oid = inst.getOid();
 
-                if (map.containsKey("productOid")) {
-                    final Object oidObject = map.get("productOid");
-                    if (oidObject instanceof final List oidList) {
-                        for (final var oidEntry : oidList) {
-                            connect(inst, oidEntry);
+                if (map.containsKey("productOid") || map.containsKey("productRel")) {
+                    final Object productObject = map.getOrDefault("productOid", map.get("productRel"));
+                    if (productObject instanceof final Collection prodObjectList) {
+                        for (final var entry : prodObjectList) {
+                            connect(inst, entry);
                         }
                     } else {
-                        connect(inst, oidObject);
+                        connect(inst, productObject);
                     }
                 }
-
             }
             Caching.getUtilCache().remove(reference);
         } catch (final JsonProcessingException | EFapsException | FileNotFoundException e) {
@@ -133,17 +133,38 @@ public class PosFileMutation
         return oid;
     }
 
+    private CIType evalType(final Map<String, Object> map)
+    {
+        return map.containsKey("productOid") || map.containsKey("productRel") ? CIPOS.FileProduct : CIPOS.File;
+    }
+
+    @SuppressWarnings("unchecked")
     private void connect(final Instance fileInst,
-                         final Object product)
+                         final Object productObject)
         throws EFapsException
     {
-        if (product != null && product instanceof final String productOid) {
-            final var prodInst = Instance.get(productOid);
-            if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductAbstract)) {
-                EQL.builder().insert(CIPOS.FileProduct2Product)
-                                .set(CIPOS.FileProduct2Product.FromLink, fileInst)
-                                .set(CIPOS.FileProduct2Product.ToLink, prodInst)
-                                .execute();
+        LOG.info("Connecting fileInst: {} with productObject: {}", fileInst, productObject);
+        if (productObject != null) {
+            if (productObject instanceof final String productOid) {
+                final var prodInst = Instance.get(productOid);
+                if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductAbstract)) {
+                    EQL.builder().insert(CIPOS.FileProduct2Product)
+                                    .set(CIPOS.FileProduct2Product.FromLink, fileInst)
+                                    .set(CIPOS.FileProduct2Product.ToLink, prodInst)
+                                    .set(CIPOS.FileProduct2Product.SortWeight, 1)
+                                    .execute();
+                }
+            } else if (productObject instanceof final Map productMap) {
+                final var prodOid = (String) productMap.get("productOid");
+                final var prodInst = Instance.get(prodOid);
+                if (InstanceUtils.isKindOf(prodInst, CIProducts.ProductAbstract)) {
+                    final var sortWeight = productMap.getOrDefault("sortWeight", 1);
+                    EQL.builder().insert(CIPOS.FileProduct2Product)
+                                    .set(CIPOS.FileProduct2Product.FromLink, fileInst)
+                                    .set(CIPOS.FileProduct2Product.ToLink, prodInst)
+                                    .set(CIPOS.FileProduct2Product.SortWeight, sortWeight)
+                                    .execute();
+                }
             }
         }
     }
