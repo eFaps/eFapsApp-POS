@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -32,11 +31,9 @@ import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
-import org.efaps.esjp.common.listener.ISignedUrl;
 import org.efaps.esjp.common.serialization.SerializationUtil;
 import org.efaps.esjp.db.InstanceUtils;
-import org.efaps.esjp.graphql.AbstractFileMutation;
-import org.efaps.esjp.graphql.Caching;
+import org.efaps.esjp.graphql.BaseFileMutation;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
 import org.slf4j.Logger;
@@ -45,44 +42,21 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import graphql.schema.DataFetchingEnvironment;
-
 @EFapsUUID("927c0e65-3b6d-436b-99f4-04c5dd08e8f1")
 @EFapsApplication("eFapsApp-POS")
 @EFapsListener
 public class PosFileMutation
-    extends AbstractFileMutation
-    implements ISignedUrl
+    extends BaseFileMutation
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(PosFileMutation.class);
 
-    @Override
-    public Object get(final DataFetchingEnvironment environment)
-        throws Exception
-    {
-        final var props = getProperties(environment);
-        final var values = evalArgumentValues(environment, props);
-
-        final var refKey = RandomUtil.randomAlphanumeric(8);
-        final var value = SerializationUtil.getObjectMapper().writeValueAsString(values);
-        LOG.info("caching: {} - {}", refKey, value);
-        Caching.getUtilCache().put(refKey, value, 30, TimeUnit.MINUTES);
-        return evalUrl(refKey);
-    }
+    private static String CACHEPREFIX = RandomUtil.randomAlphanumeric(3);
 
     @Override
-    public int getWeight()
+    protected String getCachePrefix()
     {
-        return 0;
-    }
-
-    @Override
-    public boolean applies(String reference)
-    {
-        final var applies = Caching.getUtilCache().containsKey(reference);
-        LOG.info("checking for reference: {} -> {}", reference, applies);
-        return applies;
+        return CACHEPREFIX;
     }
 
     @Override
@@ -91,8 +65,8 @@ public class PosFileMutation
     {
         String oid = null;
         LOG.info("preparing for file - reference: {} -> {}", file, reference);
-        final var mapStr = Caching.getUtilCache().get(reference);
-        LOG.info("mapstr: {}", mapStr);
+        final var mapStr = getFromCache(reference);
+        LOG.info("mapStr: {}", mapStr);
         try {
             final var map = SerializationUtil.getObjectMapper().readValue(mapStr,
                             new TypeReference<Map<String, Object>>()
@@ -126,7 +100,7 @@ public class PosFileMutation
                     }
                 }
             }
-            Caching.getUtilCache().remove(reference);
+            clearCache(reference);
         } catch (final JsonProcessingException | EFapsException | FileNotFoundException e) {
             LOG.error("catched", e);
         }
