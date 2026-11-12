@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.pos.dto.CreditNoteDto;
+import org.efaps.pos.dto.EmitValidityDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("cc98857d-0670-4f2b-84aa-3506c3b45ca9")
@@ -80,5 +81,17 @@ public class CreditNote
         throws EFapsException
     {
         return super.redeemValidity(identifier, oid);
+    }
+
+    @Override
+    @Path("/{identifier}/creditnotes/emit-validity")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response emitValidity(@PathParam("identifier") final String identifier,
+                                 final EmitValidityDto dto)
+        throws EFapsException
+    {
+        return super.emitValidity(identifier, dto);
     }
 }

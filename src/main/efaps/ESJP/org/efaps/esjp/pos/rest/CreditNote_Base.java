@@ -32,6 +32,8 @@ import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.pos.dto.AbstractDocumentDto;
 import org.efaps.pos.dto.CreditNoteDto;
+import org.efaps.pos.dto.EmitValidityDto;
+import org.efaps.pos.dto.EmitValidityResponseDto;
 import org.efaps.pos.dto.RedeemValidityDto;
 import org.efaps.pos.dto.RedeemValidityStatus;
 import org.efaps.util.EFapsException;
@@ -213,6 +215,55 @@ public abstract class CreditNote_Base
                             .build();
         } else {
             LOG.warn("Invalid GET request to check for redeemValidity of: {}", oid);
+            ret = Response.status(Response.Status.PRECONDITION_FAILED)
+                            .build();
+        }
+        return ret;
+    }
+
+    public Response emitValidity(final String identifier,
+                                 final EmitValidityDto dto)
+        throws EFapsException
+    {
+        checkAccess(identifier);
+        final Response ret;
+        LOG.debug("Request to check for emitValidity of: {}", dto);
+        final var sourceInstance = Instance.get(dto.getSourceOid());
+        if (InstanceUtils.isType(sourceInstance, CISales.Invoice)
+                        || InstanceUtils.isType(sourceInstance, CISales.Receipt)) {
+            final var eval = EQL.builder().print()
+                            .query(CISales.CreditNote2DocumentAbstract)
+                            .where()
+                            .attribute(CISales.CreditNote2DocumentAbstract.ToAbstractLink).eq(sourceInstance)
+                            .select()
+                            .linkto(CISales.CreditNote2DocumentAbstract.FromAbstractLink)
+                            .type().label().as("label")
+                            .linkto(CISales.CreditNote2DocumentAbstract.FromAbstractLink)
+                            .attribute(CISales.CreditNote.Name).as("creditNoteName")
+                            .evaluate();
+            final var msgBldr = new StringBuilder();
+            while (eval.next()) {
+                if (!msgBldr.isEmpty()) {
+                    msgBldr.append("\n");
+                }
+                msgBldr.append(String.format("%s - %s", eval.get("label"), eval.get("creditNoteName")));
+            }
+            if (msgBldr.isEmpty()) {
+                ret = Response.ok()
+                                .entity(EmitValidityResponseDto.builder()
+                                                .withValid(true)
+                                                .build())
+                                .build();
+            } else {
+                ret = Response.ok()
+                                .entity(EmitValidityResponseDto.builder()
+                                                .withValid(false)
+                                                .withMessage(msgBldr.toString())
+                                                .build())
+                                .build();
+            }
+        } else {
+            LOG.warn("Invalid GET request to check for emitValidity of: {}", dto);
             ret = Response.status(Response.Status.PRECONDITION_FAILED)
                             .build();
         }
