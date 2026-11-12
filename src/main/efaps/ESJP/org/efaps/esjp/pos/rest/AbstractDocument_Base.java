@@ -670,11 +670,10 @@ public abstract class AbstractDocument_Base
     {
         final var insert = getPaymentInsert(dto, paymentDto);
         final var creditNoteInst = Instance.get(paymentDto.getRedeemDocOid());
-        if (InstanceUtils.isType(creditNoteInst, CISales.CreditNote)) {
-            insert.add(CISales.PaymentRedeemCreditNote.CreditNoteLink, paymentDto.getRedeemDocOid());
-        } else {
+        if (!InstanceUtils.isType(creditNoteInst, CISales.CreditNote)) {
             throw new EFapsException(this.getClass(), "Invalid Redeem Instance", creditNoteInst);
         }
+        insert.add(CISales.PaymentRedeemCreditNote.CreditNoteLink, paymentDto.getRedeemDocOid());
         insert.execute();
         return insert.getInstance();
     }
@@ -769,8 +768,46 @@ public abstract class AbstractDocument_Base
                         .withNote(docEval.get(CISales.DocumentAbstract.Note))
                         .withContactOid(docEval.get("contactOid"))
                         .withPromotionInfo(evalPromotionInfo(instance));
-        return toDto(bldr, evalDocItemDtos(instance));
+        return toDto(bldr, evalDocItemDtos(instance), evalPayments(instance));
     }
+
+    protected Collection<IPaymentDto> evalPayments(final Instance docInstane)
+        throws EFapsException
+    {
+        final var payments = new ArrayList<IPaymentDto>();
+        final var eval = EQL.builder().print().query(CISales.Payment)
+                        .where()
+                        .attribute(CISales.Payment.CreateDocument).eq(docInstane)
+                        .select()
+                        .linkto(CISales.Payment.TargetDocument).instance().as("inst")
+                        .linkto(CISales.Payment.TargetDocument).attribute(CISales.PaymentDocumentAbstract.Amount)
+                        .as("amount")
+                        .linkto(CISales.Payment.TargetDocument).attribute(CISales.PaymentDocumentAbstract.CurrencyLink)
+                        .as("currencyLink")
+                        .evaluate();
+        while (eval.next()) {
+            final Instance inst = eval.get("inst");
+            final Long currencyLink = eval.get("currencyLink");
+            if (InstanceUtils.isType(inst, CISales.PaymentElectronic)) {
+                payments.add(PaymentElectronicDto.builder()
+                                .withAmount(eval.get("amount"))
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CISales.PaymentCard)) {
+                payments.add(PaymentCardDto.builder()
+                                .withAmount(eval.get("amount"))
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CISales.PaymentCash)) {
+                payments.add(PaymentCashDto.builder()
+                                .withAmount(eval.get("amount"))
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            }
+        }
+        return payments;
+    }
+
 
     protected PromoInfoDto evalPromotionInfo(final Instance instance)
         throws EFapsException
@@ -802,19 +839,21 @@ public abstract class AbstractDocument_Base
     }
 
     protected AbstractDocumentDto toDto(final AbstractDocumentDto.Builder<?> bldr,
-                                        final List<DocItemDto> items)
+                                        final List<DocItemDto> items,
+                                        final Collection<IPaymentDto> payments)
+        throws EFapsException
     {
         AbstractDocumentDto dto = null;
         if (bldr instanceof final InvoiceDto.Builder invoiceBldr) {
-            dto = invoiceBldr.withItems(items).build();
+            dto = invoiceBldr.withItems(items).withPayments(payments).build();
         } else if (bldr instanceof final ReceiptDto.Builder receiptBldr) {
-            dto = receiptBldr.withItems(items).build();
+            dto = receiptBldr.withItems(items).withPayments(payments).build();
         } else if (bldr instanceof final OrderDto.Builder orderDtoBldr) {
             dto = orderDtoBldr.withItems(items).build();
         } else if (bldr instanceof final TicketDto.Builder ticketDtoBldr) {
-            dto = ticketDtoBldr.withItems(items).build();
+            dto = ticketDtoBldr.withItems(items).withPayments(payments).build();
         } else if (bldr instanceof final CreditNoteDto.Builder creditNoteDtoBldr) {
-            dto = creditNoteDtoBldr.withItems(items).build();
+            dto = creditNoteDtoBldr.withItems(items).withPayments(payments).build();
         }
         return dto;
     }
