@@ -69,7 +69,7 @@ public abstract class Backend_Base
                                  final ReportToBaseDto dto)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.BE);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE);
         LOG.debug("Recieved request for report to base");
 
         String payload = null;
@@ -79,10 +79,8 @@ public abstract class Backend_Base
             LOG.error("Catched", e);
         }
 
-        final var beInst = getBackendInstance(identifier);
-        EQL.builder()
-                        .insert(CIPOS.MonitoringReportToBase)
-                        .set(CIPOS.MonitoringReportToBase.BackendLink, beInst)
+        EQL.builder().insert(CIPOS.MonitoringReportToBase)
+                        .set(CIPOS.MonitoringReportToBase.BackendLink, backend.getInstance())
                         .set(CIPOS.MonitoringReportToBase.Version, dto.getVersion())
                         .set(CIPOS.MonitoringReportToBase.InstalationId, dto.getInstalationId())
                         .set(CIPOS.MonitoringReportToBase.RegisteredAt, dto.getCreatedAt())
@@ -95,7 +93,7 @@ public abstract class Backend_Base
                                   final ReportStartupDto dto)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.BE);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE);
         LOG.debug("Recieved request for report startup");
 
         String payload = null;
@@ -105,9 +103,8 @@ public abstract class Backend_Base
             LOG.error("Catched", e);
         }
 
-        final var beInst = getBackendInstance(identifier);
         EQL.builder().insert(CIPOS.MonitoringStartup)
-                        .set(CIPOS.MonitoringStartup.BackendLink, beInst)
+                        .set(CIPOS.MonitoringStartup.BackendLink, backend.getInstance())
                         .set(CIPOS.MonitoringStartup.Version, dto.getVersion())
                         .set(CIPOS.MonitoringStartup.InstalationId, dto.getInstalationId())
                         .set(CIPOS.MonitoringStartup.RegisteredAt, dto.getCreatedAt())

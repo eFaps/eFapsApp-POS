@@ -65,6 +65,11 @@
             <property name="ModeSearch">EDITABLE</property>
             <property name="Attribute">TicketSerial</property>
         </field>
+        <field name="flags">
+            <property name="Attribute">Flags</property>
+            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
+        </field>
         <field name="status">
             <property name="ModeCreate">EDITABLE</property>
             <property name="ModeEdit">EDITABLE</property>

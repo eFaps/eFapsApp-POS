@@ -41,9 +41,8 @@ public class Update
     public Response getUpdateDefinition(@PathParam("identifier") final String identifier)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.BE);
-        final var backendInst = getBackendInstance(identifier);
-        final var updateDto = new UpdateDefinition().getUpdate(backendInst);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE);
+        final var updateDto = new UpdateDefinition().getUpdate(backend.getInstance());
         final Response ret = Response.ok()
                         .entity(updateDto)
                         .build();
@@ -56,10 +55,9 @@ public class Update
                                             final UpdateConfirmationDto dto)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.BE);
-        final var backendInst = getBackendInstance(identifier);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE);
 
-        new UpdateDefinition().confirm(backendInst, dto);
+        new UpdateDefinition().confirm(backend.getInstance(), dto);
         final Response ret = Response.ok()
                         .build();
         return ret;
@@ -72,9 +70,9 @@ public class Update
                                         @PathParam("templateOid") final String templateOid)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.BE);
-        final var backendInst = getBackendInstance(identifier);
-        final var filledInTemplate = new UpdateDefinition().getFilledInTemplate(backendInst, templateOid);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE);
+
+        final var filledInTemplate = new UpdateDefinition().getFilledInTemplate(backend.getInstance(), templateOid);
         final Response ret = Response.ok()
                         .entity(filledInTemplate)
                         .build();

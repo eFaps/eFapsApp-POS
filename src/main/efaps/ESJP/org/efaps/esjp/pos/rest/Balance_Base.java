@@ -42,15 +42,13 @@ public abstract class Balance_Base
     public Response addBalance(final String identifier, final BalanceDto _balanceDto)
         throws EFapsException
     {
-        checkAccess(identifier);
+        final var backend = checkAccess(identifier);
         LOG.debug("Recieved: {}", _balanceDto);
         final BalanceDto dto;
         if (_balanceDto.getOid() == null) {
-            final Instance backendInst = getBackendInstance(identifier);
-
             final Insert insert = new Insert(CIPOS.Balance);
             insert.add(CIPOS.Balance.Status, Status.find(CIPOS.BalanceStatus.Open));
-            insert.add(CIPOS.Balance.BackendLink, backendInst);
+            insert.add(CIPOS.Balance.BackendLink, backend.getInstance());
             insert.add(CIPOS.Balance.Name, _balanceDto.getNumber());
             insert.add(CIPOS.Balance.UserLink, Instance.get(_balanceDto.getUserOid()));
             insert.add(CIPOS.Balance.StartAt, _balanceDto.getStartAt());

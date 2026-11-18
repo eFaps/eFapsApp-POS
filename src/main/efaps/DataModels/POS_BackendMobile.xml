@@ -67,5 +67,12 @@
                 <property name="Type">Sales_AccountAbstract</property>
             </trigger>
         </attribute>
+        <attribute>
+            <name>Flags</name>
+            <type>BitEnum</type>
+            <className>org.efaps.esjp.pos.util.Pos$MobileFlag</className>
+            <sqltable>POS_BackendSQLTable</sqltable>
+            <sqlcolumn>INT2</sqlcolumn>
+        </attribute>
     </definition>
 </datamodel-type>

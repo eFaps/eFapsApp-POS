@@ -16,6 +16,7 @@
 package org.efaps.esjp.pos.rest;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,14 +27,17 @@ import org.efaps.abacus.api.ICalcPosition;
 import org.efaps.abacus.api.IConfig;
 import org.efaps.abacus.api.ITax;
 import org.efaps.abacus.api.TaxType;
+import org.efaps.admin.datamodel.attributetype.BitEnumType;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.ci.CIProducts;
 import org.efaps.esjp.ci.CISales;
 import org.efaps.esjp.common.parameter.ParameterUtil;
+import org.efaps.esjp.pos.util.Pos.MobileFlag;
 import org.efaps.esjp.promotions.PromotionService;
 import org.efaps.esjp.sales.CalculatorConfig;
 import org.efaps.esjp.sales.PriceUtil;
@@ -79,7 +83,7 @@ public class Calculator
                               final CalculatorRequestDto dto)
         throws EFapsException
     {
-        checkAccess(identifier, ACCESSROLE.MOBILE);
+        final var backend = checkAccess(identifier, ACCESSROLE.MOBILE);
 
         final Parameter parameter = ParameterUtil.instance();
         final var taxMap = new HashMap<String, Tax>();
@@ -127,7 +131,7 @@ public class Calculator
                         .withNetTotal(result.getNetTotal())
                         .withTaxTotal(result.getTaxTotal())
                         .withCrossTotal(result.getCrossTotal())
-                        .withPayableAmount(result.getCrossTotal())
+                        .withPayableAmount(getPayableAmount(backend, result.getCrossTotal()))
                         .withTaxes(toDto(taxMap, result.getTaxes()))
                         .withPositions(result.getPositions().stream()
                                         .map(pos -> CalculatorPositionResponseDto.builder()
@@ -148,6 +152,22 @@ public class Calculator
                         .build();
 
         return Response.ok(payload).build();
+    }
+
+    private BigDecimal getPayableAmount(final Backend backend,
+                                        final BigDecimal total)
+        throws EFapsException
+    {
+        BigDecimal ret = total;
+        final var eval = EQL.builder().print(backend.getInstance()).attribute(CIPOS.BackendMobile.Flags)
+                        .evaluate();
+        eval.next();
+        final Integer flags = eval.get(CIPOS.BackendMobile.Flags);
+
+        if (flags != null && BitEnumType.isSelected(flags, MobileFlag.ROUNDPAYABLE)) {
+            ret = total.setScale(1, RoundingMode.FLOOR);
+        }
+        return ret;
     }
 
     private Integer evalParentIndex(final ICalcPosition pos,

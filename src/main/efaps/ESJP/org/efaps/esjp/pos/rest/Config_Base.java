@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -55,11 +55,9 @@ public abstract class Config_Base
         throws EFapsException
     {
         Response ret = null;
-        checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
+        final var backend = checkAccess(identifier, ACCESSROLE.BE, ACCESSROLE.MOBILE);
 
-        final var beInst = getBackendInstance(identifier);
-
-        if (InstanceUtils.isType(beInst, CIPOS.BackendMobile)) {
+        if (InstanceUtils.isType(backend.getInstance(), CIPOS.BackendMobile)) {
             final Map<String, String> config = Pos.MOBILE_CONFIG.get().entrySet().stream()
                             .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
 
@@ -85,7 +83,7 @@ public abstract class Config_Base
                             .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
             LOG.debug("Request for Configs: {}", config);
             FieldUtils.getAllFieldsList(Pos.class).stream().filter(field -> Modifier.isStatic(field.getModifiers()))
-                            .filter(field -> !StringUtils.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID"))
+                            .filter(field -> !Strings.CS.equalsAny(field.getName(), "CONFIG", "BASE", "SYSCONFUUID"))
                             .forEach(field -> {
                                 try {
                                     final var fieldObject = FieldUtils.readStaticField(field);

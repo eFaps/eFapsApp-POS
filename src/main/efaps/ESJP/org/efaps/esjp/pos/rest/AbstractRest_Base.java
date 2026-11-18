@@ -25,7 +25,6 @@ import org.efaps.admin.user.Role;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
-import org.efaps.eql2.StmtFlag;
 import org.efaps.esjp.ci.CIPOS;
 import org.efaps.esjp.common.serialization.SerializationUtil;
 import org.efaps.esjp.db.InstanceUtils;
@@ -72,8 +71,8 @@ public abstract class AbstractRest_Base
      * @param _identifier the identifier
      * @throws EFapsException the eFaps exception
      */
-    protected void checkAccess(final String identifier,
-                               final ACCESSROLE... roles)
+    protected Backend checkAccess(final String identifier,
+                                  final ACCESSROLE... roles)
         throws EFapsException
     {
         if (ArrayUtils.isEmpty(roles)) {
@@ -113,23 +112,7 @@ public abstract class AbstractRest_Base
             throw new ForbiddenException("Mobile only endpoint");
         }
         MonitoringService.getLastRequestCache().put(identifier, OffsetDateTime.now().toString());
-    }
-
-    protected Instance getBackendInstance(final String identifier)
-        throws EFapsException
-    {
-        final var backendEval = EQL.builder()
-                        .with(StmtFlag.REQCACHED)
-                        .print().query(CIPOS.BackendAbstract)
-                        .where()
-                        .attribute(CIPOS.BackendAbstract.StatusAbstract).eq(CIPOS.BackendStatus.Active)
-                        .and()
-                        .attribute(CIPOS.BackendAbstract.Identifier).eq(identifier)
-                        .select()
-                        .instance()
-                        .evaluate();
-        backendEval.next();
-        return backendEval.inst();
+        return new Backend().setInstance(backendInst);
     }
 
     protected ObjectMapper getObjectMapper()
@@ -147,6 +130,23 @@ public abstract class AbstractRest_Base
         ACCESSROLE(final String uuid)
         {
             this.uuid = uuid;
+        }
+    }
+
+    public static class Backend
+    {
+
+        private Instance instance;
+
+        public Instance getInstance()
+        {
+            return instance;
+        }
+
+        public Backend setInstance(Instance instance)
+        {
+            this.instance = instance;
+            return this;
         }
     }
 }
