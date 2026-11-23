@@ -785,22 +785,49 @@ public abstract class AbstractDocument_Base
                         .linkto(CISales.Payment.TargetDocument).attribute(CISales.PaymentDocumentAbstract.CurrencyLink)
                         .as("currencyLink")
                         .evaluate();
+        final var isCreditNote = InstanceUtils.isKindOf(docInstane, CISales.CreditNote);
+
         while (eval.next()) {
             final Instance inst = eval.get("inst");
             final Long currencyLink = eval.get("currencyLink");
+            BigDecimal amount = eval.get("amount");
+            if (isCreditNote) {
+                amount = amount.negate();
+            }
+
             if (InstanceUtils.isType(inst, CISales.PaymentElectronic)) {
                 payments.add(PaymentElectronicDto.builder()
-                                .withAmount(eval.get("amount"))
+                                .withAmount(amount)
                                 .withCurrency(DocumentUtils.getCurrency(currencyLink))
                                 .build());
             } else if (InstanceUtils.isType(inst, CISales.PaymentCard)) {
                 payments.add(PaymentCardDto.builder()
-                                .withAmount(eval.get("amount"))
+                                .withAmount(amount)
                                 .withCurrency(DocumentUtils.getCurrency(currencyLink))
                                 .build());
             } else if (InstanceUtils.isType(inst, CISales.PaymentCash)) {
                 payments.add(PaymentCashDto.builder()
-                                .withAmount(eval.get("amount"))
+                                .withAmount(amount)
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CISales.PaymentCashOut)) {
+                payments.add(PaymentChangeDto.builder()
+                                .withAmount(amount.negate())
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CILoyalty.PaymentPoints)) {
+                payments.add(PaymentLoyaltyPointsDto.builder()
+                                .withAmount(amount)
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CILoyalty.PaymentVoucher)) {
+                payments.add(PaymentLoyaltyVoucherDto.builder()
+                                .withAmount(amount)
+                                .withCurrency(DocumentUtils.getCurrency(currencyLink))
+                                .build());
+            } else if (InstanceUtils.isType(inst, CISales.PaymentRedeemCreditNote)) {
+                payments.add(PaymentRedeemCreditNoteDto.builder()
+                                .withAmount(amount)
                                 .withCurrency(DocumentUtils.getCurrency(currencyLink))
                                 .build());
             }
